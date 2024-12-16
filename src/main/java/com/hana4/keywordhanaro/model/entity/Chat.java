@@ -7,8 +7,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,10 +24,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 public class Chat {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", columnDefinition = "BIGINT UNSIGNED")
+	@Column(name = "id", nullable = false, columnDefinition = "BIGINT UNSIGNED")
 	private Long id;
 
 	@ManyToOne
@@ -36,15 +36,20 @@ public class Chat {
 	private User user;
 
 	@Column(nullable = false, columnDefinition = "TEXT")
-	private String content;
+	private String question;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private ChatType type;
+	@Column(nullable = false, columnDefinition = "TEXT")
+	private String answer;
 
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false, columnDefinition = "timestamp")
 	@ColumnDefault("CURRENT_TIMESTAMP")
 	private LocalDateTime createAt;
+
+	public Chat(User user, String question, String answer) {
+		this.user = user;
+		this.question = question;
+		this.answer = answer;
+	}
 
 }
