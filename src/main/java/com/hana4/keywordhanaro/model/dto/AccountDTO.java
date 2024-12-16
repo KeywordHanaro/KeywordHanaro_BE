@@ -9,7 +9,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AccountDTO extends BaseDTO {
-	private String id;
+	private Long id;
+	private String accountNumber;
 	private String userId;
 	private Short bankId;
 	private String name;
