@@ -35,11 +35,11 @@ public class Transaction {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "accountId", nullable = false, foreignKey = @ForeignKey(name = "fk_Transaction_acountId_Account"))
+	@JoinColumn(name = "accountId", nullable = false, foreignKey = @ForeignKey(name = "fk_Transaction_accountId_Account"))
 	private Account account;
 
 	@ManyToOne
-	@JoinColumn(name = "subAccountId", foreignKey = @ForeignKey(name = "fk_Transaction_subAcountId_Account"))
+	@JoinColumn(name = "subAccountId", foreignKey = @ForeignKey(name = "fk_Transaction_subAccountId_Account"))
 	private Account subAccount;
 
 	@Column(nullable = false, precision = 8, scale = 2)
