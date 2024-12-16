@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import com.hana4.keywordhanaro.model.entity.Bank;
 import com.hana4.keywordhanaro.model.entity.BaseEntity;
-import com.hana4.keywordhanaro.model.entity.User;
+import com.hana4.keywordhanaro.model.entity.user.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

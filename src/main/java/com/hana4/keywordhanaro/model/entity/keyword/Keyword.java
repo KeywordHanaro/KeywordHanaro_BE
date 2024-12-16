@@ -2,8 +2,8 @@ package com.hana4.keywordhanaro.model.entity.keyword;
 
 import java.math.BigDecimal;
 
-import com.hana4.keywordhanaro.model.entity.User;
 import com.hana4.keywordhanaro.model.entity.account.Account;
+import com.hana4.keywordhanaro.model.entity.user.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -52,10 +52,6 @@ public class Keyword {
 	@Column(name = "seqOrder", nullable = false)
 	private Long seqOrder;
 
-	@ManyToOne
-	@JoinColumn(name = "accountId", foreignKey = @ForeignKey(name = "fk_Keyword_accountId_Account"))
-	private Account account;
-
 	private String inquiryWord;
 
 	private Boolean checkEveryTime;
@@ -71,9 +67,9 @@ public class Keyword {
 
 	@ManyToOne
 	@JoinColumn(name = "accountId", foreignKey = @ForeignKey(name = "fk_Keyword_accountId_Account"))
-	private Account accountId;
+	private Account account;
 
 	@ManyToOne
 	@JoinColumn(name = "subAccountId", foreignKey = @ForeignKey(name = "fk_Keyword_subAccountId_Account"))
-	private Account subAccountId;
+	private Account subAccount;
 }

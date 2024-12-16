@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 
 import com.hana4.keywordhanaro.model.dto.ChatDTO;
 import com.hana4.keywordhanaro.model.entity.Chat;
-import com.hana4.keywordhanaro.model.entity.User;
+import com.hana4.keywordhanaro.model.entity.user.User;
 
 public class ChatMapper {
 	public static ChatDTO toDTO(Chat chat) {
