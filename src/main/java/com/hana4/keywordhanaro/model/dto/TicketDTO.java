@@ -2,6 +2,8 @@ package com.hana4.keywordhanaro.model.dto;
 
 import java.time.LocalDateTime;
 
+import com.hana4.keywordhanaro.model.entity.User;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -9,7 +11,7 @@ import lombok.Data;
 @Builder
 public class TicketDTO {
 	private Long id;
-	private String userId;
+	private User user;
 	private Long branchId;
 	private String branchName;
 	private Long waitingNumber;

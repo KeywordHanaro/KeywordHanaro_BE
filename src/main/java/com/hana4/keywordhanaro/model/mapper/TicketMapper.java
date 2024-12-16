@@ -7,7 +7,7 @@ public class TicketMapper {
 	public static TicketDTO toDTO(Ticket ticket) {
 		return TicketDTO.builder()
 			.id(ticket.getId())
-			.userId(ticket.getUser().getId())
+			.user(ticket.getUser())
 			.branchId(ticket.getBranchId())
 			.branchName(ticket.getBranchName())
 			.waitingNumber(ticket.getWaitingNumber())
