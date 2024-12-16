@@ -14,7 +14,7 @@ public class AccountMapper {
 			.balance(account.getBalance())
 			.transferLimit(account.getTransferLimit())
 			.type(account.getType())
-			.mine(account.getMine())
+			.mine(account.getIsMine())
 			.status(account.getStatus())
 			.build();
 	}
