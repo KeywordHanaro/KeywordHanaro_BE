@@ -36,11 +36,11 @@ public class Account extends BaseEntity {
 	private String accountNumber;
 
 	@ManyToOne
-	@JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_Account_user_id_User"))
+	@JoinColumn(name = "userId", nullable = false, foreignKey = @ForeignKey(name = "fk_Account_userId_User"))
 	private User user;
 
 	@ManyToOne
-	@JoinColumn(name = "bank_id", nullable = false, foreignKey = @ForeignKey(name = "fk_Account_bank_id_Bank"))
+	@JoinColumn(name = "bankId", nullable = false, foreignKey = @ForeignKey(name = "fk_Account_bankId_Bank"))
 	private Bank bank;
 
 	@Column(nullable = false)
@@ -60,14 +60,14 @@ public class Account extends BaseEntity {
 	private AccountType type;
 
 	@Column(nullable = false)
-	private Boolean mine;
+	private Boolean isMine;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private AccountStatus status;
 
 	public Account(String accountNumber, User user, Bank bank, String name, String password, BigDecimal balance,
-		BigDecimal transferLimit, AccountType type, Boolean mine, AccountStatus status) {
+		BigDecimal transferLimit, AccountType type, Boolean isMine, AccountStatus status) {
 		this.accountNumber = accountNumber;
 		this.user = user;
 		this.bank = bank;
@@ -76,7 +76,7 @@ public class Account extends BaseEntity {
 		this.balance = balance;
 		this.transferLimit = transferLimit;
 		this.type = type;
-		this.mine = mine;
+		this.isMine = isMine;
 		this.status = status;
 	}
 }

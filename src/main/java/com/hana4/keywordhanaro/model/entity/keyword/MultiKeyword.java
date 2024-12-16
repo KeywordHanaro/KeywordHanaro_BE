@@ -14,8 +14,8 @@ import jakarta.persistence.UniqueConstraint;
 @Entity
 @Table(uniqueConstraints = {
 	@UniqueConstraint(
-		name = "uk_multi_keyword_composition",
-		columnNames = {"multi_keyword_id", "keyword_id"}
+		name = "uk_multiKeyword_composition",
+		columnNames = {"multiKeywordId", "keywordId"}
 	)
 })
 public class MultiKeyword {
@@ -25,14 +25,14 @@ public class MultiKeyword {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "multi_keyword_id", nullable = false, foreignKey = @ForeignKey(name = "fk_MultiKeyword_multi_keyword_id_Keyword"))
+	@JoinColumn(name = "multiKeywordId", nullable = false, foreignKey = @ForeignKey(name = "fk_MultiKeyword_multiKeywordId_Keyword"))
 	private Keyword multiKeyword;
 
 	@ManyToOne
-	@JoinColumn(name = "keyword_id", nullable = false, foreignKey = @ForeignKey(name = "fk_MultiKeyword_keyword_id_Keyword"))
+	@JoinColumn(name = "keywordId", nullable = false, foreignKey = @ForeignKey(name = "fk_MultiKeyword_keywordId_Keyword"))
 	private Keyword keyword;
 
-	@Column(name = "seq_order", nullable = false)
+	@Column(name = "seqOrder", nullable = false)
 	private byte seqOrder;
 
 }

@@ -2,8 +2,6 @@ package com.hana4.keywordhanaro.model.entity.keyword;
 
 import java.math.BigDecimal;
 
-import org.hibernate.annotations.Comment;
-
 import com.hana4.keywordhanaro.model.entity.User;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 
@@ -35,7 +33,7 @@ public class Keyword {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_Keyword_user_id_User"))
+	@JoinColumn(name = "userId", nullable = false, foreignKey = @ForeignKey(name = "fk_Keyword_userId_User"))
 	private User user;
 
 	@Enumerated(EnumType.STRING)
@@ -45,17 +43,17 @@ public class Keyword {
 	@Column(name = "name", nullable = false)
 	private String name;
 
-	@Column(name = "is_favorite", nullable = false)
+	@Column(name = "isFavorite", nullable = false)
 	private boolean isFavorite = false;
 
 	@Column(name = "description", nullable = false)
 	private String description;
 
-	@Column(name = "seq_order", nullable = false)
+	@Column(name = "seqOrder", nullable = false)
 	private Long seqOrder;
 
 	@ManyToOne
-	@JoinColumn(name = "account_id", foreignKey = @ForeignKey(name="fk_Keyword_account_id_Account"))
+	@JoinColumn(name = "accountId", foreignKey = @ForeignKey(name = "fk_Keyword_accountId_Account"))
 	private Account account;
 
 	private String inquiryWord;
@@ -72,10 +70,10 @@ public class Keyword {
 	private String branch;
 
 	@ManyToOne
-	@JoinColumn(name = "from_account", foreignKey = @ForeignKey(name = "fk_Keyword_from_account_id_Account"))
-	private Account fromAccount;
+	@JoinColumn(name = "accountId", foreignKey = @ForeignKey(name = "fk_Keyword_accountId_Account"))
+	private Account accountId;
 
 	@ManyToOne
-	@JoinColumn(name = "to_account", foreignKey = @ForeignKey(name = "fk_Keyword_to_account_id_Account"))
-	private Account toAccount;
+	@JoinColumn(name = "subAccountId", foreignKey = @ForeignKey(name = "fk_Keyword_subAccountId_Account"))
+	private Account subAccountId;
 }
