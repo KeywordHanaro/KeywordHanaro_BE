@@ -30,6 +30,7 @@ import lombok.Setter;
 public class Chat {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id", columnDefinition = "BIGINT UNSIGNED")
 	private Long id;
 
 	@ManyToOne

@@ -11,6 +11,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -26,8 +28,12 @@ import lombok.Setter;
 @Entity
 public class Account extends BaseEntity {
 	@Id
-	@Column(length = 20, nullable = false)
-	private String id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id", columnDefinition = "BIGINT UNSIGNED")
+	private Long id;
+
+	@Column(length = 20, nullable = false, unique = true, updatable = false)
+	private String accountNumber;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_Account_user_id_User"))
