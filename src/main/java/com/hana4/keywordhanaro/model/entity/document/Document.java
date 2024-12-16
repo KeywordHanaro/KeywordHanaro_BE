@@ -36,12 +36,12 @@ public class Document extends BaseEntity {
 	private DocumentType type;
 
 	@ManyToOne
-	@JoinColumn(name = "from_account", nullable = false)
-	private Account fromAccount;
+	@JoinColumn(name = "accountId", nullable = false)
+	private Account account;
 
 	@ManyToOne
-	@JoinColumn(name = "to_account", nullable = false)
-	private Account toAccount;
+	@JoinColumn(name = "subAccountId", nullable = false)
+	private Account subAccount;
 
 	@Column(name = "amount", nullable = false, precision = 8, scale = 2)
 	private BigDecimal amount;

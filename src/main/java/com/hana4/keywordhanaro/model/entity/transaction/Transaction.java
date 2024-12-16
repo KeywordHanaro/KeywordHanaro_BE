@@ -1,11 +1,9 @@
 package com.hana4.keywordhanaro.model.entity.transaction;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.hana4.keywordhanaro.model.entity.account.Account;
@@ -37,12 +35,12 @@ public class Transaction {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "from_account", nullable = false, foreignKey = @ForeignKey(name = "fk_Transaction_from_acount_Account"))
-	private Account fromAccount;
+	@JoinColumn(name = "accountId", nullable = false, foreignKey = @ForeignKey(name = "fk_Transaction_accountId_Account"))
+	private Account account;
 
 	@ManyToOne
-	@JoinColumn(name = "to_account", nullable = false, foreignKey = @ForeignKey(name = "fk_Transaction_to_acount_Account"))
-	private Account toAccount;
+	@JoinColumn(name = "subAccountId", foreignKey = @ForeignKey(name = "fk_Transaction_subAccountId_Account"))
+	private Account subAccount;
 
 	@Column(nullable = false, precision = 8, scale = 2)
 	private BigDecimal amount;
@@ -64,5 +62,4 @@ public class Transaction {
 	@Column(nullable = false, updatable = false, columnDefinition = "timestamp")
 	@ColumnDefault("CURRENT_TIMESTAMP")
 	private LocalDateTime createAt;
-
 }

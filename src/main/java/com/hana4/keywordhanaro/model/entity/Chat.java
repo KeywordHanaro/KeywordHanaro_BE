@@ -32,7 +32,7 @@ public class Chat {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_Chat_user_id_User"))
+	@JoinColumn(name = "userId", nullable = false, foreignKey = @ForeignKey(name = "fk_Chat_userId_User"))
 	private User user;
 
 	@Column(nullable = false, columnDefinition = "TEXT")
