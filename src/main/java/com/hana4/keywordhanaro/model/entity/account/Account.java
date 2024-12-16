@@ -49,10 +49,10 @@ public class Account extends BaseEntity {
 	@Column(nullable = false)
 	private String password;
 
-	@Column(nullable = false, precision = 8, scale = 2)
+	@Column(nullable = false, precision = 12, scale = 2)
 	private BigDecimal balance;
 
-	@Column(nullable = false, precision = 8, scale = 2)
+	@Column(nullable = false, precision = 12, scale = 2)
 	private BigDecimal transferLimit;
 
 	@Enumerated(EnumType.STRING)
@@ -65,4 +65,18 @@ public class Account extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private AccountStatus status;
+
+	public Account(String accountNumber, User user, Bank bank, String name, String password, BigDecimal balance,
+		BigDecimal transferLimit, AccountType type, Boolean mine, AccountStatus status) {
+		this.accountNumber = accountNumber;
+		this.user = user;
+		this.bank = bank;
+		this.name = name;
+		this.password = password;
+		this.balance = balance;
+		this.transferLimit = transferLimit;
+		this.type = type;
+		this.mine = mine;
+		this.status = status;
+	}
 }

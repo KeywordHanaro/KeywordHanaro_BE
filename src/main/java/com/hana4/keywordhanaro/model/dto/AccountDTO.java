@@ -1,13 +1,17 @@
 package com.hana4.keywordhanaro.model.dto;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+
+import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
+import com.hana4.keywordhanaro.model.entity.account.AccountType;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
+@SuperBuilder
 public class AccountDTO extends BaseDTO {
 	private Long id;
 	private String accountNumber;
@@ -17,7 +21,7 @@ public class AccountDTO extends BaseDTO {
 	private String password;
 	private BigDecimal balance;
 	private BigDecimal transferLimit;
-	private String type;
+	private AccountType type;
 	private Boolean mine;
-	private String status;
+	private AccountStatus status;
 }
