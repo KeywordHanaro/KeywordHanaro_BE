@@ -1,5 +1,8 @@
 package com.hana4.keywordhanaro.model.entity.account;
 
+/**
+ * 예금, 적금, 마이너스
+ */
 public enum AccountType {
-	AT01, AT02, AT03
+	DEPOSIT, SAVING, MINUS
 }

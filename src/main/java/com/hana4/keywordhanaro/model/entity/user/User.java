@@ -1,9 +1,7 @@
-package com.hana4.keywordhanaro.model.entity;
+package com.hana4.keywordhanaro.model.entity.user;
 
-import java.sql.Timestamp;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import com.hana4.keywordhanaro.model.entity.BaseEntity;
+import com.hana4.keywordhanaro.model.entity.Ticket;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,7 +32,7 @@ public class User extends BaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private Status status;
+	private UserStatus status;
 
 	private String accessToken;
 

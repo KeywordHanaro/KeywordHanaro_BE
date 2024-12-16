@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hana4.keywordhanaro.model.dto.ChatDTO;
 import com.hana4.keywordhanaro.model.entity.Chat;
-import com.hana4.keywordhanaro.model.entity.User;
+import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.mapper.ChatMapper;
 import com.hana4.keywordhanaro.repository.ChatRepository;
 
