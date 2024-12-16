@@ -28,7 +28,7 @@ public class Document extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id", nullable = false)
+	@Column(name = "id", columnDefinition = "BIGINT UNSIGNED")
 	private Long id;
 
 	@Enumerated(EnumType.STRING)

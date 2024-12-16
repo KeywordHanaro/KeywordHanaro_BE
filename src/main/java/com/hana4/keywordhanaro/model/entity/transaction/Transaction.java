@@ -33,6 +33,7 @@ import lombok.Setter;
 public class Transaction {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id", columnDefinition = "BIGINT UNSIGNED")
 	private Long id;
 
 	@ManyToOne

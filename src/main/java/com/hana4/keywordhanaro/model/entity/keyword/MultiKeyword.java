@@ -21,7 +21,7 @@ import jakarta.persistence.UniqueConstraint;
 public class MultiKeyword {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
+	@Column(name = "id", columnDefinition = "BIGINT UNSIGNED")
 	private Long id;
 
 	@ManyToOne
