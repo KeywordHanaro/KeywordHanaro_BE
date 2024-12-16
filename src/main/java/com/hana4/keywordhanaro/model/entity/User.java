@@ -12,6 +12,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import lombok.Data;
 
 @Data
@@ -44,4 +45,7 @@ public class User extends BaseEntity {
 	private String tel;
 
 	private int permission;
+
+	@OneToOne(mappedBy = "user")
+	private Ticket ticket;
 }
