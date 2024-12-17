@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hana4.keywordhanaro.model.dto.TransactionDTO;
+import com.hana4.keywordhanaro.model.dto.TransactionDto;
 import com.hana4.keywordhanaro.service.InquiryServiceImpl;
 
 @RestController
@@ -27,7 +27,7 @@ public class InquiryController {
 	}
 
 	@GetMapping("/{accountId}")
-	public ResponseEntity<List<TransactionDTO>> getAccountTransactions(
+	public ResponseEntity<List<TransactionDto>> getAccountTransactions(
 		@PathVariable Long accountId,
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) String startDate,
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) String endDate,
@@ -38,7 +38,7 @@ public class InquiryController {
 		LocalDate parsedStartDate = LocalDate.parse(startDate.trim());
 		LocalDate parsedEndDate = LocalDate.parse(endDate.trim());
 
-		List<TransactionDTO> transactions = inquiryService.getAccountTransactions(
+		List<TransactionDto> transactions = inquiryService.getAccountTransactions(
 			accountId, parsedStartDate, parsedEndDate, transactionType, sortOrder, searchWord);
 
 		return ResponseEntity.ok(transactions);

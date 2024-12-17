@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hana4.keywordhanaro.model.dto.TransactionDTO;
+import com.hana4.keywordhanaro.model.dto.TransactionDto;
 import com.hana4.keywordhanaro.model.dto.TransferRequestDTO;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
 import com.hana4.keywordhanaro.model.mapper.AccountMapper;
@@ -25,13 +25,13 @@ public class TransferController {
 	private final TransferService transferService;
 
 	@PostMapping
-	public ResponseEntity<TransactionDTO> transfer(@RequestBody TransferRequestDTO transferRequestDTO) {
+	public ResponseEntity<TransactionDto> transfer(@RequestBody TransferRequestDTO transferRequestDTO) {
 		Transaction transaction = transferService.transfer(
 			transferRequestDTO.getFromAccountNumber(),
 			transferRequestDTO.getToAccountNumber(),
 			transferRequestDTO.getAmount()
 		);
-		TransactionDTO responseDTO = TransactionDTO.builder()
+		TransactionDto responseDTO = TransactionDto.builder()
 			.account(AccountMapper.toDTO(transaction.getAccount()))
 			.subAccount(AccountMapper.toDTO(transaction.getSubAccount()))
 			.amount(transaction.getAmount())

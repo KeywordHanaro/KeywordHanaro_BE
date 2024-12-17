@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class TransactionDTO {
+public class TransactionDto {
 	private Long id;
 	private AccountDTO account;
 	private AccountDTO subAccount;
