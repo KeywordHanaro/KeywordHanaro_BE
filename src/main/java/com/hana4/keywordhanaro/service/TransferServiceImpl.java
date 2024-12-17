@@ -1,18 +1,25 @@
 package com.hana4.keywordhanaro.service;
 
 import com.hana4.keywordhanaro.model.entity.account.Account;
+import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
+import com.hana4.keywordhanaro.model.entity.transaction.TransactionStatus;
+import com.hana4.keywordhanaro.model.entity.transaction.TransactionType;
 import com.hana4.keywordhanaro.repository.AccountRepository;
+import com.hana4.keywordhanaro.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Service
 public class TransferServiceImpl implements TransferService{
     private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
 
-    public TransferServiceImpl(AccountRepository accountRepository) {
+    public TransferServiceImpl(AccountRepository accountRepository, TransactionRepository transactionRepository) {
         this.accountRepository = accountRepository;
+        this.transactionRepository = transactionRepository;
     }
     public double getInitialBalance() {
         Account account = accountRepository.findByAccountNumber("1");
@@ -20,7 +27,7 @@ public class TransferServiceImpl implements TransferService{
     }
 
     @Transactional
-    public void transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount){
+    public Transaction transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount){
         Account fromAccount = accountRepository.findByAccountNumber(fromAccountNumber);
         Account toAccount = accountRepository.findByAccountNumber(toAccountNumber);
 
@@ -36,14 +43,28 @@ public class TransferServiceImpl implements TransferService{
         if (fromAccount.getBalance().compareTo(amount) < 0) {
             throw new IllegalArgumentException("Insufficient balance");
         }
-        fromAccount.setBalance(fromAccount.getBalance().subtract(amount));
-        toAccount.setBalance(toAccount.getBalance().add(amount));
+        // 계좌 잔액 업데이트
+        BigDecimal fromAccountAfterBalance = fromAccount.getBalance().subtract(amount);
+        BigDecimal toAccountAfterBalance = toAccount.getBalance().add(amount);
+
+        // 계좌 잔액 업데이트
+        fromAccount.setBalance(fromAccountAfterBalance);
+        toAccount.setBalance(toAccountAfterBalance);
 
         accountRepository.save(fromAccount);
         accountRepository.save(toAccount);
+
+        // Transaction 객체 생성 및 반환
+        Transaction transaction = new Transaction();
+        transaction.setAccount(fromAccount);
+        transaction.setSubAccount(toAccount);
+        transaction.setAmount(amount);
+        transaction.setBeforeBalance(fromAccount.getBalance()); // 송금 전 잔액
+        transaction.setAfterBalance(fromAccountAfterBalance); // 송금 후 잔액
+        transaction.setCreateAt(LocalDateTime.now());
+        transaction.setStatus(TransactionStatus.SUCCESS);
+        transaction.setType(TransactionType.WITHDRAW);
+
+        return transactionRepository.save(transaction);
     }
-
-
-
-
 }

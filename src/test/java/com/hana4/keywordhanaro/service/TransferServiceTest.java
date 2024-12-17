@@ -1,18 +1,23 @@
 package com.hana4.keywordhanaro.service;
 
 import com.hana4.keywordhanaro.model.entity.account.Account;
+import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
+import com.hana4.keywordhanaro.model.entity.transaction.TransactionStatus;
 import com.hana4.keywordhanaro.repository.AccountRepository;
+import com.hana4.keywordhanaro.repository.TransactionRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 public class TransferServiceTest {
     @Autowired
     private TransferService transferService;
@@ -20,24 +25,58 @@ public class TransferServiceTest {
     @Autowired
     private AccountRepository accountRepository;
 
-    @Test
-    public void testTransfer() {
-        // 초기 상태 확인
-        Account fromAccount = accountRepository.findByAccountNumber("111-222-3331");
-        Account toAccount = accountRepository.findByAccountNumber("32476762224");
-        BigDecimal initialFromBalance = fromAccount.getBalance();
-        BigDecimal initialToBalance = toAccount.getBalance();
+    @Autowired
+    private TransactionRepository transactionRepository;
 
-        // 송금 실행 todo 이 과정이 성공시, transaction테이블에 데이터로 들어와야함.
-        transferService.transfer("111-222-3331", "32476762224", BigDecimal.valueOf(999));
+    @Autowired
+    private MockMvc mockMvc;
+//    @Test
+//    public void testTransfer() {
+//        // 초기 상태 확인
+//        Account fromAccount = accountRepository.findByAccountNumber("111-222-3331");
+//        Account toAccount = accountRepository.findByAccountNumber("32476762224");
+//        BigDecimal initialFromBalance = fromAccount.getBalance();
+//        BigDecimal initialToBalance = toAccount.getBalance();
+//
+//        // 송금 실행 todo 이 과정이 성공시, transaction테이블에 데이터로 들어와야함.
+//        transferService.transfer("111-222-3331", "32476762224", BigDecimal.valueOf(999));
+//
+//        // 업데이트된 상태 확인
+//        Account updatedFromAccount = accountRepository.findByAccountNumber("111-222-3331");
+//        Account updatedToAccount = accountRepository.findByAccountNumber("32476762224");
+//
+//        assertEquals(initialFromBalance.subtract(BigDecimal.valueOf(999)), updatedFromAccount.getBalance());
+//        assertEquals(initialToBalance.add(BigDecimal.valueOf(999)), updatedToAccount.getBalance());
+//    }
+@Test
+public void testTransferSuccess() {
+    // Arrange
+    String fromAccountNumber = "111-222-3331";
+    String toAccountNumber = "32476762224";
+    BigDecimal amount = BigDecimal.valueOf(999);
 
-        // 업데이트된 상태 확인
-        Account updatedFromAccount = accountRepository.findByAccountNumber("111-222-3331");
-        Account updatedToAccount = accountRepository.findByAccountNumber("32476762224");
+    Account fromAccount = accountRepository.findByAccountNumber(fromAccountNumber);
+    Account toAccount = accountRepository.findByAccountNumber(toAccountNumber);
 
-        assertEquals(initialFromBalance.subtract(BigDecimal.valueOf(999)), updatedFromAccount.getBalance());
-        assertEquals(initialToBalance.add(BigDecimal.valueOf(999)), updatedToAccount.getBalance());
-    }
+    assertNotNull(fromAccount, "From account must not be null");
+    assertNotNull(toAccount, "To account must not be null");
+
+    BigDecimal initialFromBalance = fromAccount.getBalance();
+    BigDecimal initialToBalance = toAccount.getBalance();
+
+    // Act
+    Transaction transaction = transferService.transfer(fromAccountNumber, toAccountNumber, amount);
+
+    // Assert
+    assertNotNull(transaction, "Transaction should not be null");
+    assertEquals(TransactionStatus.SUCCESS, transaction.getStatus(), "Transaction status should be SUCCESS");
+
+    Account updatedFromAccount = accountRepository.findByAccountNumber(fromAccountNumber);
+    Account updatedToAccount = accountRepository.findByAccountNumber(toAccountNumber);
+
+    assertEquals(initialFromBalance.subtract(amount), updatedFromAccount.getBalance(), "From account balance mismatch");
+    assertEquals(initialToBalance.add(amount), updatedToAccount.getBalance(), "To account balance mismatch");
+}
 
     @Test
     public void transferInsufficientBalanceTest() {

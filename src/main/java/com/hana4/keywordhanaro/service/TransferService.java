@@ -1,9 +1,11 @@
 package com.hana4.keywordhanaro.service;
 
+import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
+
 import java.math.BigDecimal;
 
 public interface TransferService {
-    void transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount);
+    Transaction transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount);
 
     double getInitialBalance();
 }
