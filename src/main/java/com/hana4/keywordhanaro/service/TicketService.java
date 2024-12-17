@@ -8,5 +8,5 @@ import com.hana4.keywordhanaro.model.dto.TicketDTO;
 
 @Service
 public interface TicketService {
-	public TicketDTO createTicket(String userId, Long keywordId) throws IOException;
+	public TicketDTO createTicket(Long keywordId) throws IOException;
 }

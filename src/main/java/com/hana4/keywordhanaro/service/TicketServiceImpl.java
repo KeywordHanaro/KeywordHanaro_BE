@@ -1,6 +1,7 @@
 package com.hana4.keywordhanaro.service;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Random;
 
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hana4.keywordhanaro.model.dto.TicketDTO;
 import com.hana4.keywordhanaro.model.entity.Ticket;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
+import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.mapper.TicketMapper;
 import com.hana4.keywordhanaro.repository.KeywordRepository;
 import com.hana4.keywordhanaro.repository.TicketRepository;
@@ -29,9 +31,16 @@ public class TicketServiceImpl implements TicketService {
 	}
 
 	@Override
-	public TicketDTO createTicket(String userId, Long keywordId) throws IOException {
+	public TicketDTO createTicket(Long keywordId) throws IOException {
 		// keyword에서 브랜치 정보 조회
 		Keyword keyword = keywordRepository.findById(keywordId).orElseThrow();
+		User user = keyword.getUser();
+
+		// 이미 발급된 티켓 있으면 해당 티켓 반환
+		Optional<Ticket> findTicket = ticketRepository.findByUser(user);
+		if (findTicket.isPresent()) {
+			return TicketMapper.toDTO(findTicket.get());
+		}
 
 		JsonNode branchInfo = mapper.readTree(keyword.getBranch());
 

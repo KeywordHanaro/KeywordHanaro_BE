@@ -18,7 +18,7 @@ public class TicketController {
 	}
 
 	@PostMapping("/ticket")
-	public TicketDTO createTicket(@RequestParam String userId, @RequestParam Long keywordId) throws IOException {
-		return ticketService.createTicket(userId, keywordId);
+	public TicketDTO createTicket(@RequestParam Long keywordId) throws IOException {
+		return ticketService.createTicket(keywordId);
 	}
 }

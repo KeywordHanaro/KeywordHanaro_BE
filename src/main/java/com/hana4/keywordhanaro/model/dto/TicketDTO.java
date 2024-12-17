@@ -2,7 +2,7 @@ package com.hana4.keywordhanaro.model.dto;
 
 import java.time.LocalDateTime;
 
-import com.hana4.keywordhanaro.model.entity.User;
+import com.hana4.keywordhanaro.model.entity.user.User;
 
 import lombok.Builder;
 import lombok.Data;
