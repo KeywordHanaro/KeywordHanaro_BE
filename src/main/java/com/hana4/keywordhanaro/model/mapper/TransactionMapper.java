@@ -1,11 +1,11 @@
 package com.hana4.keywordhanaro.model.mapper;
 
-import com.hana4.keywordhanaro.model.dto.TransactionDTO;
+import com.hana4.keywordhanaro.model.dto.TransactionDto;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
 
 public class TransactionMapper {
-	public static TransactionDTO toDto(Transaction transaction) {
-		return TransactionDTO.builder()
+	public static TransactionDto toDto(Transaction transaction) {
+		return TransactionDto.builder()
 			.id(transaction.getId())
 			.fromAccount(AccountMapper.toDTO(transaction.getFromAccount()))
 			.toAccount(AccountMapper.toDTO(transaction.getToAccount()))

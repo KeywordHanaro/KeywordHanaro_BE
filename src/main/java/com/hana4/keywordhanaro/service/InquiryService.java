@@ -3,9 +3,9 @@ package com.hana4.keywordhanaro.service;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.hana4.keywordhanaro.model.dto.TransactionDTO;
+import com.hana4.keywordhanaro.model.dto.TransactionDto;
 
 public interface InquiryService {
-	List<TransactionDTO> getAccountTransactions(Long accountId, LocalDate startDate, LocalDate endDate,
+	List<TransactionDto> getAccountTransactions(Long accountId, LocalDate startDate, LocalDate endDate,
 		String transactionType, String sortOrder, String searchWord);
 }
