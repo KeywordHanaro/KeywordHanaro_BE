@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class DocumentDTO extends BaseDto {
+public class DocumentDto extends BaseDto {
 
 	private Long id;
 	private DocumentType type;
