@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hana4.keywordhanaro.model.dto.TransactionDto;
-import com.hana4.keywordhanaro.model.dto.TransferRequestDTO;
+import com.hana4.keywordhanaro.model.dto.TransferRequestDto;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
 import com.hana4.keywordhanaro.model.mapper.AccountMapper;
 import com.hana4.keywordhanaro.service.TransferService;
@@ -25,7 +25,7 @@ public class TransferController {
 	private final TransferService transferService;
 
 	@PostMapping
-	public ResponseEntity<TransactionDto> transfer(@RequestBody TransferRequestDTO transferRequestDTO) {
+	public ResponseEntity<TransactionDto> transfer(@RequestBody TransferRequestDto transferRequestDTO) {
 		Transaction transaction = transferService.transfer(
 			transferRequestDTO.getFromAccountNumber(),
 			transferRequestDTO.getToAccountNumber(),

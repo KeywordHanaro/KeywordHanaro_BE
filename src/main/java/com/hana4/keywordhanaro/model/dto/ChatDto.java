@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChatDTO {
+public class ChatDto {
 	private Long id;
 	private String userId;
 	private String question;

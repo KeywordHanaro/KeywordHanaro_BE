@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hana4.keywordhanaro.model.dto.ChatDTO;
+import com.hana4.keywordhanaro.model.dto.ChatDto;
 import com.hana4.keywordhanaro.service.LLMService;
 
 @RestController
@@ -24,7 +24,7 @@ public class LLMController {
 	}
 
 	@PostMapping("/chat")
-	public String chat(@RequestBody ChatDTO chatDTO) {
+	public String chat(@RequestBody ChatDto chatDTO) {
 		return llmService.chat(chatDTO);
 	}
 

@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 @SuperBuilder
-public class BaseDTO {
+public class BaseDto {
 	private LocalDateTime createAt;
 	private LocalDateTime updateAt;
 }
