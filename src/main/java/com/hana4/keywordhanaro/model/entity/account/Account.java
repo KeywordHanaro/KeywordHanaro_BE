@@ -80,6 +80,6 @@ public class Account extends BaseEntity {
 		this.status = status;
 	}
 	public boolean canTransfer() {
-		return this.type != AccountType.AT02; // 적금 계좌는 송금 불가
+		return this.type != AccountType.SAVING; // 적금 계좌는 송금 불가
 	}
 }

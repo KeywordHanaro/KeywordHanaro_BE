@@ -23,41 +23,41 @@ public class TransferServiceTest {
     @Test
     public void testTransfer() {
         // 초기 상태 확인
-        Account fromAccount = accountRepository.findByAccountNumber("1");
-        Account toAccount = accountRepository.findByAccountNumber("2");
+        Account fromAccount = accountRepository.findByAccountNumber("111-222-3331");
+        Account toAccount = accountRepository.findByAccountNumber("32476762224");
         BigDecimal initialFromBalance = fromAccount.getBalance();
         BigDecimal initialToBalance = toAccount.getBalance();
 
         // 송금 실행 todo 이 과정이 성공시, transaction테이블에 데이터로 들어와야함.
-        transferService.transfer("1", "2", BigDecimal.valueOf(500));
+        transferService.transfer("111-222-3331", "32476762224", BigDecimal.valueOf(999));
 
         // 업데이트된 상태 확인
-        Account updatedFromAccount = accountRepository.findByAccountNumber("1");
-        Account updatedToAccount = accountRepository.findByAccountNumber("2");
+        Account updatedFromAccount = accountRepository.findByAccountNumber("111-222-3331");
+        Account updatedToAccount = accountRepository.findByAccountNumber("32476762224");
 
-        assertEquals(initialFromBalance.subtract(BigDecimal.valueOf(500)), updatedFromAccount.getBalance());
-        assertEquals(initialToBalance.add(BigDecimal.valueOf(500)), updatedToAccount.getBalance());
+        assertEquals(initialFromBalance.subtract(BigDecimal.valueOf(999)), updatedFromAccount.getBalance());
+        assertEquals(initialToBalance.add(BigDecimal.valueOf(999)), updatedToAccount.getBalance());
     }
 
     @Test
     public void transferInsufficientBalanceTest() {
         // 초기 상태 확인
-        Account fromAccount = accountRepository.findByAccountNumber("1");
-        Account toAccount = accountRepository.findByAccountNumber("2");
+        Account fromAccount = accountRepository.findByAccountNumber("111-222-3331");
+        Account toAccount = accountRepository.findByAccountNumber("111-222-3332");
         BigDecimal initialFromBalance = fromAccount.getBalance();
         BigDecimal initialToBalance = toAccount.getBalance();
 
         // 잔액을 초과하는 금액으로 송금 시도
-        BigDecimal excessAmount = new BigDecimal("1000000");
+        BigDecimal excessAmount = new BigDecimal("10000000000");
 
         // IllegalArgumentException이 발생하는지 확인
         assertThrows(IllegalArgumentException.class, () -> {
-            transferService.transfer("1", "2", excessAmount);
+            transferService.transfer("111-222-3331", "111-222-3332", excessAmount);
         });
 
         // 계좌 잔액 확인
-        Account updatedFromAccount = accountRepository.findByAccountNumber("1");
-        Account updatedToAccount = accountRepository.findByAccountNumber("2");
+        Account updatedFromAccount = accountRepository.findByAccountNumber("111-222-3331");
+        Account updatedToAccount = accountRepository.findByAccountNumber("111-222-3332");
 
         assertEquals(initialFromBalance, updatedFromAccount.getBalance());
         assertEquals(initialToBalance, updatedToAccount.getBalance());
@@ -66,8 +66,8 @@ public class TransferServiceTest {
 
     @Test
     public void checkTransferFromSavingAccountTest(){
-        Account savingsAccount = accountRepository.findById(11L).orElseThrow(()->
-                new IllegalArgumentException("11번 계좌가 존재하지 않습니다."));
+        Account savingsAccount = accountRepository.findById(8L).orElseThrow(()->
+                new IllegalArgumentException("8번 계좌가 존재하지 않습니다."));
         // 일반 예금 계좌 설정 (id = 1)
         Account targetAccount = accountRepository.findById(1L).orElseThrow(() ->
                 new IllegalArgumentException("Account with id 1 not found"));
@@ -81,7 +81,7 @@ public class TransferServiceTest {
         assertEquals("적금 계좌는 타 계좌로의 송금이 불가합니다.", exception.getMessage());
 
         // 송금이 실패했으므로 잔액이 변경되지 않았는지 검증
-        Account updatedSavingsAccount = accountRepository.findById(11L).orElseThrow();
+        Account updatedSavingsAccount = accountRepository.findById(8L).orElseThrow();
         Account updatedTargetAccount = accountRepository.findById(1L).orElseThrow();
 
         assertEquals(savingsAccount.getBalance(), updatedSavingsAccount.getBalance());

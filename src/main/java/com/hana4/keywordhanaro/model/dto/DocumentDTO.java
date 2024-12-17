@@ -3,8 +3,10 @@ package com.hana4.keywordhanaro.model.dto;
 import java.math.BigDecimal;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class DocumentDTO extends BaseDTO{
 
 	private Long id;
