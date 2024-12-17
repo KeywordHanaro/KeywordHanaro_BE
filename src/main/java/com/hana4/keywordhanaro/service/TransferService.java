@@ -7,5 +7,4 @@ import java.math.BigDecimal;
 public interface TransferService {
     Transaction transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount);
 
-    double getInitialBalance();
 }

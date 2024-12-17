@@ -6,6 +6,7 @@ import com.hana4.keywordhanaro.model.entity.transaction.TransactionStatus;
 import com.hana4.keywordhanaro.model.entity.transaction.TransactionType;
 import com.hana4.keywordhanaro.repository.AccountRepository;
 import com.hana4.keywordhanaro.repository.TransactionRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,18 +14,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class TransferServiceImpl implements TransferService{
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
-
-    public TransferServiceImpl(AccountRepository accountRepository, TransactionRepository transactionRepository) {
-        this.accountRepository = accountRepository;
-        this.transactionRepository = transactionRepository;
-    }
-    public double getInitialBalance() {
-        Account account = accountRepository.findByAccountNumber("1");
-        return account != null ? account.getBalance().doubleValue() : 0.0;
-    }
 
     @Transactional
     public Transaction transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount){

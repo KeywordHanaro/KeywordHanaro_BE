@@ -22,8 +22,6 @@ public class TransferController {
 
     @PostMapping
     public ResponseEntity<TransactionDTO> transfer(@RequestBody TransferRequestDTO transferRequestDTO) {
-
-        try {
             Transaction transaction = transferService.transfer(
                     transferRequestDTO.getFromAccountNumber(),
                     transferRequestDTO.getToAccountNumber(),
@@ -33,7 +31,6 @@ public class TransferController {
                     .fromAccountId(String.valueOf(transaction.getAccount()))
                     .toAccountId(String.valueOf(transaction.getSubAccount()))
                     .amount(transaction.getAmount())
-                    .createdAt(new Timestamp(System.currentTimeMillis()))
                     .status("SUCCESS")
                     .beforeBalance(transaction.getAccount().getBalance())
                     .build();
@@ -46,28 +43,8 @@ public class TransferController {
                     .headers(headers)
                     .body(responseDTO);
 
-        } catch (IllegalArgumentException e) {
-            TransactionDTO errorDTO = TransactionDTO.builder()
-                    .status("FAILED")
-                    .createdAt(new Timestamp(System.currentTimeMillis()))
-                    .build();
 
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(errorDTO);
-        }
     }
 }
 
-//    @PostMapping
-//    public ResponseEntity<String> transfer(@RequestParam String fromAccountNumber,
-//                                           @RequestParam String toAccountNumber,
-//                                           @RequestParam BigDecimal amount) {
-//        try {
-//            transferService.transfer(fromAccountNumber, toAccountNumber, amount);
-//            return ResponseEntity.ok("Transfer successful");
-//        } catch (IllegalArgumentException e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//    }
 
