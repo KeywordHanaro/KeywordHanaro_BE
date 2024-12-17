@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.hana4.keywordhanaro.model.dto.TransactionDto;
+import com.hana4.keywordhanaro.model.dto.TransactionDTO;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
 import com.hana4.keywordhanaro.model.mapper.TransactionMapper;
 import com.hana4.keywordhanaro.repository.InquiryJpaRepository;
@@ -20,7 +20,7 @@ public class InquiryServiceImpl implements InquiryService {
 	}
 
 	@Override
-	public List<TransactionDto> getAccountTransactions(Long accountId, LocalDate startDate, LocalDate endDate,
+	public List<TransactionDTO> getAccountTransactions(Long accountId, LocalDate startDate, LocalDate endDate,
 		String transactionType, String sortOrder, String searchWord) {
 		LocalDateTime startDateTime = startDate.atStartOfDay();
 		LocalDateTime endDateTime = endDate.atTime(23, 59, 59);

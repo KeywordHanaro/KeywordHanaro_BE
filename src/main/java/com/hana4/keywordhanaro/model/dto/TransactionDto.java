@@ -12,13 +12,13 @@ import lombok.Data;
 @Builder
 public class TransactionDTO {
 	private Long id;
-	private AccountDTO fromAccount;
-	private AccountDTO toAccount;
+	private AccountDTO account;
+	private AccountDTO subAccount;
 	private BigDecimal amount;
 	private TransactionType type;
 	private String alias;
 	private BigDecimal beforeBalance;
 	private BigDecimal afterBalance;
-	private LocalDateTime createdAt;
+	private LocalDateTime createAt;
 	private String status;
 }

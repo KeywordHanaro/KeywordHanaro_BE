@@ -16,6 +16,7 @@ import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
 import com.hana4.keywordhanaro.model.entity.account.AccountType;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
+import com.hana4.keywordhanaro.model.entity.transaction.TransactionStatus;
 import com.hana4.keywordhanaro.model.entity.transaction.TransactionType;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.entity.user.UserStatus;
@@ -43,7 +44,7 @@ class InquiryCustomRepositoryTest {
 			userRepository.save(jongwonUser);
 		}
 
-		if (accountRepository.findByAccountNumber("123-456-789").isEmpty()) {
+		if (accountRepository.findByAccountNumber("123-456-789") == null) {
 			User seoaUser = userRepository.findFirstByUsername("seoaLoginID").orElseThrow();
 			Account seoaAccount = new Account("123-456-789", seoaUser,
 				bankRepository.findAll().stream().findFirst().get(), "식비계좌", "1234", BigDecimal.valueOf(0),
@@ -62,13 +63,15 @@ class InquiryCustomRepositoryTest {
 
 	@Test
 	void testFindTransactions() {
-		Account account = accountRepository.findByAccountNumber("123-456-789").orElseThrow();
+		Account account = accountRepository.findByAccountNumber("123-456-789");
 
 		Transaction t1 = new Transaction(account, account, BigDecimal.valueOf(20000.0),
 			TransactionType.WITHDRAW, "식비", BigDecimal.valueOf(100000.0), BigDecimal.valueOf(80000.0),
+			TransactionStatus.SUCCESS,
 			LocalDateTime.now());
 		Transaction t2 = new Transaction(account, account, BigDecimal.valueOf(10000.0),
 			TransactionType.DEPOSIT, "식사", BigDecimal.valueOf(80000.0), BigDecimal.valueOf(90000.0),
+			TransactionStatus.SUCCESS,
 			LocalDateTime.now());
 		testTransactions = inquiryJpaRepository.saveAll(List.of(t1, t2));
 

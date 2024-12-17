@@ -25,6 +25,7 @@ import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
 import com.hana4.keywordhanaro.model.entity.account.AccountType;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
+import com.hana4.keywordhanaro.model.entity.transaction.TransactionStatus;
 import com.hana4.keywordhanaro.model.entity.transaction.TransactionType;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.entity.user.UserStatus;
@@ -66,7 +67,7 @@ class InquiryControllerTest {
 			userRepository.save(jongwonUser);
 		}
 
-		if (accountRepository.findByAccountNumber("123-456-789").isEmpty()) {
+		if (accountRepository.findByAccountNumber("123-456-789") == null) {
 			User seoaUser = userRepository.findFirstByUsername("seoaLoginID").orElseThrow();
 			Account seoaAccount = new Account("123-456-789", seoaUser,
 				bankRepository.findAll().stream().findFirst().get(), "식비계좌", "1234", BigDecimal.valueOf(0),
@@ -74,7 +75,7 @@ class InquiryControllerTest {
 				true, AccountStatus.ACTIVE);
 			accountRepository.save(seoaAccount);
 		}
-		if (accountRepository.findByAccountNumber("987-654-321").isEmpty()) {
+		if (accountRepository.findByAccountNumber("987-654-321") == null) {
 			User jongwonUser = userRepository.findFirstByUsername("jongwonKing").orElseThrow();
 			Account jongwonAccount = new Account("987-654-321", jongwonUser,
 				bankRepository.findAll().stream().findFirst().get(), "자유입출금계좌", "1234", BigDecimal.valueOf(0),
@@ -85,23 +86,27 @@ class InquiryControllerTest {
 
 		if (inquiryJpaRepository.findFirstByAccount_AccountNumber("123-456-789").isEmpty()
 			&& inquiryJpaRepository.findFirstByAccount_AccountNumber("987-654-321").isEmpty()) {
-			Account seoaAccount = accountRepository.findByAccountNumber("123-456-789").orElseThrow();
-			Account jongwonAccount = accountRepository.findByAccountNumber("987-654-321").orElseThrow();
+			Account seoaAccount = accountRepository.findByAccountNumber("123-456-789");
+			Account jongwonAccount = accountRepository.findByAccountNumber("987-654-321");
 
 			// 밥값 거래
 			Transaction t1 = new Transaction(seoaAccount, jongwonAccount, BigDecimal.valueOf(20000.0),
 				TransactionType.WITHDRAW, "밥값", BigDecimal.valueOf(50000.0), BigDecimal.valueOf(30000.0),
+				TransactionStatus.SUCCESS,
 				LocalDateTime.now().minusDays(5));
 			Transaction t2 = new Transaction(jongwonAccount, seoaAccount, BigDecimal.valueOf(20000.0),
 				TransactionType.DEPOSIT, "밥값", BigDecimal.valueOf(0.0), BigDecimal.valueOf(20000.0),
+				TransactionStatus.SUCCESS,
 				LocalDateTime.now().minusDays(5));
 
 			// 환불 거래
 			Transaction t3 = new Transaction(jongwonAccount, seoaAccount, BigDecimal.valueOf(2000.0),
 				TransactionType.WITHDRAW, "환불", BigDecimal.valueOf(20000.0), BigDecimal.valueOf(18000.0),
+				TransactionStatus.SUCCESS,
 				LocalDateTime.now().minusDays(2));
 			Transaction t4 = new Transaction(seoaAccount, jongwonAccount, BigDecimal.valueOf(2000.0),
 				TransactionType.DEPOSIT, "환불", BigDecimal.valueOf(30000.0), BigDecimal.valueOf(32000.0),
+				TransactionStatus.SUCCESS,
 				LocalDateTime.now().minusDays(2));
 
 			inquiryJpaRepository.saveAll(Arrays.asList(t1, t2, t3, t4));
@@ -116,7 +121,7 @@ class InquiryControllerTest {
 	@Order(1)
 	void testGetAccountTransactions() throws Exception {
 		String accountNumber = "123-456-789";
-		Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow();
+		Account account = accountRepository.findByAccountNumber(accountNumber);
 		System.out.println("account = " + account);
 		Long accountId = account.getId();
 		System.out.println("accountId = " + accountId);
@@ -145,7 +150,7 @@ class InquiryControllerTest {
 	@Order(2)
 	void testGetAccountTransactionsWithFilter() throws Exception {
 		String accountNumber = "123-456-789";
-		Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow();
+		Account account = accountRepository.findByAccountNumber(accountNumber);
 		Long accountId = account.getId();
 		LocalDate startDate = LocalDate.now().minusDays(30);
 		LocalDate endDate = LocalDate.now();
@@ -169,7 +174,7 @@ class InquiryControllerTest {
 	@Order(3)
 	void testGetAccountTransactionsWithSearchWord2() throws Exception {
 		String accountNumber = "987-654-321";
-		Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow();
+		Account account = accountRepository.findByAccountNumber(accountNumber);
 		Long accountId = account.getId();
 		LocalDate startDate = LocalDate.now().minusDays(6);
 		LocalDate endDate = LocalDate.now();
@@ -193,7 +198,7 @@ class InquiryControllerTest {
 	@Order(4)
 	void testGetAccountTransactionsSortOrder() throws Exception {
 		String accountNumber = "123-456-789";
-		Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow();
+		Account account = accountRepository.findByAccountNumber(accountNumber);
 		Long accountId = account.getId();
 		LocalDate startDate = LocalDate.now().minusDays(30);
 		LocalDate endDate = LocalDate.now();
