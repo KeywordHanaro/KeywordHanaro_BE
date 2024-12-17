@@ -22,4 +22,8 @@ public class Bank {
 
 	@Column(nullable = false)
 	private String name;
+
+	public Bank(String name) {
+		this.name = name;
+	}
 }
