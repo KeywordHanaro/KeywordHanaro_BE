@@ -12,8 +12,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 public class User extends BaseEntity {
 	@Id
@@ -46,4 +51,12 @@ public class User extends BaseEntity {
 
 	@OneToOne(mappedBy = "user")
 	private Ticket ticket;
+
+	public User(String username, String password, String name, UserStatus status, int permission) {
+		this.username = username;
+		this.password = password;
+		this.name = name;
+		this.status = status;
+		this.permission = permission;
+	}
 }
