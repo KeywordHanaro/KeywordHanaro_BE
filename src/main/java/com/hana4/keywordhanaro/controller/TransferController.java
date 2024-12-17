@@ -80,7 +80,5 @@ public class TransferController {
 						.status(HttpStatus.OK)
 						.headers(headers)
 						.body(responseDTO);
-
 		}
-
 }

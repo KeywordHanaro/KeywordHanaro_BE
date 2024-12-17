@@ -30,53 +30,53 @@ public class TransferServiceTest {
 
     @Autowired
     private MockMvc mockMvc;
-//    @Test
-//    public void testTransfer() {
-//        // 초기 상태 확인
-//        Account fromAccount = accountRepository.findByAccountNumber("111-222-3331");
-//        Account toAccount = accountRepository.findByAccountNumber("32476762224");
-//        BigDecimal initialFromBalance = fromAccount.getBalance();
-//        BigDecimal initialToBalance = toAccount.getBalance();
-//
-//        // 송금 실행 todo 이 과정이 성공시, transaction테이블에 데이터로 들어와야함.
-//        transferService.transfer("111-222-3331", "32476762224", BigDecimal.valueOf(999));
-//
-//        // 업데이트된 상태 확인
-//        Account updatedFromAccount = accountRepository.findByAccountNumber("111-222-3331");
-//        Account updatedToAccount = accountRepository.findByAccountNumber("32476762224");
-//
-//        assertEquals(initialFromBalance.subtract(BigDecimal.valueOf(999)), updatedFromAccount.getBalance());
-//        assertEquals(initialToBalance.add(BigDecimal.valueOf(999)), updatedToAccount.getBalance());
-//    }
-@Test
-public void testTransferSuccess() {
-    // Arrange
-    String fromAccountNumber = "111-222-3331";
-    String toAccountNumber = "32476762224";
-    BigDecimal amount = BigDecimal.valueOf(999);
+    //    @Test
+    //    public void testTransfer() {
+    //        // 초기 상태 확인
+    //        Account fromAccount = accountRepository.findByAccountNumber("111-222-3331");
+    //        Account toAccount = accountRepository.findByAccountNumber("32476762224");
+    //        BigDecimal initialFromBalance = fromAccount.getBalance();
+    //        BigDecimal initialToBalance = toAccount.getBalance();
+    //
+    //        // 송금 실행 todo 이 과정이 성공시, transaction테이블에 데이터로 들어와야함.
+    //        transferService.transfer("111-222-3331", "32476762224", BigDecimal.valueOf(999));
+    //
+    //        // 업데이트된 상태 확인
+    //        Account updatedFromAccount = accountRepository.findByAccountNumber("111-222-3331");
+    //        Account updatedToAccount = accountRepository.findByAccountNumber("32476762224");
+    //
+    //        assertEquals(initialFromBalance.subtract(BigDecimal.valueOf(999)), updatedFromAccount.getBalance());
+    //        assertEquals(initialToBalance.add(BigDecimal.valueOf(999)), updatedToAccount.getBalance());
+    //    }
+    @Test
+    public void testTransferSuccess() {
+        // Arrange
+        String fromAccountNumber = "111-222-3331";
+        String toAccountNumber = "32476762224";
+        BigDecimal amount = BigDecimal.valueOf(999);
 
-    Account fromAccount = accountRepository.findByAccountNumber(fromAccountNumber);
-    Account toAccount = accountRepository.findByAccountNumber(toAccountNumber);
+        Account fromAccount = accountRepository.findByAccountNumber(fromAccountNumber);
+        Account toAccount = accountRepository.findByAccountNumber(toAccountNumber);
 
-    assertNotNull(fromAccount, "From account must not be null");
-    assertNotNull(toAccount, "To account must not be null");
+        assertNotNull(fromAccount, "From account must not be null");
+        assertNotNull(toAccount, "To account must not be null");
 
-    BigDecimal initialFromBalance = fromAccount.getBalance();
-    BigDecimal initialToBalance = toAccount.getBalance();
+        BigDecimal initialFromBalance = fromAccount.getBalance();
+        BigDecimal initialToBalance = toAccount.getBalance();
 
-    // Act
-    Transaction transaction = transferService.transfer(fromAccountNumber, toAccountNumber, amount);
+        // Act
+        Transaction transaction = transferService.transfer(fromAccountNumber, toAccountNumber, amount);
 
-    // Assert
-    assertNotNull(transaction, "Transaction should not be null");
-    assertEquals(TransactionStatus.SUCCESS, transaction.getStatus(), "Transaction status should be SUCCESS");
+        // Assert
+        assertNotNull(transaction, "Transaction should not be null");
+        assertEquals(TransactionStatus.SUCCESS, transaction.getStatus(), "Transaction status should be SUCCESS");
 
-    Account updatedFromAccount = accountRepository.findByAccountNumber(fromAccountNumber);
-    Account updatedToAccount = accountRepository.findByAccountNumber(toAccountNumber);
+        Account updatedFromAccount = accountRepository.findByAccountNumber(fromAccountNumber);
+        Account updatedToAccount = accountRepository.findByAccountNumber(toAccountNumber);
 
-    assertEquals(initialFromBalance.subtract(amount), updatedFromAccount.getBalance(), "From account balance mismatch");
-    assertEquals(initialToBalance.add(amount), updatedToAccount.getBalance(), "To account balance mismatch");
-}
+        assertEquals(initialFromBalance.subtract(amount), updatedFromAccount.getBalance(), "From account balance mismatch");
+        assertEquals(initialToBalance.add(amount), updatedToAccount.getBalance(), "To account balance mismatch");
+    }
 
     @Test
     public void transferInsufficientBalanceTest() {
@@ -106,10 +106,10 @@ public void testTransferSuccess() {
     @Test
     public void checkTransferFromSavingAccountTest(){
         Account savingsAccount = accountRepository.findById(8L).orElseThrow(()->
-                new IllegalArgumentException("8번 계좌가 존재하지 않습니다."));
+            new IllegalArgumentException("8번 계좌가 존재하지 않습니다."));
         // 일반 예금 계좌 설정 (id = 1)
         Account targetAccount = accountRepository.findById(1L).orElseThrow(() ->
-                new IllegalArgumentException("Account with id 1 not found"));
+            new IllegalArgumentException("Account with id 1 not found"));
 
         BigDecimal transferAmount = BigDecimal.valueOf(5000);
 
@@ -127,4 +127,3 @@ public void testTransferSuccess() {
         assertEquals(targetAccount.getBalance(), updatedTargetAccount.getBalance());
     }
 }
-
