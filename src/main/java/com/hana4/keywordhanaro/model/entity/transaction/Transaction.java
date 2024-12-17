@@ -66,4 +66,17 @@ public class Transaction {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private TransactionStatus status;
+
+	public Transaction(Account account, Account subAccount, BigDecimal amount, TransactionType type, String alias,
+		BigDecimal beforeBalance, BigDecimal afterBalance, TransactionStatus status, LocalDateTime createAt) {
+		this.account = account;
+		this.subAccount = subAccount;
+		this.amount = amount;
+		this.type = type;
+		this.alias = alias;
+		this.beforeBalance = beforeBalance;
+		this.afterBalance = afterBalance;
+		this.status = status;
+		this.createAt = createAt;
+	}
 }

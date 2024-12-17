@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hana4.keywordhanaro.model.dto.ChatDTO;
+import com.hana4.keywordhanaro.model.dto.ChatDto;
 import com.hana4.keywordhanaro.model.entity.Chat;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.mapper.ChatMapper;
@@ -33,7 +33,7 @@ public class LLMServiceImpl implements LLMService {
 	}
 
 	@Override
-	public String chat(ChatDTO chatDTO) {
+	public String chat(ChatDto chatDTO) {
 		String apiUrl = "http://127.0.0.1:8081/llm/chat";
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Content-Type", "application/json");

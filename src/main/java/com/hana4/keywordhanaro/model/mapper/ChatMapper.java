@@ -2,13 +2,13 @@ package com.hana4.keywordhanaro.model.mapper;
 
 import java.sql.Timestamp;
 
-import com.hana4.keywordhanaro.model.dto.ChatDTO;
+import com.hana4.keywordhanaro.model.dto.ChatDto;
 import com.hana4.keywordhanaro.model.entity.Chat;
 import com.hana4.keywordhanaro.model.entity.user.User;
 
 public class ChatMapper {
-	public static ChatDTO toDTO(Chat chat) {
-		return ChatDTO.builder()
+	public static ChatDto toDTO(Chat chat) {
+		return ChatDto.builder()
 			.id(chat.getId())
 			.userId(chat.getUser().getId())
 			.question(chat.getQuestion())
@@ -17,7 +17,7 @@ public class ChatMapper {
 			.build();
 	}
 
-	public static Chat toChat(ChatDTO chatDTO, User user) {
+	public static Chat toChat(ChatDto chatDTO, User user) {
 		return new Chat(user, chatDTO.getQuestion(), chatDTO.getAnswer());
 	}
 }
