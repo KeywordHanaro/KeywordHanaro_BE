@@ -1,11 +1,13 @@
 package com.hana4.keywordhanaro.model.mapper;
 
-import com.hana4.keywordhanaro.model.dto.TicketDTO;
+import com.hana4.keywordhanaro.model.dto.TicketDto;
+import com.hana4.keywordhanaro.model.dto.TicketRequestDto;
 import com.hana4.keywordhanaro.model.entity.Ticket;
+import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 
 public class TicketMapper {
-	public static TicketDTO toDTO(Ticket ticket) {
-		return TicketDTO.builder()
+	public static TicketDto toDTO(Ticket ticket) {
+		return TicketDto.builder()
 			.id(ticket.getId())
 			.user(ticket.getUser())
 			.branchId(ticket.getBranchId())
@@ -13,5 +15,11 @@ public class TicketMapper {
 			.waitingNumber(ticket.getWaitingNumber())
 			.createAt(ticket.getCreateAt())
 			.build();
+	}
+
+	public static Ticket toTicket_1(Keyword keyword, TicketRequestDto requestDTO)
+	{
+
+		return new Ticket(keyword.getUser(), requestDTO.getBranchId(), requestDTO.getBranchName(), requestDTO.)
 	}
 }

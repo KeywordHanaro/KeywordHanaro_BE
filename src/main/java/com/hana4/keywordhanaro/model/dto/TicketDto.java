@@ -9,11 +9,13 @@ import lombok.Data;
 
 @Data
 @Builder
-public class TicketDTO {
+public class TicketDto {
 	private Long id;
 	private User user;
 	private Long branchId;
 	private String branchName;
 	private Long waitingNumber;
+	private Long waitingGuest;
+	private byte workNumber;
 	private LocalDateTime createAt;
 }

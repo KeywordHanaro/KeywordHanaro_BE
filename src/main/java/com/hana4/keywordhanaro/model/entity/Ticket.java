@@ -46,8 +46,23 @@ public class Ticket {
 	@Column(name = "waitingNumber", nullable = false)
 	private Long waitingNumber;
 
+	@Column(name = "waitingGuest", nullable = false)
+	private Long waitingGuest;
+
+	@Column(name = "workNumber", nullable = false)
+	private byte workNumber;
+
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false, columnDefinition = "timestamp")
 	@ColumnDefault("CURRENT_TIMESTAMP")
 	private LocalDateTime createAt;
+
+	public Ticket(Long branchId, String branchName, User user, Long waitingGuest, Long waitingNumber, byte workNumber) {
+		this.branchId = branchId;
+		this.branchName = branchName;
+		this.user = user;
+		this.waitingGuest = waitingGuest;
+		this.waitingNumber = waitingNumber;
+		this.workNumber = workNumber;
+	}
 }
