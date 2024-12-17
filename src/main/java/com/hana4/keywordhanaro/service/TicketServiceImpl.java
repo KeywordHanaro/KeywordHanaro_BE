@@ -5,7 +5,6 @@ import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hana4.keywordhanaro.model.dto.TicketDto;
 import com.hana4.keywordhanaro.model.dto.TicketRequestDto;
@@ -33,35 +32,19 @@ public class TicketServiceImpl implements TicketService {
 		Long waitingNumber = (long)(random.nextInt(300) + 1); // 1 ~ 300
 		Long waitingGuest = (long)(random.nextInt(10) + 1); // 1 ~ 10
 
+		Ticket ticket;
+
 		// 키워드 사용 시
 		if (requestDTO.getKeywordId() != null) {
 			Keyword findKeyword = keywordRepository.findById(requestDTO.getKeywordId()).orElseThrow();
-			JsonNode branchInfo = mapper.readTree(findKeyword.getBranch());
-
-			Ticket ticket = Ticket.builder()
-				.user(findKeyword.getUser())
-				.branchId(branchInfo.get("id").asLong())
-				.branchName(branchInfo.get("place_name").asText())
-				.workNumber(requestDTO.getWorkNumber())
-				.waitingNumber(waitingNumber)
-				.waitingGuest(waitingGuest)
-				.build();
-			ticket = ticketRepository.save(ticket);
-			return TicketMapper.toDTO(ticket);
+			ticket = TicketMapper.toTicket_1(findKeyword, requestDTO, waitingNumber, waitingGuest);
 		} // 일반 사용 시
 		else {
 			User findUser = userRepository.findById(requestDTO.getUserId()).orElseThrow();
-			Ticket ticket = Ticket.builder()
-				.user(findUser)
-				.branchId(requestDTO.getBranchId())
-				.branchName(requestDTO.getBranchName())
-				.workNumber(requestDTO.getWorkNumber())
-				.waitingNumber(waitingNumber)
-				.waitingGuest(waitingGuest)
-				.build();
-			ticket = ticketRepository.save(ticket);
-			return TicketMapper.toDTO(ticket);
+			ticket = TicketMapper.toTicket_2(findUser, requestDTO, waitingNumber, waitingGuest);
 		}
+		ticket = ticketRepository.save(ticket);
+		return TicketMapper.toDTO(ticket);
 
 		// // 이미 발급된 티켓 있으면 해당 티켓 반환
 		// Optional<Ticket> findTicket = ticketRepository.findByUser(requestDTO.getUser());
