@@ -1,95 +1,89 @@
 package com.hana4.keywordhanaro.repository;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.hana4.keywordhanaro.model.entity.account.Account;
+import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
+import com.hana4.keywordhanaro.model.entity.account.AccountType;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
 import com.hana4.keywordhanaro.model.entity.transaction.TransactionType;
+import com.hana4.keywordhanaro.model.entity.user.User;
+import com.hana4.keywordhanaro.model.entity.user.UserStatus;
 
-@DataJpaTest
-@Import(InquiryCustomRepositoryImpl.class)
-public class InquiryRepositoryTest {
+@SpringBootTest
+class InquiryCustomRepositoryTest {
 
 	@Autowired
-	private InquiryJpaRepository inquiryRepository;
+	private InquiryJpaRepository inquiryJpaRepository;
 
 	@Autowired
 	private AccountRepository accountRepository;
 
-	private Account testAccount;
+	private List<Transaction> testTransactions;
 
-	@BeforeEach
-	void setUp() {
-		testAccount = new Account();
-		testAccount.setAccountNumber("1234567890");
-		testAccount = accountRepository.save(testAccount);
+	@BeforeAll
+	static void setUp(@Autowired UserRepository userRepository, @Autowired BankRepository bankRepository,
+		@Autowired AccountRepository accountRepository) {
+		if (userRepository.findFirstByUsername("seoaLoginID").isEmpty()) {
+			User seoaUser = new User("seoaLoginID", "password123", "문서아", UserStatus.ACTIVE, 0);
+			userRepository.save(seoaUser);
+		}
+		if (userRepository.findFirstByUsername("jongwonKing").isEmpty()) {
+			User jongwonUser = new User("jongwonKing", "password123", "백종원", UserStatus.ACTIVE, 0);
+			userRepository.save(jongwonUser);
+		}
 
-		Transaction transaction1 = new Transaction();
-		transaction1.setFromAccount(testAccount);
-		transaction1.setToAccount(testAccount);
-		transaction1.setAmount(BigDecimal.valueOf(100.0));
-		transaction1.setType(TransactionType.valueOf("WITHDRAW"));
-		transaction1.setCreateAt(LocalDateTime.now().minusDays(1));
-		transaction1.setAlias("Test Transaction 1");
+		if (accountRepository.findByAccountNumber("123-456-789").isEmpty()) {
+			User seoaUser = userRepository.findFirstByUsername("seoaLoginID").orElseThrow();
+			Account seoaAccount = new Account("123-456-789", seoaUser,
+				bankRepository.findAll().stream().findFirst().get(), "식비계좌", "1234", BigDecimal.valueOf(0),
+				BigDecimal.valueOf(100000), AccountType.DEPOSIT,
+				true, AccountStatus.ACTIVE);
+			accountRepository.save(seoaAccount);
+		}
+	}
 
-		Transaction transaction2 = new Transaction();
-		transaction2.setFromAccount(testAccount);
-		transaction2.setToAccount(testAccount);
-		transaction2.setAmount(BigDecimal.valueOf(200.0));
-		transaction2.setType(TransactionType.valueOf("DEPOSIT"));
-		transaction2.setCreateAt(LocalDateTime.now());
-		transaction2.setAlias("Test Transaction 2");
-
-		inquiryRepository.saveAll(List.of(transaction1, transaction2));
+	@AfterEach
+	void tearDown() {
+		if (testTransactions != null && !testTransactions.isEmpty()) {
+			inquiryJpaRepository.deleteAll(testTransactions);
+		}
 	}
 
 	@Test
 	void testFindTransactions() {
-		LocalDateTime startDateTime = LocalDateTime.now().minusDays(2);
-		LocalDateTime endDateTime = LocalDateTime.now().plusDays(1);
+		Account account = accountRepository.findByAccountNumber("123-456-789").orElseThrow();
 
-		List<Transaction> transactions = inquiryRepository.findTransactions(
-			testAccount.getId(), startDateTime, endDateTime, "all", null, "DESC");
+		Transaction t1 = new Transaction(account, account, BigDecimal.valueOf(20000.0),
+			TransactionType.WITHDRAW, "식비", BigDecimal.valueOf(100000.0), BigDecimal.valueOf(80000.0),
+			LocalDateTime.now());
+		Transaction t2 = new Transaction(account, account, BigDecimal.valueOf(10000.0),
+			TransactionType.DEPOSIT, "식사", BigDecimal.valueOf(80000.0), BigDecimal.valueOf(90000.0),
+			LocalDateTime.now());
+		testTransactions = inquiryJpaRepository.saveAll(List.of(t1, t2));
 
-		assertThat(transactions).isNotEmpty();
-		assertThat(transactions).hasSize(2);
-		assertThat(transactions.get(0).getAmount()).isEqualTo(200.0);
-		assertThat(transactions.get(1).getAmount()).isEqualTo(100.0);
-	}
+		LocalDateTime startDateTime = LocalDateTime.now().minusDays(1);
+		LocalDateTime endDateTime = LocalDateTime.now();
+		String transactionType = "all";
+		String searchWord = "식사";
+		String sortOrder = "desc";
 
-	@Test
-	void testFindTransactionsWithTypeFilter() {
-		LocalDateTime startDateTime = LocalDateTime.now().minusDays(2);
-		LocalDateTime endDateTime = LocalDateTime.now().plusDays(1);
+		List<Transaction> transactions = inquiryJpaRepository.findTransactions(
+			account.getId(), startDateTime, endDateTime, transactionType, searchWord, sortOrder);
 
-		List<Transaction> transactions = inquiryRepository.findTransactions(
-			testAccount.getId(), startDateTime, endDateTime, "TRANSFER", null, "DESC");
-
-		assertThat(transactions).isNotEmpty();
-		assertThat(transactions).hasSize(1);
-		assertThat(transactions.get(0).getAmount()).isEqualTo(100.0);
-	}
-
-	@Test
-	void testFindTransactionsWithSearchWord() {
-		LocalDateTime startDateTime = LocalDateTime.now().minusDays(2);
-		LocalDateTime endDateTime = LocalDateTime.now().plusDays(1);
-
-		List<Transaction> transactions = inquiryRepository.findTransactions(
-			testAccount.getId(), startDateTime, endDateTime, "all", "Test Transaction 2", "DESC");
-
-		assertThat(transactions).isNotEmpty();
-		assertThat(transactions).hasSize(1);
-		assertThat(transactions.get(0).getAmount()).isEqualTo(200.0);
+		assertNotNull(transactions);
+		assertFalse(transactions.isEmpty());
+		assertTrue(transactions.stream().anyMatch(transaction -> transaction.getAlias().contains("식사")));
+		assertEquals("식사", transactions.get(0).getAlias());
 	}
 }

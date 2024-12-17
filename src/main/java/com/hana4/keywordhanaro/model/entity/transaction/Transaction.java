@@ -63,7 +63,21 @@ public class Transaction {
 	@ColumnDefault("CURRENT_TIMESTAMP")
 	private LocalDateTime createAt;
 
+<<<<<<< HEAD
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private TransactionStatus status;
+=======
+	public Transaction(Account account, Account subAccount, BigDecimal amount, TransactionType type, String alias,
+		BigDecimal beforeBalance, BigDecimal afterBalance, LocalDateTime createAt) {
+		this.account = account;
+		this.subAccount = subAccount;
+		this.amount = amount;
+		this.type = type;
+		this.alias = alias;
+		this.beforeBalance = beforeBalance;
+		this.afterBalance = afterBalance;
+		this.createAt = createAt;
+	}
+>>>>>>> bf2adaf (inquiry repository 수정, controller repository test 완료)
 }

@@ -1,12 +1,15 @@
-import static org.mockito.Mockito.*;
+package com.hana4.keywordhanaro.controller;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -15,13 +18,21 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.hana4.keywordhanaro.model.dto.TransactionDto;
+import com.hana4.keywordhanaro.model.entity.account.Account;
+import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
+import com.hana4.keywordhanaro.model.entity.account.AccountType;
+import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
 import com.hana4.keywordhanaro.model.entity.transaction.TransactionType;
-import com.hana4.keywordhanaro.service.InquiryServiceImpl;
+import com.hana4.keywordhanaro.model.entity.user.User;
+import com.hana4.keywordhanaro.model.entity.user.UserStatus;
+import com.hana4.keywordhanaro.repository.AccountRepository;
+import com.hana4.keywordhanaro.repository.BankRepository;
+import com.hana4.keywordhanaro.repository.InquiryJpaRepository;
+import com.hana4.keywordhanaro.repository.UserRepository;
+import com.jayway.jsonpath.JsonPath;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -32,20 +43,87 @@ class InquiryControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 
-	@MockBean
-	private InquiryServiceImpl inquiryService;
+	@Autowired
+	private UserRepository userRepository;
+
+	@Autowired
+	private AccountRepository accountRepository;
+
+	@Autowired
+	private InquiryJpaRepository inquiryJpaRepository;
+
+	@Autowired
+	private BankRepository bankRepository;
+
+	@BeforeAll
+	void beforeAll() {
+		if (userRepository.findFirstByUsername("seoaLoginID").isEmpty()) {
+			User seoaUser = new User("seoaLoginID", "password123", "문서아", UserStatus.ACTIVE, 0);
+			userRepository.save(seoaUser);
+		}
+		if (userRepository.findFirstByUsername("jongwonKing").isEmpty()) {
+			User jongwonUser = new User("jongwonKing", "password123", "백종원", UserStatus.ACTIVE, 0);
+			userRepository.save(jongwonUser);
+		}
+
+		if (accountRepository.findByAccountNumber("123-456-789").isEmpty()) {
+			User seoaUser = userRepository.findFirstByUsername("seoaLoginID").orElseThrow();
+			Account seoaAccount = new Account("123-456-789", seoaUser,
+				bankRepository.findAll().stream().findFirst().get(), "식비계좌", "1234", BigDecimal.valueOf(0),
+				BigDecimal.valueOf(100000), AccountType.DEPOSIT,
+				true, AccountStatus.ACTIVE);
+			accountRepository.save(seoaAccount);
+		}
+		if (accountRepository.findByAccountNumber("987-654-321").isEmpty()) {
+			User jongwonUser = userRepository.findFirstByUsername("jongwonKing").orElseThrow();
+			Account jongwonAccount = new Account("987-654-321", jongwonUser,
+				bankRepository.findAll().stream().findFirst().get(), "자유입출금계좌", "1234", BigDecimal.valueOf(0),
+				BigDecimal.valueOf(100000), AccountType.DEPOSIT, true,
+				AccountStatus.ACTIVE);
+			accountRepository.save(jongwonAccount);
+		}
+
+		if (inquiryJpaRepository.findFirstByAccount_AccountNumber("123-456-789").isEmpty()
+			&& inquiryJpaRepository.findFirstByAccount_AccountNumber("987-654-321").isEmpty()) {
+			Account seoaAccount = accountRepository.findByAccountNumber("123-456-789").orElseThrow();
+			Account jongwonAccount = accountRepository.findByAccountNumber("987-654-321").orElseThrow();
+
+			// 밥값 거래
+			Transaction t1 = new Transaction(seoaAccount, jongwonAccount, BigDecimal.valueOf(20000.0),
+				TransactionType.WITHDRAW, "밥값", BigDecimal.valueOf(50000.0), BigDecimal.valueOf(30000.0),
+				LocalDateTime.now().minusDays(5));
+			Transaction t2 = new Transaction(jongwonAccount, seoaAccount, BigDecimal.valueOf(20000.0),
+				TransactionType.DEPOSIT, "밥값", BigDecimal.valueOf(0.0), BigDecimal.valueOf(20000.0),
+				LocalDateTime.now().minusDays(5));
+
+			// 환불 거래
+			Transaction t3 = new Transaction(jongwonAccount, seoaAccount, BigDecimal.valueOf(2000.0),
+				TransactionType.WITHDRAW, "환불", BigDecimal.valueOf(20000.0), BigDecimal.valueOf(18000.0),
+				LocalDateTime.now().minusDays(2));
+			Transaction t4 = new Transaction(seoaAccount, jongwonAccount, BigDecimal.valueOf(2000.0),
+				TransactionType.DEPOSIT, "환불", BigDecimal.valueOf(30000.0), BigDecimal.valueOf(32000.0),
+				LocalDateTime.now().minusDays(2));
+
+			inquiryJpaRepository.saveAll(Arrays.asList(t1, t2, t3, t4));
+
+			seoaAccount.setBalance(BigDecimal.valueOf(32000.0));
+			jongwonAccount.setBalance(BigDecimal.valueOf(18000.0));
+			accountRepository.saveAll(Arrays.asList(seoaAccount, jongwonAccount));
+		}
+	}
 
 	@Test
 	@Order(1)
 	void testGetAccountTransactions() throws Exception {
-		Long accountId = 1L;
-		LocalDate startDate = LocalDate.of(2023, 1, 1);
-		LocalDate endDate = LocalDate.of(2023, 12, 31);
-
-		List<TransactionDto> mockTransactions = createMockTransactions();
-		when(inquiryService.getAccountTransactions(eq(accountId), eq(startDate), eq(endDate),
-			eq("all"), eq("latest"), eq("")))
-			.thenReturn(mockTransactions);
+		String accountNumber = "123-456-789";
+		Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow();
+		System.out.println("account = " + account);
+		Long accountId = account.getId();
+		System.out.println("accountId = " + accountId);
+		LocalDate startDate = LocalDate.now().minusDays(30);
+		System.out.println("startDate = " + startDate);
+		LocalDate endDate = LocalDate.now();
+		System.out.println("endDate = " + endDate);
 
 		mockMvc.perform(get("/inquiry/{accountId}", accountId)
 				.param("startDate", startDate.toString())
@@ -56,46 +134,101 @@ class InquiryControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$").isArray())
-			.andExpect(jsonPath("$.length()").value(mockTransactions.size()))
-			.andExpect(jsonPath("$[0].id").value(mockTransactions.get(0).getId()))
-			.andExpect(jsonPath("$[0].amount").value(mockTransactions.get(0).getAmount()));
+			.andExpect(jsonPath("$.length()").value(2))
+			.andExpect(jsonPath("$[0].amount").value(2000))
+			.andExpect(jsonPath("$[0].type").value("DEPOSIT"))
+			.andExpect(jsonPath("$[1].amount").value(20000))
+			.andExpect(jsonPath("$[1].type").value("WITHDRAW"));
 	}
 
 	@Test
 	@Order(2)
-	void testGetAccountTransactionsWithFilters() throws Exception {
-		Long accountId = 1L;
-		LocalDate startDate = LocalDate.of(2023, 1, 1);
-		LocalDate endDate = LocalDate.of(2023, 12, 31);
-
-		List<TransactionDto> mockTransactions = createMockTransactions().subList(0, 1);
-		when(inquiryService.getAccountTransactions(eq(accountId), eq(startDate), eq(endDate),
-			eq("TRANSFER"), eq("oldest"), eq("test")))
-			.thenReturn(mockTransactions);
+	void testGetAccountTransactionsWithFilter() throws Exception {
+		String accountNumber = "123-456-789";
+		Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow();
+		Long accountId = account.getId();
+		LocalDate startDate = LocalDate.now().minusDays(30);
+		LocalDate endDate = LocalDate.now();
 
 		mockMvc.perform(get("/inquiry/{accountId}", accountId)
 				.param("startDate", startDate.toString())
 				.param("endDate", endDate.toString())
-				.param("transactionType", "TRANSFER")
+				.param("transactionType", "DEPOSIT")
 				.param("sortOrder", "oldest")
-				.param("searchWord", "test"))
+				.param("searchWord", "환불"))
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$").isArray())
-			.andExpect(jsonPath("$.length()").value(mockTransactions.size()))
-			.andExpect(jsonPath("$[0].type").value("TRANSFER"));
+			.andExpect(jsonPath("$.length()").value(1))
+			.andExpect(jsonPath("$[0].amount").value(2000))
+			.andExpect(jsonPath("$[0].type").value("DEPOSIT"))
+			.andExpect(jsonPath("$[0].alias").value("환불"));
 	}
 
-	private List<TransactionDto> createMockTransactions() {
-		List<TransactionDto> transactions = new ArrayList<>();
-		for (int i = 0; i < 5; i++) {
-			TransactionDto dto = TransactionDto.builder()
-				.id((long)i)
-				.amount(BigDecimal.valueOf(100.0 * (i + 1)))
-				.type(TransactionType.DEPOSIT)
-				.build();
-			transactions.add(dto);
-		}
-		return transactions;
+	@Test
+	@Order(3)
+	void testGetAccountTransactionsWithSearchWord2() throws Exception {
+		String accountNumber = "987-654-321";
+		Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow();
+		Long accountId = account.getId();
+		LocalDate startDate = LocalDate.now().minusDays(6);
+		LocalDate endDate = LocalDate.now();
+
+		mockMvc.perform(get("/inquiry/{accountId}", accountId)
+				.param("startDate", startDate.toString())
+				.param("endDate", endDate.toString())
+				.param("transactionType", "all")
+				.param("sortOrder", "latest")
+				.param("searchWord", "밥값"))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$").isArray())
+			.andExpect(jsonPath("$.length()").value(1))
+			.andExpect(jsonPath("$[0].amount").value(20000))
+			.andExpect(jsonPath("$[0].type").value("DEPOSIT"))
+			.andExpect(jsonPath("$[0].alias").value("밥값"));
 	}
+
+	@Test
+	@Order(4)
+	void testGetAccountTransactionsSortOrder() throws Exception {
+		String accountNumber = "123-456-789";
+		Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow();
+		Long accountId = account.getId();
+		LocalDate startDate = LocalDate.now().minusDays(30);
+		LocalDate endDate = LocalDate.now();
+
+		// latest
+		mockMvc.perform(get("/inquiry/{accountId}", accountId)
+				.param("startDate", startDate.toString())
+				.param("endDate", endDate.toString())
+				.param("transactionType", "all")
+				.param("sortOrder", "latest")
+				.param("searchWord", ""))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$[0].createAt").isNotEmpty())
+			.andExpect(result -> {
+				String createdAt0 = JsonPath.parse(result.getResponse().getContentAsString()).read("$[0].createAt");
+				String createdAt1 = JsonPath.parse(result.getResponse().getContentAsString()).read("$[1].createAt");
+				assertTrue(createdAt0.compareTo(createdAt1) >= 0);
+			});
+
+		// oldest
+		mockMvc.perform(get("/inquiry/{accountId}", accountId)
+				.param("startDate", startDate.toString())
+				.param("endDate", endDate.toString())
+				.param("transactionType", "all")
+				.param("sortOrder", "oldest")
+				.param("searchWord", ""))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$[0].createAt").isNotEmpty())
+			.andExpect(result -> {
+				String createdAt0 = JsonPath.parse(result.getResponse().getContentAsString()).read("$[0].createAt");
+				String createdAt1 = JsonPath.parse(result.getResponse().getContentAsString()).read("$[1].createAt");
+				assertTrue(createdAt0.compareTo(createdAt1) <= 0);
+			});
+	}
+
 }

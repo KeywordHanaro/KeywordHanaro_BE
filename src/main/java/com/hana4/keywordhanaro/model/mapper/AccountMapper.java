@@ -16,6 +16,9 @@ public class AccountMapper {
 			.type(account.getType())
 			.mine(account.getIsMine())
 			.status(account.getStatus())
+			.bankId(account.getBank().getId())
+			.createAt(account.getCreateAt())
+			.updateAt(account.getUpdateAt())
 			.build();
 	}
 }

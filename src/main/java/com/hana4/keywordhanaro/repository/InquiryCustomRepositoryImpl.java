@@ -17,11 +17,11 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 @Repository
-public class InquiryCustomRepositoryImpl {
+public class InquiryCustomRepositoryImpl implements InquiryCustomRepository {
 	@PersistenceContext
 	private EntityManager entityManager;
 
-	List<Transaction> findTransactions(
+	public List<Transaction> findTransactions(
 		Long accountId,
 		LocalDateTime startDateTime,
 		LocalDateTime endDateTime,
@@ -71,9 +71,9 @@ public class InquiryCustomRepositoryImpl {
 		List<Predicate> predicates = new ArrayList<>();
 
 		// (t.fromAccount.id = :accountId OR t.toAccount.id = :accountId)
-		Predicate fromMatch = cb.equal(root.get("fromAccount").get("id"), accountId);
-		Predicate toMatch = cb.equal(root.get("toAccount").get("id"), accountId);
-		predicates.add(cb.or(fromMatch, toMatch));
+		// Predicate fromMatch = cb.equal(root.get("fromAccount").get("id"), accountId);
+		// Predicate toMatch = cb.equal(root.get("toAccount").get("id"), accountId);
+		predicates.add(cb.equal(root.get("account").get("id"), accountId));
 
 		// t.createAt BETWEEN :startDateTime AND :endDateTime
 		if (startDateTime != null && endDateTime != null) {
