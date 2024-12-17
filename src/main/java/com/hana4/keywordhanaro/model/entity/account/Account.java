@@ -79,4 +79,7 @@ public class Account extends BaseEntity {
 		this.isMine = isMine;
 		this.status = status;
 	}
+	public boolean canTransfer() {
+		return this.type != AccountType.SAVING; // 적금 계좌는 송금 불가
+	}
 }
