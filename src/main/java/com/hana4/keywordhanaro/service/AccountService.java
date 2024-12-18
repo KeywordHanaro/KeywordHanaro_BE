@@ -2,10 +2,10 @@ package com.hana4.keywordhanaro.service;
 
 import java.util.List;
 
-import com.hana4.keywordhanaro.model.dto.AccountDTO;
+import com.hana4.keywordhanaro.model.dto.AccountDto;
 
 public interface AccountService {
-	AccountDTO getAccount(Long id);
+	AccountDto getAccount(Long id);
 
-	List<AccountDTO> getAccounts();
+	List<AccountDto> getAccounts();
 }

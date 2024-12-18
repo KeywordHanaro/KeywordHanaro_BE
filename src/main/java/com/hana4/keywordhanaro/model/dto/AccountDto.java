@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @SuperBuilder
-public class AccountDTO extends BaseDTO {
+public class AccountDto extends BaseDto {
 	private Long id;
 	private String accountNumber;
 	private String userId;
