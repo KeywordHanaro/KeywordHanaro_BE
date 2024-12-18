@@ -7,7 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
+import com.hana4.keywordhanaro.exception.InvalidRequestException;
 import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
 import com.hana4.keywordhanaro.exception.UserNotFoundException;
 
@@ -30,6 +32,17 @@ public class ErrorController {
 	@ExceptionHandler(NullPointerException.class)
 	public ResponseEntity<Map<String, Object>> nullPointerExceptionHandler(NullPointerException ne) {
 		return createErrorResult(HttpStatus.NOT_FOUND, ne.getMessage());
+	}
+
+	@ExceptionHandler(InvalidRequestException.class)
+	public ResponseEntity<Map<String, Object>> invalidRequestExceptionHandler(InvalidRequestException ire) {
+		return createErrorResult(HttpStatus.BAD_REQUEST, ire.getMessage());
+	}
+
+	@ExceptionHandler(NoHandlerFoundException.class)
+	public ResponseEntity<Map<String, Object>> handleNoHandlerFoundException(
+		NoHandlerFoundException ex) {
+		return createErrorResult(HttpStatus.BAD_REQUEST, ex.getMessage());
 	}
 
 	@ExceptionHandler(KeywordNotFoundException.class)
