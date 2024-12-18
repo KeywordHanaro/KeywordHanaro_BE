@@ -84,6 +84,8 @@ class InquiryCustomRepositoryTest {
 		List<Transaction> transactions = inquiryJpaRepository.findTransactions(
 			account.getId(), startDateTime, endDateTime, transactionType, searchWord, sortOrder);
 
+		System.out.println("transactions = " + transactions);
+
 		assertNotNull(transactions);
 		assertFalse(transactions.isEmpty());
 		assertTrue(transactions.stream().anyMatch(transaction -> transaction.getAlias().contains("식사")));

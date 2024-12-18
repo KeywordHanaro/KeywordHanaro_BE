@@ -1,13 +1,15 @@
 package com.hana4.keywordhanaro.controller;
 
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.hana4.keywordhanaro.exception.InvalidRequestException;
 
 @RestControllerAdvice
 public class ErrorController {
@@ -28,5 +30,16 @@ public class ErrorController {
 	@ExceptionHandler(NullPointerException.class)
 	public ResponseEntity<Map<String, Object>> nullPointerExceptionHandler(NullPointerException ne) {
 		return createErrorResult(HttpStatus.NOT_FOUND, ne.getMessage());
+	}
+
+	@ExceptionHandler(InvalidRequestException.class)
+	public ResponseEntity<Map<String, Object>> invalidRequestExceptionHandler(InvalidRequestException ire) {
+		return createErrorResult(HttpStatus.BAD_REQUEST, ire.getMessage());
+	}
+
+	@ExceptionHandler(NoHandlerFoundException.class)
+	public ResponseEntity<Map<String, Object>> handleNoHandlerFoundException(
+		NoHandlerFoundException ex) {
+		return createErrorResult(HttpStatus.BAD_REQUEST, ex.getMessage());
 	}
 }
