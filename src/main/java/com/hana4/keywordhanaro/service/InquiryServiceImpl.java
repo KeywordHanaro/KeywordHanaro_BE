@@ -34,10 +34,6 @@ public class InquiryServiceImpl implements InquiryService {
 
 		String dbSortOrder = sortOrder.equalsIgnoreCase("latest") ? "DESC" : "ASC";
 
-		if (accountId == null) {
-			throw new InvalidRequestException("Account ID cannot be null.");
-		}
-
 		accountRepository.findById(accountId)
 			.orElseThrow(() -> new NullPointerException("Account not found with ID: " + accountId));
 
