@@ -75,14 +75,54 @@ public class Keyword {
 	@JoinColumn(name = "subAccountId", foreignKey = @ForeignKey(name = "fk_Keyword_subAccountId_Account"))
 	private Account subAccount;
 
-	public Keyword(User user, KeywordType type, Long seqOrder, String name, boolean isFavorite, String branch,
-		String description) {
+	// inquiry keyword
+	public Keyword(User user, KeywordType type, String name, String description, Long seqOrder, Account account,
+		String inquiryWord) {
+		this.user = user;
+		this.type = type;
+		this.name = name;
+		this.description = description;
+		this.seqOrder = seqOrder;
+		this.account = account;
+		this.inquiryWord = inquiryWord;
+	}
+
+	// transfer keyword
+	public Keyword(User user, KeywordType type, String name, String description, Long seqOrder, Account account,
+		Account subAccount, BigDecimal amount, Boolean checkEveryTime) {
+		this.user = user;
+		this.seqOrder = seqOrder;
+		this.name = name;
+		this.description = description;
+		this.type = type;
+		this.subAccount = subAccount;
+		this.account = account;
+		this.amount = amount;
+		this.checkEveryTime = checkEveryTime;
+	}
+
+	// settlement keyword
+	public Keyword(User user, KeywordType type, String name, String description, Long seqOrder, Account account,
+		String groupMember, BigDecimal amount, Boolean checkEveryTime) {
 		this.user = user;
 		this.type = type;
 		this.seqOrder = seqOrder;
 		this.name = name;
-		this.isFavorite = isFavorite;
+		this.description = description;
+		this.account = account;
+		this.groupMember = groupMember;
+		this.amount = amount;
+		this.checkEveryTime = checkEveryTime;
+	}
+
+	// ticket keyword
+	public Keyword(User user, KeywordType type, String name, String description, Long seqOrder, String branch) {
+		this.user = user;
+		this.type = type;
+		this.seqOrder = seqOrder;
+		this.name = name;
 		this.branch = branch;
 		this.description = description;
 	}
+
 }

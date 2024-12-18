@@ -2,6 +2,7 @@ package com.hana4.keywordhanaro.model.dto;
 
 import java.math.BigDecimal;
 
+import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.user.User;
 
 import lombok.Builder;
@@ -16,12 +17,14 @@ public class KeywordDto {
 	private String name;
 	private Boolean isFavorite;
 	private String desc;
-	private String accountId;
+	private Long seqOrder;
+	private Account accountId;
+	private Account subAccountId;
 	private String inquiryWord;
 	private Boolean checkEveryTime;
 	private BigDecimal amount;
 	private String groupMember;
 	private String branch;
-	private String fromAccount;
-	private String toAccount;
+	// private String fromAccount;
+	// private String toAccount;
 }
