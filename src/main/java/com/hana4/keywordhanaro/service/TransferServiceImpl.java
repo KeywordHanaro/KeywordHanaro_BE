@@ -8,6 +8,7 @@ import com.hana4.keywordhanaro.repository.AccountRepository;
 import com.hana4.keywordhanaro.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -29,7 +30,8 @@ public class TransferServiceImpl implements TransferService {
         }
 
         if (!fromAccount.canTransfer()) {
-            throw new IllegalArgumentException("적금 계좌는 타 계좌로의 송금이 불가합니다.");
+            return logFailedTransaction(fromAccount, toAccount, amount, "적금 계좌 송금 불가");
+//            throw new IllegalArgumentException("적금 계좌는 타 계좌로의 송금이 불가합니다.");
         }
 
         // 잔액 부족 시 처리 로직
@@ -56,6 +58,25 @@ public class TransferServiceImpl implements TransferService {
         transaction.setCreateAt(LocalDateTime.now());
         transaction.setStatus(TransactionStatus.SUCCESS);
         transaction.setType(TransactionType.WITHDRAW);
+
+        return transactionRepository.save(transaction);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Transaction logFailedTransaction(Account fromAccount, Account toAccount, BigDecimal amount, String reason) {
+        Transaction transaction = new Transaction();
+        transaction.setAccount(fromAccount);
+        transaction.setSubAccount(toAccount);
+        transaction.setAmount(amount);
+        transaction.setBeforeBalance(fromAccount != null ? fromAccount.getBalance() : BigDecimal.ZERO);
+        transaction.setAfterBalance(fromAccount != null ? fromAccount.getBalance() : BigDecimal.ZERO);
+        transaction.setCreateAt(LocalDateTime.now());
+        transaction.setStatus(TransactionStatus.FAILURE);
+        transaction.setType(TransactionType.WITHDRAW);
+        transaction.setRemarks(reason);
+
+        // log about failure Transaction
+        System.err.println("Transaction failed: " + reason);
 
         return transactionRepository.save(transaction);
     }

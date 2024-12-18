@@ -3,7 +3,9 @@ package com.hana4.keywordhanaro.service;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
 import com.hana4.keywordhanaro.model.entity.transaction.TransactionStatus;
+import com.hana4.keywordhanaro.model.entity.transaction.TransactionType;
 import com.hana4.keywordhanaro.repository.AccountRepository;
+import com.hana4.keywordhanaro.repository.TransactionRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,6 +23,9 @@ public class TransferServiceTest {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     @Test
     public void testTransferSuccess() {
@@ -87,18 +92,33 @@ public class TransferServiceTest {
 
         BigDecimal transferAmount = BigDecimal.valueOf(5000);
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            transferService.transfer(savingsAccount.getAccountNumber(), targetAccount.getAccountNumber(), transferAmount);
-        });
-        // 예외 메시지 확인
-        assertEquals("적금 계좌는 타 계좌로의 송금이 불가합니다.", exception.getMessage());
+
+        BigDecimal initialSavingsBalance = savingsAccount.getBalance();
+        BigDecimal initialTargetBalance = targetAccount.getBalance();
+
+        // 이체 시도
+        Transaction result = transferService.transfer(savingsAccount.getAccountNumber(), targetAccount.getAccountNumber(), transferAmount);
+
+        // 실패한 거래 기록 확인
+        assertNotNull(result);
+        assertEquals(TransactionStatus.FAILURE, result.getStatus());
+        assertEquals(savingsAccount, result.getAccount());
+        assertEquals(targetAccount, result.getSubAccount());
+        assertEquals(transferAmount, result.getAmount());
+        assertEquals(TransactionType.WITHDRAW, result.getType());
 
         // 송금이 실패했으므로 잔액이 변경되지 않았는지 검증
         Account updatedSavingsAccount = accountRepository.findById(8L).orElseThrow();
         Account updatedTargetAccount = accountRepository.findById(1L).orElseThrow();
 
-        assertEquals(savingsAccount.getBalance(), updatedSavingsAccount.getBalance());
-        assertEquals(targetAccount.getBalance(), updatedTargetAccount.getBalance());
+        assertEquals(initialSavingsBalance, updatedSavingsAccount.getBalance());
+        assertEquals(initialTargetBalance, updatedTargetAccount.getBalance());
+
+        // 실패한 거래 기록이 데이터베이스에 저장되었는지 확인
+        Transaction savedTransaction = transactionRepository.findById(result.getId()).orElse(null);
+        assertNotNull(savedTransaction);
+        assertEquals(TransactionStatus.FAILURE, savedTransaction.getStatus());
+        assertEquals("적금 계좌 송금 불가", savedTransaction.getRemarks());
     }
 }
 
