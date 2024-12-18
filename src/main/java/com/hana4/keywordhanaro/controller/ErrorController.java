@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
-import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
-import com.hana4.keywordhanaro.exception.UserNotFoundException;
 
 @RestControllerAdvice
 public class ErrorController {
@@ -43,16 +41,6 @@ public class ErrorController {
 	public ResponseEntity<Map<String, Object>> handleNoHandlerFoundException(
 		NoHandlerFoundException ex) {
 		return createErrorResult(HttpStatus.BAD_REQUEST, ex.getMessage());
-	}
-
-	@ExceptionHandler(KeywordNotFoundException.class)
-	public ResponseEntity<Map<String, Object>> handleKeywordNotFound(KeywordNotFoundException e) {
-		return createErrorResult(HttpStatus.NOT_FOUND, e.getMessage());
-	}
-
-	@ExceptionHandler(UserNotFoundException.class)
-	public ResponseEntity<Map<String, Object>> handleUserNotFound(KeywordNotFoundException e) {
-		return createErrorResult(HttpStatus.NOT_FOUND, e.getMessage());
 	}
 
 }

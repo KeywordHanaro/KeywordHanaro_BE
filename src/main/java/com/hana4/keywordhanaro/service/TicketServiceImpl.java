@@ -7,8 +7,6 @@ import java.util.Random;
 import org.springframework.stereotype.Service;
 
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
-import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
-import com.hana4.keywordhanaro.exception.UserNotFoundException;
 import com.hana4.keywordhanaro.model.dto.TicketDto;
 import com.hana4.keywordhanaro.model.dto.TicketRequestDto;
 import com.hana4.keywordhanaro.model.entity.Ticket;
@@ -41,7 +39,7 @@ public class TicketServiceImpl implements TicketService {
 			validateWorkNumber(requestDto);
 
 			Keyword findKeyword = keywordRepository.findById(requestDto.getKeywordId())
-				.orElseThrow(KeywordNotFoundException::new);
+				.orElseThrow(() -> new NullPointerException("Keyword not found"));
 
 			Optional<Ticket> checkTicket = ticketRepository.findByUser(findKeyword.getUser());
 			if (checkTicket.isPresent()) {
@@ -55,7 +53,7 @@ public class TicketServiceImpl implements TicketService {
 			validateUser(requestDto);
 
 			User findUser = userRepository.findById(requestDto.getUserId())
-				.orElseThrow(UserNotFoundException::new);
+				.orElseThrow(() -> new NullPointerException("User not found"));
 
 			Optional<Ticket> checkTicket = ticketRepository.findByUser(findUser);
 			if (checkTicket.isPresent()) {
