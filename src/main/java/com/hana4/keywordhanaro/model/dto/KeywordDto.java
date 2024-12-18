@@ -2,12 +2,16 @@ package com.hana4.keywordhanaro.model.dto;
 
 import java.math.BigDecimal;
 
+import com.hana4.keywordhanaro.model.entity.user.User;
+
+import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class KeywordDTO {
+@Builder
+public class KeywordDto {
 	private Long id;
-	private String userId;
+	private User user;
 	private String type;
 	private String name;
 	private Boolean isFavorite;

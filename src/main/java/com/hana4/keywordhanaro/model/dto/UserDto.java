@@ -2,9 +2,11 @@ package com.hana4.keywordhanaro.model.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
+@SuperBuilder
 public class UserDto extends BaseDto {
 	private String id;
 	private String username;
