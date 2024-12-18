@@ -13,7 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -68,10 +69,17 @@ public class TransferServiceTest {
         // 잔액을 초과하는 금액으로 송금 시도
         BigDecimal excessAmount = new BigDecimal("10000000000");
 
-        // IllegalArgumentException이 발생하는지 확인
-        assertThrows(IllegalArgumentException.class, () -> {
-            transferService.transfer("111-222-3331", "111-222-3332", excessAmount);
-        });
+        // 송금 시도 및 결과 확인
+        Transaction result = transferService.transfer("111-222-3331", "111-222-3332", excessAmount);
+
+        // 실패한 거래 기록 확인
+        assertNotNull(result);
+        assertEquals(TransactionStatus.FAILURE, result.getStatus());
+        assertEquals(fromAccount, result.getAccount());
+        assertEquals(toAccount, result.getSubAccount());
+        assertEquals(excessAmount, result.getAmount());
+        assertEquals(TransactionType.WITHDRAW, result.getType());
+        assertEquals("잔액부족", result.getRemarks());
 
         // 계좌 잔액 확인
         Account updatedFromAccount = accountRepository.findByAccountNumber("111-222-3331");
@@ -80,6 +88,11 @@ public class TransferServiceTest {
         assertEquals(initialFromBalance, updatedFromAccount.getBalance());
         assertEquals(initialToBalance, updatedToAccount.getBalance());
 
+        // 데이터베이스에 실패한 거래 기록이 저장되었는지 확인
+        Transaction savedTransaction = transactionRepository.findById(result.getId()).orElse(null);
+        assertNotNull(savedTransaction);
+        assertEquals(TransactionStatus.FAILURE, savedTransaction.getStatus());
+        assertEquals("잔액부족", savedTransaction.getRemarks());
     }
 
     @Test

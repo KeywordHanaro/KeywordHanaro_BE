@@ -31,7 +31,7 @@ public class Transaction {
     @JoinColumn(name = "subAccountId", foreignKey = @ForeignKey(name = "fk_Transaction_subAccountId_Account"))
     private Account subAccount;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)

@@ -31,12 +31,11 @@ public class TransferServiceImpl implements TransferService {
 
         if (!fromAccount.canTransfer()) {
             return logFailedTransaction(fromAccount, toAccount, amount, "적금 계좌 송금 불가");
-//            throw new IllegalArgumentException("적금 계좌는 타 계좌로의 송금이 불가합니다.");
         }
 
         // 잔액 부족 시 처리 로직
         if (fromAccount.getBalance().compareTo(amount) < 0) {
-            throw new IllegalArgumentException("Insufficient balance");
+            return logFailedTransaction(fromAccount, toAccount, amount, "잔액부족");
         }
         // 계좌 잔액 업데이트(이체 로직)
         BigDecimal fromAccountAfterBalance = fromAccount.getBalance().subtract(amount);
