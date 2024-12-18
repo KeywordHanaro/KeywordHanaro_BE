@@ -1,13 +1,15 @@
 package com.hana4.keywordhanaro.controller;
 
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
+import com.hana4.keywordhanaro.exception.UserNotFoundException;
 
 @RestControllerAdvice
 public class ErrorController {
@@ -29,4 +31,15 @@ public class ErrorController {
 	public ResponseEntity<Map<String, Object>> nullPointerExceptionHandler(NullPointerException ne) {
 		return createErrorResult(HttpStatus.NOT_FOUND, ne.getMessage());
 	}
+
+	@ExceptionHandler(KeywordNotFoundException.class)
+	public ResponseEntity<Map<String, Object>> handleKeywordNotFound(KeywordNotFoundException e) {
+		return createErrorResult(HttpStatus.NOT_FOUND, e.getMessage());
+	}
+
+	@ExceptionHandler(UserNotFoundException.class)
+	public ResponseEntity<Map<String, Object>> handleUserNotFound(KeywordNotFoundException e) {
+		return createErrorResult(HttpStatus.NOT_FOUND, e.getMessage());
+	}
+
 }
