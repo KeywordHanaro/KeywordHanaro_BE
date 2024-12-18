@@ -6,6 +6,7 @@ import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
+import com.hana4.keywordhanaro.exception.InvalidRequestException;
 import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
 import com.hana4.keywordhanaro.exception.UserNotFoundException;
 import com.hana4.keywordhanaro.model.dto.TicketDto;
@@ -37,6 +38,8 @@ public class TicketServiceImpl implements TicketService {
 
 		// 키워드 사용 시
 		if (requestDto.getKeywordId() != null) {
+			validateWorkNumber(requestDto);
+
 			Keyword findKeyword = keywordRepository.findById(requestDto.getKeywordId())
 				.orElseThrow(KeywordNotFoundException::new);
 
@@ -47,6 +50,10 @@ public class TicketServiceImpl implements TicketService {
 
 			ticket = TicketMapper.toTicket_1(findKeyword, requestDto, waitingNumber, waitingGuest);
 		} else { // 일반 사용 시
+			validateWorkNumber(requestDto);
+			validateBranchIdAndName(requestDto);
+			validateUser(requestDto);
+
 			User findUser = userRepository.findById(requestDto.getUserId())
 				.orElseThrow(UserNotFoundException::new);
 
@@ -63,4 +70,27 @@ public class TicketServiceImpl implements TicketService {
 
 	}
 
+	private void validateWorkNumber(TicketRequestDto requestDto) {
+		if (requestDto.getWorkNumber() == 0) {
+			throw new InvalidRequestException("Work number is required for keyword ticket");
+		}
+		if (requestDto.getWorkNumber() < 1 || requestDto.getWorkNumber() > 3) {
+			throw new InvalidRequestException("Work number must be between 1 and 3");
+		}
+	}
+
+	private void validateBranchIdAndName(TicketRequestDto requestDto) {
+		if (requestDto.getBranchId() == null) {
+			throw new InvalidRequestException("Branch ID is required");
+		}
+		if (requestDto.getBranchName() == null || requestDto.getBranchName().trim().isEmpty()) {
+			throw new InvalidRequestException("Branch name is required");
+		}
+	}
+
+	private void validateUser(TicketRequestDto requestDto) {
+		if (requestDto.getUserId() == null) {
+			throw new InvalidRequestException("User ID is required");
+		}
+	}
 }

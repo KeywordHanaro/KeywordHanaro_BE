@@ -174,4 +174,73 @@ public class TicketControllerTest {
 		assertThat(firstTicket.getWaitingNumber()).isEqualTo(secondTicket.getWaitingNumber());
 	}
 
+	@Test
+	@DisplayName("예외 처리 - 유효하지 않은 workNumber 입력")
+	void testInvalidWorkNumber() throws Exception {
+		TicketRequestDto requestDto = TicketRequestDto.builder()
+			.keywordId(1L)
+			.workNumber((byte)4)  // 유효하지 않은 업무 번호 (1~3만 가능)
+			.build();
+
+		String requestBody = objectMapper.writeValueAsString(requestDto);
+
+		mockMvc.perform(post("/ticket")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.message").value("Work number must be between 1 and 3"));
+	}
+
+	@Test
+	@DisplayName("예외 처리 - 키워드 사용 시 필수 필드 누락")
+	void testMissingRequiredFieldsForKeyword() throws Exception {
+		TicketRequestDto requestDto = TicketRequestDto.builder()
+			.keywordId(1L)
+			// workNumber 누락
+			.build();
+
+		String requestBody = objectMapper.writeValueAsString(requestDto);
+
+		mockMvc.perform(post("/ticket")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.message").value("Work number is required for keyword ticket"));
+	}
+
+	@Test
+	@DisplayName("예외 처리 - 일반 사용 시 필수 필드 누락")
+	void testMissingRequiredFieldsForGeneral() throws Exception {
+		TicketRequestDto requestDto = TicketRequestDto.builder()
+			.workNumber((byte)1)
+			// branchId 누락
+			// branchName 누락
+			.build();
+
+		String requestBody = objectMapper.writeValueAsString(requestDto);
+
+		mockMvc.perform(post("/ticket")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.message").value("Branch ID is required"));
+	}
+
+	@Test
+	@DisplayName("예외 처리 - 존재하지 않는 키워드로 요청")
+	void testNonExistentKeyword() throws Exception {
+		TicketRequestDto requestDto = TicketRequestDto.builder()
+			.keywordId(999L)
+			.workNumber((byte)1)
+			.build();
+
+		String requestBody = objectMapper.writeValueAsString(requestDto);
+
+		mockMvc.perform(post("/ticket")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.message").value("Keyword not found"));
+	}
+
 }
