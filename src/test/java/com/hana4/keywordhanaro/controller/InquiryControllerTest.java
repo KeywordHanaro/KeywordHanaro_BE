@@ -236,4 +236,88 @@ class InquiryControllerTest {
 			});
 	}
 
+	@Test
+	@Order(5)
+	void testInvalidDateFormat() throws Exception {
+		String accountNumber = "123-456-789";
+		Account account = accountRepository.findByAccountNumber(accountNumber);
+		Long accountId = account.getId();
+
+		mockMvc.perform(get("/inquiry/{accountId}", accountId)
+				.param("startDate", "2023/01/01")
+				.param("endDate", "2023/12/31")
+				.param("transactionType", "all")
+				.param("sortOrder", "latest")
+				.param("searchWord", ""))
+			.andExpect(status().isBadRequest())
+			.andExpect(
+				jsonPath("$.message").value("Invalid date format. Please provide valid date format (yyyy-MM-dd)."));
+	}
+
+	@Test
+	@Order(6)
+	void testInvalidDateRange() throws Exception {
+		String accountNumber = "123-456-789";
+		Account account = accountRepository.findByAccountNumber(accountNumber);
+		Long accountId = account.getId();
+
+		mockMvc.perform(get("/inquiry/{accountId}", accountId)
+				.param("startDate", "2023-12-31")
+				.param("endDate", "2023-01-01")
+				.param("transactionType", "all")
+				.param("sortOrder", "latest")
+				.param("searchWord", ""))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.message").value("Start date cannot be after end date."));
+	}
+
+	@Test
+	@Order(7)
+	void testInvalidSortOrder() throws Exception {
+		String accountNumber = "123-456-789";
+		Account account = accountRepository.findByAccountNumber(accountNumber);
+		Long accountId = account.getId();
+
+		mockMvc.perform(get("/inquiry/{accountId}", accountId)
+				.param("startDate", "2023-01-01")
+				.param("endDate", "2023-12-31")
+				.param("transactionType", "all")
+				.param("sortOrder", "invalid")
+				.param("searchWord", ""))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.message").value("Invalid sortOrder. Must be 'latest' or 'oldest'."));
+	}
+
+	@Test
+	@Order(8)
+	void testInvalidTransactionType() throws Exception {
+		String accountNumber = "123-456-789";
+		Account account = accountRepository.findByAccountNumber(accountNumber);
+		Long accountId = account.getId();
+
+		mockMvc.perform(get("/inquiry/{accountId}", accountId)
+				.param("startDate", "2023-01-01")
+				.param("endDate", "2023-12-31")
+				.param("transactionType", "invalid")
+				.param("sortOrder", "latest")
+				.param("searchWord", ""))
+			.andExpect(status().isBadRequest())
+			.andExpect(
+				jsonPath("$.message").value("Invalid transactionType. Must be 'all' or a valid TransactionType."));
+	}
+
+	@Test
+	@Order(9)
+	void testNonExistentAccount() throws Exception {
+		Long nonExistentAccountId = 0L;
+
+		mockMvc.perform(get("/inquiry/{accountId}", nonExistentAccountId)
+				.param("startDate", "2023-01-01")
+				.param("endDate", "2023-12-31")
+				.param("transactionType", "all")
+				.param("sortOrder", "latest")
+				.param("searchWord", ""))
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.message").value("Account not found with ID: " + nonExistentAccountId));
+	}
 }
