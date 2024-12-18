@@ -1,5 +1,6 @@
 package com.hana4.keywordhanaro.model.entity.user;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.hana4.keywordhanaro.model.entity.BaseEntity;
 import com.hana4.keywordhanaro.model.entity.Ticket;
 
@@ -11,11 +12,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.EqualsAndHashCode;
 
 @Getter
 @Setter
@@ -52,6 +52,7 @@ public class User extends BaseEntity {
 	private int permission;
 
 	@OneToOne(mappedBy = "user")
+	@JsonManagedReference
 	private Ticket ticket;
 
 	public User(String username, String password, String name, UserStatus status, int permission) {

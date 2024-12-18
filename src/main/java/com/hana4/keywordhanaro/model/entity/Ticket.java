@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.hana4.keywordhanaro.model.entity.user.User;
 
 import jakarta.persistence.Column;
@@ -35,6 +36,7 @@ public class Ticket {
 
 	@OneToOne
 	@JoinColumn(name = "userId", nullable = false, foreignKey = @ForeignKey(name = "fk_Ticket_userId_User"))
+	@JsonBackReference
 	private User user;
 
 	@Column(name = "branchId", nullable = false)

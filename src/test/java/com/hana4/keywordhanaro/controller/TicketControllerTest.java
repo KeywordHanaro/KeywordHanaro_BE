@@ -1,5 +1,6 @@
 package com.hana4.keywordhanaro.controller;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -13,8 +14,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hana4.keywordhanaro.model.dto.TicketDto;
 import com.hana4.keywordhanaro.model.dto.TicketRequestDto;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
@@ -77,7 +80,7 @@ public class TicketControllerTest {
 	}
 
 	@Test
-	@DisplayName("번호표 기능 - 번호표 키워드 사용 시")
+	@DisplayName("번호표 키워드 사용 시")
 	void createTicketTestWithKeyword() throws Exception {
 		// Given
 		Keyword testKeyword = keywordRepository.findByName("inssTicketKeyword").orElseThrow();
@@ -103,7 +106,7 @@ public class TicketControllerTest {
 	}
 
 	@Test
-	@DisplayName("번호표 기능 - 일반 번호표 사용 시")
+	@DisplayName("일반 번호표 사용 시")
 	void createTicketTest() throws Exception {
 		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
 		TicketRequestDto requestDto = TicketRequestDto.builder()
@@ -129,6 +132,46 @@ public class TicketControllerTest {
 			.andExpect(jsonPath("$.waitingGuest").isNotEmpty())
 			.andExpect(jsonPath("$.workNumber").value(2))
 			.andExpect(jsonPath("$.createAt").isNotEmpty());
+	}
+
+	@Test
+	@DisplayName("이미 발급받은 번호표가 있을 경우 기존 번호표 반환")
+	void createTicketWithExistingTicket() throws Exception {
+		// Given
+		Keyword testKeyword = keywordRepository.findByName("inssTicketKeyword").orElseThrow();
+		TicketRequestDto requestDto = TicketRequestDto.builder()
+			.keywordId(testKeyword.getId())
+			.workNumber((byte)1)
+			.build();
+		String requestBody = objectMapper.writeValueAsString(requestDto);
+
+		// 첫번째 요청
+		MvcResult firstResult = mockMvc.perform(post("/ticket")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.id").isNotEmpty())
+			.andReturn();
+
+		TicketDto firstTicket = objectMapper.readValue(
+			firstResult.getResponse().getContentAsString(),
+			TicketDto.class
+		);
+
+		// 두번때 요청
+		MvcResult secondResult = mockMvc.perform(post("/ticket")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isOk())
+			.andReturn();
+
+		TicketDto secondTicket = objectMapper.readValue(
+			secondResult.getResponse().getContentAsString(),
+			TicketDto.class
+		);
+
+		assertThat(firstTicket.getId()).isEqualTo(secondTicket.getId());
+		assertThat(firstTicket.getWaitingNumber()).isEqualTo(secondTicket.getWaitingNumber());
 	}
 
 }
