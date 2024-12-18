@@ -42,4 +42,5 @@ public class ErrorController {
 		NoHandlerFoundException ex) {
 		return createErrorResult(HttpStatus.BAD_REQUEST, ex.getMessage());
 	}
+
 }
