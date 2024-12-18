@@ -74,4 +74,15 @@ public class Keyword {
 	@ManyToOne
 	@JoinColumn(name = "subAccountId", foreignKey = @ForeignKey(name = "fk_Keyword_subAccountId_Account"))
 	private Account subAccount;
+
+	public Keyword(User user, KeywordType type, Long seqOrder, String name, boolean isFavorite, String branch,
+		String description) {
+		this.user = user;
+		this.type = type;
+		this.seqOrder = seqOrder;
+		this.name = name;
+		this.isFavorite = isFavorite;
+		this.branch = branch;
+		this.description = description;
+	}
 }

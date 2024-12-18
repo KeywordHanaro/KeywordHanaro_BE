@@ -36,6 +36,7 @@ public class TicketServiceImpl implements TicketService {
 
 		// 키워드 사용 시
 		if (requestDTO.getKeywordId() != null) {
+			System.out.println("!!!!!!!!!!!!!!!!!");
 			Keyword findKeyword = keywordRepository.findById(requestDTO.getKeywordId()).orElseThrow();
 			ticket = TicketMapper.toTicket_1(findKeyword, requestDTO, waitingNumber, waitingGuest);
 		} // 일반 사용 시
