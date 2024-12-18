@@ -113,6 +113,8 @@ public class TicketControllerTest {
 			.workNumber((byte)2)
 			.build();
 
+		System.out.println("requestDto = " + requestDto);
+
 		String requestBody = objectMapper.writeValueAsString(requestDto);
 
 		mockMvc.perform(post("/ticket")
