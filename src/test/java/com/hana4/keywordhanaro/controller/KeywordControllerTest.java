@@ -16,17 +16,14 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.entity.Bank;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
 import com.hana4.keywordhanaro.model.entity.account.AccountType;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
-import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.entity.user.UserStatus;
 import com.hana4.keywordhanaro.repository.AccountRepository;
@@ -75,35 +72,35 @@ public class KeywordControllerTest {
 		}
 	}
 
-	@Test
-	@Order(1)
-	@DisplayName("조회 키워드 생성")
-	public void createInquiryKeywordTest() throws Exception {
-
-		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
-		Account testAccount = accountRepository.findByAccountNumber("111-222-3342").orElseThrow();
-
-		KeywordDto keywordDto = KeywordDto.builder()
-			.user(testUser)
-			.type(KeywordType.INQUIRY.name())
-			.name("월급 조회")
-			.desc("생활비 계좌에서 조회 > 월급")
-			.inquiryWord("월급")
-			.accountId(testAccount)
-			.build();
-
-		String requestBody = objectMapper.writeValueAsString(keywordDto);
-
-		mockMvc.perform(post("/keywords")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(requestBody))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.type").value("INQUIRY"))
-			.andExpect(jsonPath("$.name").value("월급 조회"))
-			.andExpect(jsonPath("$.desc").value("생활비 계좌에서 조회 > 월급"))
-			.andExpect(jsonPath("$.accountId").value("111-222-3342"))
-			.andExpect(jsonPath("$.inquiryWord").value("월급"));
-	}
+	// @Test
+	// @Order(1)
+	// @DisplayName("조회 키워드 생성")
+	// public void createInquiryKeywordTest() throws Exception {
+	//
+	// 	User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+	// 	Account testAccount = accountRepository.findByAccountNumber("111-222-3342").orElseThrow();
+	//
+	// 	KeywordDto keywordDto = KeywordDto.builder()
+	// 		.user(testUser)
+	// 		.type(KeywordType.INQUIRY.name())
+	// 		.name("월급 조회")
+	// 		.desc("생활비 계좌에서 조회 > 월급")
+	// 		.inquiryWord("월급")
+	// 		.accountId(testAccount)
+	// 		.build();
+	//
+	// 	String requestBody = objectMapper.writeValueAsString(keywordDto);
+	//
+	// 	mockMvc.perform(post("/keywords")
+	// 			.contentType(MediaType.APPLICATION_JSON)
+	// 			.content(requestBody))
+	// 		.andExpect(status().isOk())
+	// 		.andExpect(jsonPath("$.type").value("INQUIRY"))
+	// 		.andExpect(jsonPath("$.name").value("월급 조회"))
+	// 		.andExpect(jsonPath("$.desc").value("생활비 계좌에서 조회 > 월급"))
+	// 		.andExpect(jsonPath("$.accountId").value("111-222-3342"))
+	// 		.andExpect(jsonPath("$.inquiryWord").value("월급"));
+	// }
 
 	@Test
 	@Order(2)

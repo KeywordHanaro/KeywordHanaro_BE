@@ -19,6 +19,7 @@ public class KeywordMapper {
 			.branch(keyword.getBranch())
 			.account(AccountMapper.toDTO(keyword.getAccount()))
 			.subAccount(AccountMapper.toDTO(keyword.getSubAccount()))
+			.isFavorite(keyword.isFavorite())
 			.build();
 	}
 
