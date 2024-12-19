@@ -15,13 +15,11 @@ public class KeywordDto {
 	private Boolean isFavorite;
 	private String desc;
 	private Long seqOrder;
-	private String accountId;
-	private String subAccountId;
+	private AccountDto account;
+	private AccountDto subAccount;
 	private String inquiryWord;
 	private Boolean checkEveryTime;
 	private BigDecimal amount;
 	private String groupMember;
 	private String branch;
-	// private String fromAccount;
-	// private String toAccount;
 }

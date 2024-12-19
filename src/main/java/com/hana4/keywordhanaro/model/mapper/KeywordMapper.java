@@ -17,8 +17,8 @@ public class KeywordMapper {
 			.amount(keyword.getAmount())
 			.groupMember(keyword.getGroupMember())
 			.branch(keyword.getBranch())
-			.accountId(keyword.getAccount().getAccountNumber())
-			.subAccountId(keyword.getSubAccount().getAccountNumber())
+			.account(AccountMapper.toDTO(keyword.getAccount()))
+			.subAccount(AccountMapper.toDTO(keyword.getSubAccount()))
 			.build();
 	}
 }

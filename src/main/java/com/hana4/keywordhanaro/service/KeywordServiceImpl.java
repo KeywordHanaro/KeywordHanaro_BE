@@ -30,10 +30,8 @@ public class KeywordServiceImpl implements KeywordService {
 		User user = userRepository.findById(keywordDto.getUserId())
 			.orElseThrow(() -> new NullPointerException("User not found"));
 
-		// !!!!!!!!!!!!
-		Account account = accountRepository.findByAccountNumber(keywordDto.getAccountId());
-		// .orElseThrow(() -> new NullPointerException("Account not found"));
-		Account subAccount = accountRepository.findByAccountNumber(keywordDto.getSubAccountId());
+		Account account = null;
+		Account subAccount = null;
 
 		// 리스트 순서
 		Long newSeqOrder = keywordRepository.findTopByUserIdOrderBySeqOrderDesc(keywordDto.getUserId())
@@ -44,11 +42,14 @@ public class KeywordServiceImpl implements KeywordService {
 
 		switch (keywordDto.getType()) {
 			case "INQUIRY":
+				account = getAccount(keywordDto.getAccount().getAccountNumber());
 				keyword = new Keyword(user, KeywordType.INQUIRY, keywordDto.getName(), keywordDto.getDesc(),
 					newSeqOrder, account, keywordDto.getInquiryWord());
 				break;
 
 			case "TRANSFER":
+				account = getAccount(keywordDto.getAccount().getAccountNumber());
+				subAccount = getSubAccount(keywordDto.getSubAccount().getAccountNumber());
 				keyword = new Keyword(user, KeywordType.TRANSFER, keywordDto.getName(), keywordDto.getDesc(),
 					newSeqOrder, account, subAccount, keywordDto.getAmount(), keywordDto.getCheckEveryTime());
 				break;
@@ -59,6 +60,7 @@ public class KeywordServiceImpl implements KeywordService {
 				break;
 
 			case "SETTLEMENT":
+				account = getAccount(keywordDto.getAccount().getAccountNumber());
 				keyword = new Keyword(user, KeywordType.SETTLEMENT, keywordDto.getName(), keywordDto.getDesc(),
 					newSeqOrder, account, keywordDto.getGroupMember(), keywordDto.getAmount(),
 					keywordDto.getCheckEveryTime());
@@ -70,5 +72,15 @@ public class KeywordServiceImpl implements KeywordService {
 
 		keyword = keywordRepository.save(keyword);
 		return KeywordMapper.toDto(keyword);
+	}
+
+	private Account getAccount(String accountNumber) {
+		return accountRepository.findByAccountNumber(accountNumber)
+			.orElseThrow(() -> new NullPointerException("Withdrawal Account not found"));
+	}
+
+	private Account getSubAccount(String accountNumber) {
+		return accountRepository.findByAccountNumber(accountNumber)
+			.orElseThrow(() -> new NullPointerException("Receiving account not found"));
 	}
 }

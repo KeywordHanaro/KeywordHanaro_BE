@@ -74,7 +74,7 @@ public class KeywordControllerTest {
 	public void createInquiryKeywordTest() throws Exception {
 
 		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
-		Account testAccount = accountRepository.findByAccountNumber("111-222-3342");
+		Account testAccount = accountRepository.findByAccountNumber("111-222-3342").orElseThrow();
 
 		KeywordDto keywordDto = KeywordDto.builder()
 			.user(testUser)
