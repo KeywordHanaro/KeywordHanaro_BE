@@ -1,4 +1,4 @@
-name: Demo CI/CD
+name: KeywordHanaro CI/CD
 on:
   push:
     branches: [ master ]
