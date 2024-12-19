@@ -58,7 +58,7 @@ public class Keyword {
 
 	private Boolean checkEveryTime;
 
-	@Column(precision = 8, scale = 2)
+	@Column(precision = 15, scale = 2)
 	private BigDecimal amount;
 
 	@Column(columnDefinition = "JSON")
