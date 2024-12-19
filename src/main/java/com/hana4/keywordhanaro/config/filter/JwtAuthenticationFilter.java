@@ -5,11 +5,11 @@ import java.io.IOException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.hana4.keywordhanaro.model.entity.user.User;
-import com.hana4.keywordhanaro.utils.CustomUserDetails;
 import com.hana4.keywordhanaro.utils.JwtUtil;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final JwtUtil jwtUtil;
+	private final UserDetailsService userDetailsService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -45,12 +46,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		String username = jwtUtil.getUsername(accessToken);
 
-		User user = new User();
-		user.setUsername(username);
-		CustomUserDetails customUserDetails = new CustomUserDetails(user);
+		// User user = new User();
+		// user.setUsername(username);
+		// CustomUserDetails customUserDetails = new CustomUserDetails(user);
+		UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
 		Authentication authenticationToken = new UsernamePasswordAuthenticationToken(
-			customUserDetails, null, customUserDetails.getAuthorities());
+			userDetails, null, userDetails.getAuthorities());
 		SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
 		filterChain.doFilter(request, response);
