@@ -31,9 +31,8 @@ public class KeywordServiceImpl implements KeywordService {
 			.orElseThrow(() -> new NullPointerException("User not found"));
 
 		// !!!!!!!!!!!!
-		Account account = accountRepository.findByAccountNumber(keywordDto.getAccountId());
-		// .orElseThrow(() -> new NullPointerException("Account not found"));
-		Account subAccount = accountRepository.findByAccountNumber(keywordDto.getSubAccountId());
+		Account account = accountRepository.findByAccountNumber(keywordDto.getAccountId()).orElseThrow(() -> new NullPointerException("Account not found"));
+		Account subAccount = accountRepository.findByAccountNumber(keywordDto.getSubAccountId()).orElseThrow(() -> new NullPointerException("Account not found"));
 
 		// 리스트 순서
 		Long newSeqOrder = keywordRepository.findTopByUserIdOrderBySeqOrderDesc(keywordDto.getUserId())
@@ -82,13 +81,13 @@ public class KeywordServiceImpl implements KeywordService {
 		existingKeyword.setFavorite(keywordDto.getIsFavorite());
 
 		// 계좌 정보 업데이트
-		if (keywordDto.getAccountId() != null) {
-			Account account = accountRepository.findByAccountNumber(keywordDto.getAccountId());
+		if (keywordDto.getAccount() != null) {
+			Account account = accountRepository.findById(keywordDto.getAccount().getId()).orElseThrow(() -> new NullPointerException("Account not found"));
 			existingKeyword.setAccount(account);
 		}
 
-		if (keywordDto.getSubAccountId() != null) {
-			Account subAccount = accountRepository.findByAccountNumber(keywordDto.getSubAccountId());
+		if (keywordDto.getSubAccount() != null) {
+			Account subAccount = accountRepository.findByAccountNumber(keywordDto.getSubAccount().getAccountNumber()).orElseThrow(() -> new NullPointerException("Account not found"));
 			existingKeyword.setSubAccount(subAccount);
 		}
 
