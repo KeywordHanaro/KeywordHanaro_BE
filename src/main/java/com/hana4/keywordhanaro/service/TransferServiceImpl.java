@@ -24,20 +24,14 @@ public class TransferServiceImpl implements TransferService {
 
     @Transactional
     public Transaction transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount) {
-        Account fromAccount = accountRepository.findByAccountNumber(fromAccountNumber);
-        Account toAccount = accountRepository.findByAccountNumber(toAccountNumber);
+        Account fromAccount = accountRepository.findByAccountNumber(fromAccountNumber).orElseThrow(() -> new NullPointerException("출금 계좌번호가 존재하지 않습니다."));
+        Account toAccount = accountRepository.findByAccountNumber(toAccountNumber).orElseThrow(() -> new NullPointerException("출금 계좌번호가 존재하지 않습니다."));
 
         if (fromAccount == null) {
             throw new NullPointerException("출금 계좌번호가 존재하지 않습니다.");
         }
         if (toAccount == null) {
             throw new NullPointerException("입금 계좌번호가 존재하지 않습니다.");
-        }
-        if (!accountRepository.existsByAccountNumber(fromAccount.getAccountNumber())) {
-            throw new NullPointerException("출금 계좌번호 " + fromAccount.getAccountNumber() + "가 존재하지 않습니다.");
-        }
-        if (!accountRepository.existsByAccountNumber(toAccount.getAccountNumber())) {
-            throw new NullPointerException("입금 계좌번호 " + toAccount.getAccountNumber() + "가 존재하지 않습니다.");
         }
 
         if (!fromAccount.canTransfer()) {

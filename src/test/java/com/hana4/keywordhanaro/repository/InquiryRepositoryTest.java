@@ -62,7 +62,7 @@ class InquiryCustomRepositoryTest {
 
     @Test
     void testFindTransactions() {
-        Account account = accountRepository.findByAccountNumber("123-456-789");
+        Account account = accountRepository.findByAccountNumber("123-456-789").orElseThrow(() -> new NullPointerException("해당 계좌번호가 존재하지 않습니다."));
 
         Transaction t1 = new Transaction(account, account, BigDecimal.valueOf(20000.0),
                 TransactionType.WITHDRAW, "식비", BigDecimal.valueOf(100000.0), BigDecimal.valueOf(80000.0),

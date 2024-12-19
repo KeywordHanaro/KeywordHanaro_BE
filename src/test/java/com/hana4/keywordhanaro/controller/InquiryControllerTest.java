@@ -80,8 +80,8 @@ class InquiryControllerTest {
 
         if (inquiryJpaRepository.findFirstByAccount_AccountNumber("123-456-789").isEmpty()
                 && inquiryJpaRepository.findFirstByAccount_AccountNumber("987-654-321").isEmpty()) {
-            Account seoaAccount = accountRepository.findByAccountNumber("123-456-789");
-            Account jongwonAccount = accountRepository.findByAccountNumber("987-654-321");
+            Account seoaAccount = accountRepository.findByAccountNumber("123-456-789").orElseThrow(() -> new NullPointerException("해당 계좌번호가 존재하지 않습니다."));
+            Account jongwonAccount = accountRepository.findByAccountNumber("987-654-321").orElseThrow(() -> new NullPointerException("해당 계좌번호가 존재하지 않습니다."));
 
             // 밥값 거래
             Transaction t1 = new Transaction(seoaAccount, jongwonAccount, BigDecimal.valueOf(20000.0),
@@ -115,7 +115,7 @@ class InquiryControllerTest {
     @Order(1)
     void testGetAccountTransactions() throws Exception {
         String accountNumber = "123-456-789";
-        Account account = accountRepository.findByAccountNumber(accountNumber);
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new NullPointerException("해당 계좌번호가 존재하지 않습니다."));
         System.out.println("account = " + account);
         Long accountId = account.getId();
         System.out.println("accountId = " + accountId);
@@ -144,7 +144,7 @@ class InquiryControllerTest {
     @Order(2)
     void testGetAccountTransactionsWithFilter() throws Exception {
         String accountNumber = "123-456-789";
-        Account account = accountRepository.findByAccountNumber(accountNumber);
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new NullPointerException("해당 계좌번호가 존재하지 않습니다."));
         Long accountId = account.getId();
         LocalDate startDate = LocalDate.now().minusDays(30);
         LocalDate endDate = LocalDate.now();
@@ -168,7 +168,8 @@ class InquiryControllerTest {
     @Order(3)
     void testGetAccountTransactionsWithSearchWord2() throws Exception {
         String accountNumber = "987-654-321";
-        Account account = accountRepository.findByAccountNumber(accountNumber);
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new NullPointerException("해당 계좌번호가 존재하지 않습니다."));
+        ;
         Long accountId = account.getId();
         LocalDate startDate = LocalDate.now().minusDays(6);
         LocalDate endDate = LocalDate.now();
@@ -192,7 +193,7 @@ class InquiryControllerTest {
     @Order(4)
     void testGetAccountTransactionsSortOrder() throws Exception {
         String accountNumber = "123-456-789";
-        Account account = accountRepository.findByAccountNumber(accountNumber);
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new NullPointerException("해당 계좌번호가 존재하지 않습니다."));
         Long accountId = account.getId();
         LocalDate startDate = LocalDate.now().minusDays(30);
         LocalDate endDate = LocalDate.now();
@@ -234,7 +235,7 @@ class InquiryControllerTest {
     @Order(5)
     void testInvalidDateFormat() throws Exception {
         String accountNumber = "123-456-789";
-        Account account = accountRepository.findByAccountNumber(accountNumber);
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new NullPointerException("해당 계좌번호가 존재하지 않습니다."));
         Long accountId = account.getId();
 
         mockMvc.perform(get("/inquiry/{accountId}", accountId)
@@ -252,7 +253,7 @@ class InquiryControllerTest {
     @Order(6)
     void testInvalidDateRange() throws Exception {
         String accountNumber = "123-456-789";
-        Account account = accountRepository.findByAccountNumber(accountNumber);
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new NullPointerException("해당 계좌번호가 존재하지 않습니다."));
         Long accountId = account.getId();
 
         mockMvc.perform(get("/inquiry/{accountId}", accountId)
@@ -269,7 +270,7 @@ class InquiryControllerTest {
     @Order(7)
     void testInvalidSortOrder() throws Exception {
         String accountNumber = "123-456-789";
-        Account account = accountRepository.findByAccountNumber(accountNumber);
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new NullPointerException("해당 계좌번호가 존재하지 않습니다."));
         Long accountId = account.getId();
 
         mockMvc.perform(get("/inquiry/{accountId}", accountId)
@@ -286,7 +287,7 @@ class InquiryControllerTest {
     @Order(8)
     void testInvalidTransactionType() throws Exception {
         String accountNumber = "123-456-789";
-        Account account = accountRepository.findByAccountNumber(accountNumber);
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new NullPointerException("해당 계좌번호가 존재하지 않습니다."));
         Long accountId = account.getId();
 
         mockMvc.perform(get("/inquiry/{accountId}", accountId)

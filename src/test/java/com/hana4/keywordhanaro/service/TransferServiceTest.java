@@ -36,8 +36,8 @@ public class TransferServiceTest {
         String toAccountNumber = "32476762224";
         BigDecimal amount = BigDecimal.valueOf(100);
 
-        Account fromAccount = accountRepository.findByAccountNumber(fromAccountNumber);
-        Account toAccount = accountRepository.findByAccountNumber(toAccountNumber);
+        Account fromAccount = accountRepository.findByAccountNumber(fromAccountNumber).orElseThrow(() -> new NullPointerException("출금 계좌번호가 존재하지 않습니다."));
+        Account toAccount = accountRepository.findByAccountNumber(toAccountNumber).orElseThrow(() -> new NullPointerException("출금 계좌번호가 존재하지 않습니다."));
 
         assertNotNull(fromAccount, "From account must not be null");
         assertNotNull(toAccount, "To account must not be null");
@@ -52,8 +52,10 @@ public class TransferServiceTest {
         assertNotNull(transaction, "Transaction should not be null");
         assertEquals(TransactionStatus.SUCCESS, transaction.getStatus(), "Transaction status should be SUCCESS");
 
-        Account updatedFromAccount = accountRepository.findByAccountNumber(fromAccountNumber);
-        Account updatedToAccount = accountRepository.findByAccountNumber(toAccountNumber);
+        Account updatedFromAccount = accountRepository.findByAccountNumber(fromAccountNumber).orElseThrow(() -> new NullPointerException("출금 계좌번호가 존재하지 않습니다."));
+        ;
+        Account updatedToAccount = accountRepository.findByAccountNumber(toAccountNumber).orElseThrow(() -> new NullPointerException("출금 계좌번호가 존재하지 않습니다."));
+        ;
 
         assertEquals(initialFromBalance.subtract(amount), updatedFromAccount.getBalance(), "From account balance mismatch");
         assertEquals(initialToBalance.add(amount), updatedToAccount.getBalance(), "To account balance mismatch");
@@ -62,8 +64,8 @@ public class TransferServiceTest {
     @Test
     public void transferInsufficientBalanceTest() {
         // 초기 상태 확인
-        Account fromAccount = accountRepository.findByAccountNumber("111-222-3331");
-        Account toAccount = accountRepository.findByAccountNumber("111-222-3332");
+        Account fromAccount = accountRepository.findByAccountNumber("111-222-3331").orElseThrow(() -> new NullPointerException("출금 계좌번호가 존재하지 않습니다."));
+        Account toAccount = accountRepository.findByAccountNumber("111-222-3332").orElseThrow(() -> new NullPointerException("수취 계좌번호가 존재하지 않습니다."));
         BigDecimal initialFromBalance = fromAccount.getBalance();
         BigDecimal initialToBalance = toAccount.getBalance();
 
@@ -83,8 +85,8 @@ public class TransferServiceTest {
         assertEquals("잔액부족", result.getRemarks());
 
         // 계좌 잔액 확인
-        Account updatedFromAccount = accountRepository.findByAccountNumber("111-222-3331");
-        Account updatedToAccount = accountRepository.findByAccountNumber("111-222-3332");
+        Account updatedFromAccount = accountRepository.findByAccountNumber("111-222-3331").orElseThrow(() -> new NullPointerException("출금 계좌번호가 존재하지 않습니다."));
+        Account updatedToAccount = accountRepository.findByAccountNumber("111-222-3332").orElseThrow(() -> new NullPointerException("수취 계좌번호가 존재하지 않습니다."));
 
         assertEquals(initialFromBalance, updatedFromAccount.getBalance());
         assertEquals(initialToBalance, updatedToAccount.getBalance());
