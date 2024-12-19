@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -72,12 +73,17 @@ public class KeywordRepositoryTest {
 			User JunYongUser = userRepository.findFirstByUsername("JunYongID")
 				.orElseThrow(() -> new NullPointerException("User not found"));
 			Bank bank = bankRepository.findAll().stream().findFirst().get();
-			Account JunYonAccount = new Account("111-333-3342", JunYongUser, bank, "생활비 계좌", "1234", BigDecimal.valueOf(0),
+			Account JunYonAccount = new Account("111-333-3342", JunYongUser, bank, "생활비 계좌", "1234",
+				BigDecimal.valueOf(0),
 				BigDecimal.valueOf(300000), AccountType.DEPOSIT,
 				true, AccountStatus.ACTIVE);
 			accountRepository.save(JunYonAccount);
 		}
+	}
 
+	@AfterEach
+	void tearDown() {
+		keywordRepository.deleteAll();
 	}
 
 	@Test
@@ -91,8 +97,6 @@ public class KeywordRepositoryTest {
 		keyword.setName("keyword");
 		keyword.setDescription("keyword description");
 		keyword.setSeqOrder(100L);
-		keyword.setBranch("branch");
-		em.persist(keyword);
 		Keyword saveKeyword = keywordRepository.save(keyword);
 
 		keywordRepository.delete(saveKeyword);
@@ -124,14 +128,15 @@ public class KeywordRepositoryTest {
 	}
 
 	@Test
+	@DisplayName("조회 키워드 수정 테스트")
 	public void updateInquiryKeywordTest() {
 		User testUser = userRepository.findFirstByUsername("insunID")
 			.orElseThrow(() -> new NullPointerException("User not found"));
 		Account testFromAccount = accountRepository.findByAccountNumber("111-222-3342")
 			.orElseThrow(() -> new NullPointerException("Account not found"));
 
-		
-		Keyword keyword = new Keyword(testUser,KeywordType.INQUIRY, "title", "description", 100L,testFromAccount,"조회어");
+		Keyword keyword = new Keyword(testUser, KeywordType.INQUIRY, "title", "description", 100L, testFromAccount,
+			"조회어");
 		Keyword savedKeyword = keywordRepository.save(keyword);
 
 		savedKeyword.setName("수정된 조회 키워드");
@@ -146,6 +151,7 @@ public class KeywordRepositoryTest {
 	}
 
 	@Test
+	@DisplayName("송금 키워드 수정 테스트")
 	public void updateTransferKeywordTest() {
 		User testUser = userRepository.findFirstByUsername("insunID")
 			.orElseThrow(() -> new NullPointerException("User not found"));
@@ -154,7 +160,8 @@ public class KeywordRepositoryTest {
 		Account testToAccount = accountRepository.findByAccountNumber("111-333-3342")
 			.orElseThrow(() -> new NullPointerException("Account not found"));
 
-		Keyword keyword = new Keyword(testUser,KeywordType.TRANSFER, "title", "description", 100L, testFromAccount,testToAccount,BigDecimal.valueOf(200000),false);
+		Keyword keyword = new Keyword(testUser, KeywordType.TRANSFER, "title", "description", 100L, testFromAccount,
+			testToAccount, BigDecimal.valueOf(200000), false);
 		Keyword savedKeyword = keywordRepository.save(keyword);
 
 		savedKeyword.setName("수정된 이체 키워드");
@@ -171,13 +178,15 @@ public class KeywordRepositoryTest {
 	}
 
 	@Test
+	@DisplayName("정산 키워드 수정 테스트")
 	public void updateSettlementKeywordTest() {
 		User testUser = userRepository.findFirstByUsername("insunID")
 			.orElseThrow(() -> new NullPointerException("User not found"));
 		Account testFromAccount = accountRepository.findByAccountNumber("111-222-3342")
 			.orElseThrow(() -> new NullPointerException("Account not found"));
 
-		Keyword keyword = new Keyword(testUser, KeywordType.SETTLEMENT, "원래 이름", "원래 설명", 100L, testFromAccount, "[]", null, false);
+		Keyword keyword = new Keyword(testUser, KeywordType.SETTLEMENT, "원래 이름", "원래 설명", 100L, testFromAccount, "[]",
+			null, false);
 		Keyword savedKeyword = keywordRepository.save(keyword);
 
 		savedKeyword.setName("수정된 정산 키워드");
@@ -196,6 +205,7 @@ public class KeywordRepositoryTest {
 	}
 
 	@Test
+	@DisplayName("번호표 키워드 수정 테스트")
 	public void updateTicketKeywordTest() {
 		User testUser = userRepository.findFirstByUsername("insunID")
 			.orElseThrow(() -> new NullPointerException("User not found"));
@@ -246,6 +256,5 @@ public class KeywordRepositoryTest {
 			}
 			""");
 	}
-
 
 }

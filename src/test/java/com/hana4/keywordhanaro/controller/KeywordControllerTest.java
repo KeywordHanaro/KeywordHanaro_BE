@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.math.BigDecimal;
 
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -102,9 +103,14 @@ public class KeywordControllerTest {
 		}
 	}
 
+	@AfterEach
+	void tearDown() {
+		keywordRepository.deleteAll();
+	}
+
 	@Test
 	@Order(1)
-	@DisplayName("조회 키워드 생성")
+	@DisplayName("조회 키워드 생성 테스트")
 	public void createInquiryKeywordTest() throws Exception {
 
 		User testUser = userRepository.findFirstByUsername("insunID")
@@ -136,8 +142,8 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(3)
-	@DisplayName("송금 키워드 생성")
+	@Order(2)
+	@DisplayName("송금 키워드 생성 테스트")
 	public void createTransferKeywordTest() throws Exception {
 
 		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
@@ -172,8 +178,8 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(4)
-	@DisplayName("번호표 키워드 생성")
+	@Order(3)
+	@DisplayName("번호표 키워드 생성 테스트")
 	public void createTicketKeywordTest() throws Exception {
 		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
 		String testBranch = """
@@ -211,8 +217,8 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(5)
-	@DisplayName("정산 키워드 생성")
+	@Order(4)
+	@DisplayName("정산 키워드 생성 테스트")
 	public void createSettlementKeywordTest() throws Exception {
 		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
 		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
@@ -255,15 +261,16 @@ public class KeywordControllerTest {
 
 	}
 
-
 	@Test
-	@Order(1)
+	@Order(5)
 	@DisplayName("조회(Inquiry) 키워드 수정 테스트")
 	public void updateInquiryKeywordTest() throws Exception {
 		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
-		Account testAccount = accountRepository.findByAccountNumber("111-222-3342").orElseThrow(() ->new NullPointerException("Account not found"));
+		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
+			.orElseThrow(() -> new NullPointerException("Account not found"));
 
-		Keyword originalKeyword = new Keyword(testUser, KeywordType.INQUIRY, "원래 이름", "원래 설명", 100L, testAccount, "원래 조회어");
+		Keyword originalKeyword = new Keyword(testUser, KeywordType.INQUIRY, "원래 이름", "원래 설명", 100L, testAccount,
+			"원래 조회어");
 		originalKeyword = keywordRepository.save(originalKeyword);
 
 		KeywordDto updateDto = KeywordDto.builder()
@@ -285,14 +292,18 @@ public class KeywordControllerTest {
 			.andExpect(jsonPath("$.type").value("INQUIRY"));
 	}
 
-
+	@Test
+	@Order(6)
 	@DisplayName("이체(Transfer) 키워드 수정 테스트")
 	public void updateTransferKeywordTest() throws Exception {
 		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
-		Account testAccount = accountRepository.findByAccountNumber("111-222-3342").orElseThrow(() ->new NullPointerException("Account not found"));
-		Account subAccount = accountRepository.findByAccountNumber("222-333-4455").orElseThrow(() ->new NullPointerException("subAccount not found"));
+		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
+			.orElseThrow(() -> new NullPointerException("Account not found"));
+		Account subAccount = accountRepository.findByAccountNumber("222-333-4455")
+			.orElseThrow(() -> new NullPointerException("subAccount not found"));
 
-		Keyword originalKeyword = new Keyword(testUser, KeywordType.TRANSFER, "원래 이름", "원래 설명", 100L, testAccount, subAccount, BigDecimal.valueOf(50000), false);
+		Keyword originalKeyword = new Keyword(testUser, KeywordType.TRANSFER, "원래 이름", "원래 설명", 100L, testAccount,
+			subAccount, BigDecimal.valueOf(50000), false);
 		originalKeyword = keywordRepository.save(originalKeyword);
 
 		KeywordDto updateDto = KeywordDto.builder()
@@ -316,13 +327,15 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(3)
+	@Order(7)
 	@DisplayName("정산(Settlement) 키워드 수정 테스트")
 	public void updateSettlementKeywordTest() throws Exception {
 		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
-		Account testAccount = accountRepository.findByAccountNumber("111-222-3342").orElseThrow(() ->new NullPointerException("Account not found"));
+		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
+			.orElseThrow(() -> new NullPointerException("Account not found"));
 
-		Keyword originalKeyword = new Keyword(testUser, KeywordType.SETTLEMENT, "원래 이름", "원래 설명", 100L, testAccount, "[{\"name\":\"김철수\",\"tel\":\"010-1234-5678\"}]", BigDecimal.valueOf(50000), false);
+		Keyword originalKeyword = new Keyword(testUser, KeywordType.SETTLEMENT, "원래 이름", "원래 설명", 100L, testAccount,
+			"[{\"name\":\"김철수\",\"tel\":\"010-1234-5678\"}]", BigDecimal.valueOf(50000), false);
 		originalKeyword = keywordRepository.save(originalKeyword);
 
 		KeywordDto updateDto = KeywordDto.builder()
@@ -347,12 +360,13 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(4)
+	@Order(8)
 	@DisplayName("티켓(Ticket) 키워드 수정 테스트")
 	public void updateTicketKeywordTest() throws Exception {
 		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
 
-		Keyword originalKeyword = new Keyword(testUser, KeywordType.TICKET, "원래 이름", "원래 설명", 100L, "{\"name\":\"하나은행 강남지점\",\"address\":\"서울특별시 강남구 테헤란로 152\",\"tel\":\"02-123-4567\"}");
+		Keyword originalKeyword = new Keyword(testUser, KeywordType.TICKET, "원래 이름", "원래 설명", 100L,
+			"{\"name\":\"하나은행 강남지점\",\"address\":\"서울특별시 강남구 테헤란로 152\",\"tel\":\"02-123-4567\"}");
 		originalKeyword = keywordRepository.save(originalKeyword);
 		KeywordDto updateDto = KeywordDto.builder()
 			.name("수정된 티켓 키워드")
@@ -373,15 +387,23 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(2)
+	@Order(9)
 	@DisplayName("키워드 삭제 테스트")
 	void deleteKeywordTest() throws Exception {
+		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
+			.orElseThrow(() -> new NullPointerException("Account not found"));
+
+		Keyword originalKeyword = new Keyword(testUser, KeywordType.INQUIRY, "원래 이름", "원래 설명", 100L, testAccount,
+			"원래 조회어");
+		originalKeyword = keywordRepository.save(originalKeyword);
+		
 		Keyword keyword = keywordRepository.findAll().get(0);
 		mockMvc.perform(delete("/keyword/" + keyword.getId()))
 			.andExpect(status().isOk())
-				.andExpect(jsonPath("$.success").value("true"))
-				.andExpect(jsonPath("$.message").value("Keyword deleted successfully"));
+			.andExpect(jsonPath("$.success").value("true"))
+			.andExpect(jsonPath("$.message").value("Keyword deleted successfully"));
 
-			assertFalse(keywordRepository.existsById(keyword.getId()));
-		}
+		assertFalse(keywordRepository.existsById(keyword.getId()));
+	}
 }
