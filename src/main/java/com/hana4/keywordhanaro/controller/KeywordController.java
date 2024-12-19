@@ -1,6 +1,8 @@
 package com.hana4.keywordhanaro.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,5 +23,10 @@ public class KeywordController {
 	@PostMapping
 	public ResponseEntity<KeywordDto> createKeyword(@RequestBody KeywordDto keywordDto) {
 		return ResponseEntity.ok(keywordService.createKeyword(keywordDto));
+	}
+
+	@PatchMapping("/{id}")
+	public ResponseEntity<KeywordDto> updateKeyword(@PathVariable Long id, @RequestBody KeywordDto keywordDto) {
+		return ResponseEntity.ok(keywordService.updateKeyword(id, keywordDto));
 	}
 }
