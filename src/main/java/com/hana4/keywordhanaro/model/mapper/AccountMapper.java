@@ -5,6 +5,8 @@ import com.hana4.keywordhanaro.model.entity.account.Account;
 
 public class AccountMapper {
 	public static AccountDto toDTO(Account account) {
+		if (account == null)
+			return null;
 		return AccountDto.builder()
 			.id(account.getId())
 			.accountNumber(account.getAccountNumber())

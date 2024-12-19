@@ -70,8 +70,9 @@ public class TicketControllerTest {
 				}
 				""";
 
-			Keyword testKeyword = new Keyword(testUser, KeywordType.TICKET, 1L, "inssTicketKeyword", true, testBranch,
-				"번호표 키워드 테스트 통과 ?!");
+			Keyword testKeyword = new Keyword(testUser, KeywordType.TICKET, "inssTicketKeyword", "번호표 키워드 테스트 통과 ?!",
+				1L, testBranch
+			);
 			keywordRepository.save(testKeyword);
 		}
 	}
