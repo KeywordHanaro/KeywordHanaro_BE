@@ -1,5 +1,9 @@
 package com.hana4.keywordhanaro.service;
 
+import java.util.Optional;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
@@ -31,8 +35,9 @@ public class KeywordServiceImpl implements KeywordService {
 			.orElseThrow(() -> new NullPointerException("User not found"));
 
 		// !!!!!!!!!!!!
-		Account account = accountRepository.findByAccountNumber(keywordDto.getAccountId()).orElseThrow(() -> new NullPointerException("Account not found"));
-		Account subAccount = accountRepository.findByAccountNumber(keywordDto.getSubAccountId()).orElseThrow(() -> new NullPointerException("Account not found"));
+		Account account = accountRepository.findByAccountNumber(keywordDto.getAccountId());
+		// .orElseThrow(() -> new NullPointerException("Account not found"));
+		Account subAccount = accountRepository.findByAccountNumber(keywordDto.getSubAccountId());
 
 		// 리스트 순서
 		Long newSeqOrder = keywordRepository.findTopByUserIdOrderBySeqOrderDesc(keywordDto.getUserId())
@@ -112,5 +117,17 @@ public class KeywordServiceImpl implements KeywordService {
 
 		Keyword updatedKeyword = keywordRepository.save(existingKeyword);
 		return KeywordMapper.toDto(updatedKeyword);
+	}
+
+	@Override
+	public ResponseEntity<KeywordMapper.DeleteResponse> removeKeyword(Long id) {
+		Optional<Keyword> keyword = keywordRepository.findById(id);
+		if (keyword.isPresent()) {
+			keywordRepository.delete(keyword.get());
+			return ResponseEntity.ok(new KeywordMapper.DeleteResponse(true, "Keyword deleted successfully"));
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				.body(new KeywordMapper.DeleteResponse(false, "Keyword not found"));
+		}
 	}
 }
