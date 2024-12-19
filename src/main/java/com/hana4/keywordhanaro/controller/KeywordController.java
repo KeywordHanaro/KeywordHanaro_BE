@@ -1,6 +1,8 @@
 package com.hana4.keywordhanaro.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,5 +31,10 @@ public class KeywordController {
 	@DeleteMapping("/{id}")
 	public ResponseEntity<KeywordMapper.DeleteResponse> deleteKeyword(@PathVariable Long id) {
 		return keywordService.removeKeyword(id);
+	}
+
+	@PatchMapping("/{id}")
+	public ResponseEntity<KeywordDto> updateKeyword(@PathVariable Long id, @RequestBody KeywordDto keywordDto) {
+		return ResponseEntity.ok(keywordService.updateKeyword(id, keywordDto));
 	}
 }

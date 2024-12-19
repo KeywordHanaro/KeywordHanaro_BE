@@ -89,6 +89,49 @@ public class KeywordServiceImpl implements KeywordService {
 	}
 
 	@Override
+	public KeywordDto updateKeyword(Long id, KeywordDto keywordDto){
+		Keyword existingKeyword = keywordRepository.findById(id).orElseThrow(() -> new NullPointerException("Keyword not found"));
+
+		// 기본 정보 업데이트
+		existingKeyword.setName(keywordDto.getName());
+		existingKeyword.setDescription(keywordDto.getDesc());
+		existingKeyword.setFavorite(keywordDto.getIsFavorite());
+
+		// 계좌 정보 업데이트
+		if (keywordDto.getAccount() != null) {
+			Account account = accountRepository.findById(keywordDto.getAccount().getId()).orElseThrow(() -> new NullPointerException("Account not found"));
+			existingKeyword.setAccount(account);
+		}
+
+		if (keywordDto.getSubAccount() != null) {
+			Account subAccount = accountRepository.findByAccountNumber(keywordDto.getSubAccount().getAccountNumber()).orElseThrow(() -> new NullPointerException("Account not found"));
+			existingKeyword.setSubAccount(subAccount);
+		}
+
+		// 타입별 특정 필드 업데이트
+		switch (existingKeyword.getType()) {
+			case INQUIRY:
+				existingKeyword.setInquiryWord(keywordDto.getInquiryWord());
+				break;
+			case TRANSFER:
+				existingKeyword.setAmount(keywordDto.getAmount());
+				existingKeyword.setCheckEveryTime(keywordDto.getCheckEveryTime());
+				break;
+			case TICKET:
+				existingKeyword.setBranch(keywordDto.getBranch());
+				break;
+			case SETTLEMENT:
+				existingKeyword.setGroupMember(keywordDto.getGroupMember());
+				existingKeyword.setAmount(keywordDto.getAmount());
+				existingKeyword.setCheckEveryTime(keywordDto.getCheckEveryTime());
+				break;
+		}
+
+		Keyword updatedKeyword = keywordRepository.save(existingKeyword);
+		return KeywordMapper.toDto(updatedKeyword);
+	}
+
+	@Override
 	public ResponseEntity<KeywordMapper.DeleteResponse> removeKeyword(Long id) {
 		Optional<Keyword> keyword = keywordRepository.findById(id);
 		if (keyword.isPresent()) {

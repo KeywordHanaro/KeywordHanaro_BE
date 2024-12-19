@@ -21,7 +21,7 @@ public class KeywordMapper {
 			.subAccount(AccountMapper.toDTO(keyword.getSubAccount()))
 			.build();
 	}
-	
+
 	public static class DeleteResponse {
 		private boolean success;
 		private String message;
