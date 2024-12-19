@@ -7,7 +7,7 @@ public class KeywordMapper {
 	public static KeywordDto toDto(Keyword keyword) {
 		return KeywordDto.builder()
 			.id(keyword.getId())
-			.user(keyword.getUser())
+			.userId(keyword.getUser().getId())
 			.type(keyword.getType().name())
 			.name(keyword.getName())
 			.desc(keyword.getDescription())
@@ -17,8 +17,8 @@ public class KeywordMapper {
 			.amount(keyword.getAmount())
 			.groupMember(keyword.getGroupMember())
 			.branch(keyword.getBranch())
-			.accountId(keyword.getAccount())
-			.subAccountId(keyword.getSubAccount())
+			.accountId(keyword.getAccount().getAccountNumber())
+			.subAccountId(keyword.getSubAccount().getAccountNumber())
 			.build();
 	}
 }

@@ -4,10 +4,12 @@ import org.springframework.stereotype.Service;
 
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
+import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.mapper.KeywordMapper;
+import com.hana4.keywordhanaro.repository.AccountRepository;
 import com.hana4.keywordhanaro.repository.KeywordRepository;
 import com.hana4.keywordhanaro.repository.UserRepository;
 
@@ -19,17 +21,23 @@ public class KeywordServiceImpl implements KeywordService {
 
 	private final KeywordRepository keywordRepository;
 	private final UserRepository userRepository;
+	private final AccountRepository accountRepository;
 
-	private static final long SEQ_ORDER_INTERVAL = 100;
+	private static final Long SEQ_ORDER_INTERVAL = 100L;
 
 	@Override
 	public KeywordDto createKeyword(KeywordDto keywordDto) {
-		User user = userRepository.findById(keywordDto.getUser().getId())
+		User user = userRepository.findById(keywordDto.getUserId())
 			.orElseThrow(() -> new NullPointerException("User not found"));
 
+		// !!!!!!!!!!!!
+		Account account = accountRepository.findByAccountNumber(keywordDto.getAccountId());
+		// .orElseThrow(() -> new NullPointerException("Account not found"));
+		Account subAccount = accountRepository.findByAccountNumber(keywordDto.getSubAccountId());
+
 		// 리스트 순서
-		Long newSeqOrder = keywordRepository.findTopByUserIdOrderBySeqOrderDesc(user.getId())
-			.map(maxSeqOrder -> maxSeqOrder + SEQ_ORDER_INTERVAL)
+		Long newSeqOrder = keywordRepository.findTopByUserIdOrderBySeqOrderDesc(keywordDto.getUserId())
+			.map(keyword -> keyword.getSeqOrder() + SEQ_ORDER_INTERVAL)
 			.orElse(SEQ_ORDER_INTERVAL);
 
 		Keyword keyword;
@@ -37,13 +45,12 @@ public class KeywordServiceImpl implements KeywordService {
 		switch (keywordDto.getType()) {
 			case "INQUIRY":
 				keyword = new Keyword(user, KeywordType.INQUIRY, keywordDto.getName(), keywordDto.getDesc(),
-					newSeqOrder, keywordDto.getAccountId(), keywordDto.getInquiryWord());
+					newSeqOrder, account, keywordDto.getInquiryWord());
 				break;
 
 			case "TRANSFER":
 				keyword = new Keyword(user, KeywordType.TRANSFER, keywordDto.getName(), keywordDto.getDesc(),
-					newSeqOrder, keywordDto.getAccountId(), keywordDto.getSubAccountId(), keywordDto.getAmount(),
-					keywordDto.getCheckEveryTime());
+					newSeqOrder, account, subAccount, keywordDto.getAmount(), keywordDto.getCheckEveryTime());
 				break;
 
 			case "TICKET":
@@ -53,7 +60,7 @@ public class KeywordServiceImpl implements KeywordService {
 
 			case "SETTLEMENT":
 				keyword = new Keyword(user, KeywordType.SETTLEMENT, keywordDto.getName(), keywordDto.getDesc(),
-					newSeqOrder, keywordDto.getAccountId(), keywordDto.getGroupMember(), keywordDto.getAmount(),
+					newSeqOrder, account, keywordDto.getGroupMember(), keywordDto.getAmount(),
 					keywordDto.getCheckEveryTime());
 				break;
 
