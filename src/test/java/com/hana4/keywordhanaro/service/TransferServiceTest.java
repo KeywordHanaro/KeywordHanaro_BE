@@ -6,15 +6,16 @@ import com.hana4.keywordhanaro.model.entity.transaction.TransactionStatus;
 import com.hana4.keywordhanaro.model.entity.transaction.TransactionType;
 import com.hana4.keywordhanaro.repository.AccountRepository;
 import com.hana4.keywordhanaro.repository.TransactionRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -133,5 +134,33 @@ public class TransferServiceTest {
         assertEquals(TransactionStatus.FAILURE, savedTransaction.getStatus());
         assertEquals("적금 계좌 송금 불가", savedTransaction.getRemarks());
     }
+
+    @Test
+    @DisplayName("존재하지 않는 계좌번호로 이체 시도시 NullPointerException 발생")
+    public void transferWithNonExistentAccountTest() {
+        // given
+        String nonExistentAccountNumber = "999"; // 존재하지 않는 계좌번호
+        String toAccountNumber = "1";
+        BigDecimal amount = BigDecimal.valueOf(1000);
+
+        // when & then
+        Exception exception = assertThrows(NullPointerException.class, () -> {
+            transferService.transfer(nonExistentAccountNumber, toAccountNumber, amount);
+        });
+
+        // 에러 메시지 검증
+        assertEquals("출금 계좌번호가 존재하지 않습니다.", exception.getMessage());
+
+        // 실패 거래 기록 검증
+        List<Transaction> failedTransactions = transactionRepository
+                .findByTypeAndStatus(TransactionType.WITHDRAW, TransactionStatus.FAILURE);
+
+        assertFalse(failedTransactions.isEmpty());
+        Transaction failedTransaction = failedTransactions.get(failedTransactions.size() - 1);
+        assertEquals(TransactionStatus.FAILURE, failedTransaction.getStatus());
+        assertEquals(TransactionType.WITHDRAW, failedTransaction.getType());
+        assertNotNull(failedTransaction.getRemarks());
+    }
+
 }
 

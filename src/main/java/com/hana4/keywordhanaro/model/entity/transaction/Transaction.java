@@ -59,7 +59,7 @@ public class Transaction {
     private String remarks;
 
     public Transaction(Account account, Account subAccount, BigDecimal amount, TransactionType type, String alias,
-                       BigDecimal beforeBalance, BigDecimal afterBalance, TransactionStatus status, LocalDateTime createAt) {
+                       BigDecimal beforeBalance, BigDecimal afterBalance, TransactionStatus status, LocalDateTime createAt, String remarks) {
         this.account = account;
         this.subAccount = subAccount;
         this.amount = amount;
@@ -69,5 +69,6 @@ public class Transaction {
         this.afterBalance = afterBalance;
         this.status = status;
         this.createAt = createAt;
+        this.remarks = remarks;
     }
 }

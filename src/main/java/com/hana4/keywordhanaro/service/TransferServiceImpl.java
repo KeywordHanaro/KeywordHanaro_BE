@@ -7,6 +7,7 @@ import com.hana4.keywordhanaro.model.entity.transaction.TransactionType;
 import com.hana4.keywordhanaro.repository.AccountRepository;
 import com.hana4.keywordhanaro.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TransferServiceImpl implements TransferService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
@@ -25,8 +27,17 @@ public class TransferServiceImpl implements TransferService {
         Account fromAccount = accountRepository.findByAccountNumber(fromAccountNumber);
         Account toAccount = accountRepository.findByAccountNumber(toAccountNumber);
 
-        if (fromAccount == null || toAccount == null) {
-            throw new IllegalArgumentException("Invalid account number");
+        if (fromAccount == null) {
+            throw new NullPointerException("출금 계좌번호가 존재하지 않습니다.");
+        }
+        if (toAccount == null) {
+            throw new NullPointerException("입금 계좌번호가 존재하지 않습니다.");
+        }
+        if (!accountRepository.existsByAccountNumber(fromAccount.getAccountNumber())) {
+            throw new NullPointerException("출금 계좌번호 " + fromAccount.getAccountNumber() + "가 존재하지 않습니다.");
+        }
+        if (!accountRepository.existsByAccountNumber(toAccount.getAccountNumber())) {
+            throw new NullPointerException("입금 계좌번호 " + toAccount.getAccountNumber() + "가 존재하지 않습니다.");
         }
 
         if (!fromAccount.canTransfer()) {
@@ -75,7 +86,8 @@ public class TransferServiceImpl implements TransferService {
         transaction.setRemarks(reason);
 
         // log about failure Transaction
-        System.err.println("Transaction failed: " + reason);
+//        System.err.println("Transaction failed: " + reason);
+        log.error("Invalid transactionType: {}", reason);
 
         return transactionRepository.save(transaction);
     }
