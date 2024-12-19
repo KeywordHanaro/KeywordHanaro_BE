@@ -46,12 +46,9 @@ public class KeywordServiceImpl implements KeywordService {
 
 		switch (keywordDto.getType()) {
 			case "INQUIRY":
-				// System.out.println("account before = " + account);
 				account = getAccount(keywordDto.getAccount().getId());
-				System.out.println("account after = " + account);
 				keyword = new Keyword(user, KeywordType.INQUIRY, keywordDto.getName(), keywordDto.getDesc(),
 					newSeqOrder, account, keywordDto.getInquiryWord());
-				System.out.println("keyword = " + keyword.getAccount());
 				break;
 
 			case "TRANSFER":
@@ -78,14 +75,13 @@ public class KeywordServiceImpl implements KeywordService {
 		}
 
 		keyword = keywordRepository.save(keyword);
-		System.out.println("keyword = " + keyword);
 		return KeywordMapper.toDto(keyword);
 	}
 
 	private Account getAccount(Long accountId) {
 		System.out.println("!!!!!!accountRepository = " + accountRepository.findById(accountId));
 		return accountRepository.findById(accountId)
-			.orElseThrow(() -> new NullPointerException("Withdrawal Account not found"));
+			.orElseThrow(() -> new NullPointerException("Account not found"));
 	}
 
 	private Account getSubAccount(String accountNumber) {
