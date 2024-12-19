@@ -18,7 +18,7 @@ public class KeywordDto {
 	private String userId;
 	private String type;
 	private String name;
-	private Boolean isFavorite;
+	private boolean isFavorite = false;
 	private String desc;
 	private Long seqOrder;
 	private AccountDto account;

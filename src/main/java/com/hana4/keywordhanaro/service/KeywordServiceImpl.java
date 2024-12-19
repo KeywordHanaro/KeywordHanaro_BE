@@ -97,7 +97,7 @@ public class KeywordServiceImpl implements KeywordService {
 		// 기본 정보 업데이트
 		existingKeyword.setName(keywordDto.getName());
 		existingKeyword.setDescription(keywordDto.getDesc());
-		existingKeyword.setFavorite(keywordDto.getIsFavorite());
+		existingKeyword.setFavorite(keywordDto.isFavorite());
 		System.out.println("!!!!1" + existingKeyword);
 
 		// 계좌 정보 업데이트
