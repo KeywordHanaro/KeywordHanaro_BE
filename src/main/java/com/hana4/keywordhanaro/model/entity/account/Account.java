@@ -40,10 +40,10 @@ public class Account extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal balance;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal transferLimit;
 
     @Enumerated(EnumType.STRING)

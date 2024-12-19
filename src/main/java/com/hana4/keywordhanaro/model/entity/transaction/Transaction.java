@@ -41,10 +41,10 @@ public class Transaction {
     @Column(length = 36)
     private String alias;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal beforeBalance;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal afterBalance;
 
     @CreationTimestamp
