@@ -37,6 +37,8 @@ public class KeywordServiceImpl implements KeywordService {
 		Account account = null;
 		Account subAccount = null;
 
+		validateCommonRequest(keywordDto);
+
 		// 리스트 순서
 		Long newSeqOrder = keywordRepository.findTopByUserIdOrderBySeqOrderDesc(keywordDto.getUser().getId())
 			.map(keyword -> keyword.getSeqOrder() + SEQ_ORDER_INTERVAL)
@@ -46,12 +48,14 @@ public class KeywordServiceImpl implements KeywordService {
 
 		switch (keywordDto.getType()) {
 			case "INQUIRY":
+				validateInquiryKeyword(keywordDto);
 				account = getAccount(keywordDto.getAccount().getId());
 				keyword = new Keyword(user, KeywordType.INQUIRY, keywordDto.getName(), keywordDto.getDesc(),
 					newSeqOrder, account, keywordDto.getInquiryWord());
 				break;
 
 			case "TRANSFER":
+				validateTransferKeyword(keywordDto);
 				account = getAccount(keywordDto.getAccount().getId());
 				subAccount = getSubAccount(keywordDto.getSubAccount().getAccountNumber());
 				keyword = new Keyword(user, KeywordType.TRANSFER, keywordDto.getName(), keywordDto.getDesc(),
@@ -59,11 +63,13 @@ public class KeywordServiceImpl implements KeywordService {
 				break;
 
 			case "TICKET":
+				validateTicketKeyword(keywordDto);
 				keyword = new Keyword(user, KeywordType.TICKET, keywordDto.getName(), keywordDto.getDesc(),
 					newSeqOrder, keywordDto.getBranch());
 				break;
 
 			case "SETTLEMENT":
+				validateSettlementKeyword(keywordDto);
 				account = getAccount(keywordDto.getAccount().getId());
 				keyword = new Keyword(user, KeywordType.SETTLEMENT, keywordDto.getName(), keywordDto.getDesc(),
 					newSeqOrder, account, keywordDto.getGroupMember(), keywordDto.getAmount(),
@@ -98,7 +104,6 @@ public class KeywordServiceImpl implements KeywordService {
 		existingKeyword.setName(keywordDto.getName());
 		existingKeyword.setDescription(keywordDto.getDesc());
 		existingKeyword.setFavorite(keywordDto.isFavorite());
-		System.out.println("!!!!1" + existingKeyword);
 
 		// 계좌 정보 업데이트
 		if (keywordDto.getAccount() != null) {
@@ -119,6 +124,7 @@ public class KeywordServiceImpl implements KeywordService {
 				existingKeyword.setInquiryWord(keywordDto.getInquiryWord());
 				break;
 			case TRANSFER:
+				validateAmountAndCheckEveryTime(keywordDto);
 				existingKeyword.setAmount(keywordDto.getAmount());
 				existingKeyword.setCheckEveryTime(keywordDto.getCheckEveryTime());
 				break;
@@ -126,6 +132,7 @@ public class KeywordServiceImpl implements KeywordService {
 				existingKeyword.setBranch(keywordDto.getBranch());
 				break;
 			case SETTLEMENT:
+				validateAmountAndCheckEveryTime(keywordDto);
 				existingKeyword.setGroupMember(keywordDto.getGroupMember());
 				existingKeyword.setAmount(keywordDto.getAmount());
 				existingKeyword.setCheckEveryTime(keywordDto.getCheckEveryTime());
@@ -145,6 +152,62 @@ public class KeywordServiceImpl implements KeywordService {
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
 				.body(new KeywordMapper.DeleteResponse(false, "Keyword not found"));
+		}
+	}
+
+	private void validateCommonRequest(KeywordDto keywordDto) {
+		if (keywordDto.getType() == null) {
+			throw new InvalidRequestException("Keyword type is required");
+		}
+		if (keywordDto.getName() == null || keywordDto.getName().trim().isEmpty()) {
+			throw new InvalidRequestException("Keyword name is required");
+		}
+		if (keywordDto.getDesc() == null || keywordDto.getDesc().trim().isEmpty()) {
+			throw new InvalidRequestException("Keyword description is required");
+		}
+	}
+
+	private void validateInquiryKeyword(KeywordDto keywordDto) {
+		if (keywordDto.getAccount() == null) {
+			throw new InvalidRequestException("Account is required for INQUIRY keyword");
+		}
+		if (keywordDto.getInquiryWord() == null || keywordDto.getInquiryWord().trim().isEmpty()) {
+			throw new InvalidRequestException("Inquiry word is required for INQUIRY keyword");
+		}
+	}
+
+	private void validateTransferKeyword(KeywordDto keywordDto) {
+		if (keywordDto.getAccount() == null) {
+			throw new InvalidRequestException("Account is required for TRANSFER keyword");
+		}
+		if (keywordDto.getSubAccount() == null) {
+			throw new InvalidRequestException("Sub-account is required for TRANSFER keyword");
+		}
+		validateAmountAndCheckEveryTime(keywordDto);
+	}
+
+	private void validateTicketKeyword(KeywordDto keywordDto) {
+		if (keywordDto.getBranch() == null || keywordDto.getBranch().trim().isEmpty()) {
+			throw new InvalidRequestException("Branch information is required for TICKET keyword");
+		}
+	}
+
+	private void validateSettlementKeyword(KeywordDto keywordDto) {
+		if (keywordDto.getAccount() == null) {
+			throw new InvalidRequestException("Account is required for SETTLEMENT keyword");
+		}
+		if (keywordDto.getGroupMember() == null || keywordDto.getGroupMember().trim().isEmpty()) {
+			throw new InvalidRequestException("Group member information is required for SETTLEMENT keyword");
+		}
+		validateAmountAndCheckEveryTime(keywordDto);
+	}
+
+	private void validateAmountAndCheckEveryTime(KeywordDto keywordDto) {
+		if (Boolean.TRUE.equals(keywordDto.getCheckEveryTime()) && keywordDto.getAmount() != null) {
+			throw new InvalidRequestException("Amount should not be provided when checkEveryTime is true");
+		}
+		if (Boolean.FALSE.equals(keywordDto.getCheckEveryTime()) && keywordDto.getAmount() == null) {
+			throw new InvalidRequestException("Valid amount is required when checkEveryTime is false");
 		}
 	}
 }
