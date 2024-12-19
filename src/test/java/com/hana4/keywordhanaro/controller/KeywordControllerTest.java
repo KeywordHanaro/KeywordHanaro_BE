@@ -1,5 +1,6 @@
 package com.hana4.keywordhanaro.controller;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -7,8 +8,11 @@ import java.math.BigDecimal;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +25,7 @@ import com.hana4.keywordhanaro.model.entity.Bank;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
 import com.hana4.keywordhanaro.model.entity.account.AccountType;
+import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.entity.user.UserStatus;
@@ -32,6 +37,7 @@ import com.hana4.keywordhanaro.repository.UserRepository;
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class KeywordControllerTest {
 
 	@Autowired
@@ -70,6 +76,7 @@ public class KeywordControllerTest {
 	}
 
 	@Test
+	@Order(1)
 	@DisplayName("조회 키워드 생성")
 	public void createInquiryKeywordTest() throws Exception {
 
@@ -98,6 +105,18 @@ public class KeywordControllerTest {
 			.andExpect(jsonPath("$.inquiryWord").value("월급"));
 	}
 
+	@Test
+	@Order(2)
+	@DisplayName("키워드 삭제 테스트")
+	void deleteKeywordTest() throws Exception {
+		Keyword keyword = keywordRepository.findAll().get(0);
+		mockMvc.perform(delete("/keywords/" + keyword.getId()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.success").value("true"))
+			.andExpect(jsonPath("$.message").value("Keyword deleted successfully"));
+
+		assertFalse(keywordRepository.existsById(keyword.getId()));
+	}
 	// Add similar tests for other types...
 }
-}
+
