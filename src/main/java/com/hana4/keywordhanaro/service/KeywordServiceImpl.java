@@ -46,13 +46,13 @@ public class KeywordServiceImpl implements KeywordService {
 
 		switch (keywordDto.getType()) {
 			case "INQUIRY":
-				account = getAccount(keywordDto.getAccount().getAccountNumber());
+				account = getAccount(keywordDto.getAccount().getId());
 				keyword = new Keyword(user, KeywordType.INQUIRY, keywordDto.getName(), keywordDto.getDesc(),
 					newSeqOrder, account, keywordDto.getInquiryWord());
 				break;
 
 			case "TRANSFER":
-				account = getAccount(keywordDto.getAccount().getAccountNumber());
+				account = getAccount(keywordDto.getAccount().getId());
 				subAccount = getSubAccount(keywordDto.getSubAccount().getAccountNumber());
 				keyword = new Keyword(user, KeywordType.TRANSFER, keywordDto.getName(), keywordDto.getDesc(),
 					newSeqOrder, account, subAccount, keywordDto.getAmount(), keywordDto.getCheckEveryTime());
@@ -64,7 +64,7 @@ public class KeywordServiceImpl implements KeywordService {
 				break;
 
 			case "SETTLEMENT":
-				account = getAccount(keywordDto.getAccount().getAccountNumber());
+				account = getAccount(keywordDto.getAccount().getId());
 				keyword = new Keyword(user, KeywordType.SETTLEMENT, keywordDto.getName(), keywordDto.getDesc(),
 					newSeqOrder, account, keywordDto.getGroupMember(), keywordDto.getAmount(),
 					keywordDto.getCheckEveryTime());
@@ -78,8 +78,8 @@ public class KeywordServiceImpl implements KeywordService {
 		return KeywordMapper.toDto(keyword);
 	}
 
-	private Account getAccount(String accountNumber) {
-		return accountRepository.findByAccountNumber(accountNumber)
+	private Account getAccount(Long accountId) {
+		return accountRepository.findById(accountId)
 			.orElseThrow(() -> new NullPointerException("Withdrawal Account not found"));
 	}
 
