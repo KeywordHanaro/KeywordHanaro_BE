@@ -17,4 +17,9 @@ public class UserDto extends BaseDto {
 	private String refreshToken;
 	private String email;
 	private String tel;
+
+	public UserDto(String username, String password) {
+		this.username = username;
+		this.password = password;
+	}
 }
