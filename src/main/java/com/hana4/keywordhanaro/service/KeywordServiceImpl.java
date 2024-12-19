@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
+import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
@@ -144,14 +145,14 @@ public class KeywordServiceImpl implements KeywordService {
 	}
 
 	@Override
-	public ResponseEntity<KeywordMapper.DeleteResponse> removeKeyword(Long id) {
+	public ResponseEntity<DeleteResponseDto> removeKeyword(Long id) {
 		Optional<Keyword> keyword = keywordRepository.findById(id);
 		if (keyword.isPresent()) {
 			keywordRepository.delete(keyword.get());
-			return ResponseEntity.ok(new KeywordMapper.DeleteResponse(true, "Keyword deleted successfully"));
+			return ResponseEntity.ok(new DeleteResponseDto(true, "Keyword deleted successfully"));
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
-				.body(new KeywordMapper.DeleteResponse(false, "Keyword not found"));
+				.body(new DeleteResponseDto(false, "Keyword not found"));
 		}
 	}
 

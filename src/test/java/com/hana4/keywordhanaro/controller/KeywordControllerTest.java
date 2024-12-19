@@ -312,7 +312,7 @@ public class KeywordControllerTest {
 			.name("수정된 이체 키워드")
 			.desc("수정된 이체 설명")
 			.amount(BigDecimal.valueOf(100000))
-			.checkEveryTime(true)
+			.checkEveryTime(false)
 			.build();
 
 		String requestBody = objectMapper.writeValueAsString(updateDto);
@@ -324,7 +324,7 @@ public class KeywordControllerTest {
 			.andExpect(jsonPath("$.name").value("수정된 이체 키워드"))
 			.andExpect(jsonPath("$.desc").value("수정된 이체 설명"))
 			.andExpect(jsonPath("$.amount").value(100000))
-			.andExpect(jsonPath("$.checkEveryTime").value(true))
+			.andExpect(jsonPath("$.checkEveryTime").value(false))
 			.andExpect(jsonPath("$.type").value("TRANSFER"));
 	}
 
@@ -345,7 +345,7 @@ public class KeywordControllerTest {
 			.desc("수정된 정산 설명")
 			.groupMember("[{\"name\":\"김철수\",\"tel\":\"010-1234-5678\"},{\"name\":\"이영희\",\"tel\":\"010-8765-4321\"}]")
 			.amount(BigDecimal.valueOf(100000))
-			.checkEveryTime(true)
+			.checkEveryTime(false)
 			.build();
 
 		String requestBody = objectMapper.writeValueAsString(updateDto);
@@ -357,7 +357,7 @@ public class KeywordControllerTest {
 			.andExpect(jsonPath("$.desc").value("수정된 정산 설명"))
 			.andExpect(jsonPath("$.groupMember").isNotEmpty())
 			.andExpect(jsonPath("$.amount").value(100000))
-			.andExpect(jsonPath("$.checkEveryTime").value(true))
+			.andExpect(jsonPath("$.checkEveryTime").value(false))
 			.andExpect(jsonPath("$.type").value("SETTLEMENT"));
 	}
 
@@ -407,5 +407,75 @@ public class KeywordControllerTest {
 			.andExpect(jsonPath("$.message").value("Keyword deleted successfully"));
 
 		assertFalse(keywordRepository.existsById(keyword.getId()));
+	}
+
+	@Test
+	@Order(10)
+	@DisplayName("예외처리 - 잘못된 키워드 타입으로 요청")
+	public void createInvalidTypeKeywordTest() throws Exception {
+		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		KeywordDto keywordDto = KeywordDto.builder()
+			.user(testUser)
+			.type("INVALID_TYPE")
+			.name("잘못된 타입")
+			.desc("잘못된 타입의 키워드")
+			.build();
+
+		String requestBody = objectMapper.writeValueAsString(keywordDto);
+
+		mockMvc.perform(post("/keyword")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.message").value("Invalid keyword type"));
+	}
+
+	@Test
+	@Order(11)
+	@DisplayName("예외처리 - 필수 필드 누락")
+	public void createKeywordWithMissingFieldTest() throws Exception {
+		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		KeywordDto keywordDto = KeywordDto.builder()
+			.user(testUser)
+			.type(KeywordType.INQUIRY.name())
+			// name 필드 누락
+			.desc("필수 필드 누락 테스트")
+			.build();
+
+		String requestBody = objectMapper.writeValueAsString(keywordDto);
+
+		mockMvc.perform(post("/keyword")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.message").value("Keyword name is required"));
+	}
+
+	@Test
+	@Order(12)
+	@DisplayName("예외처리 - checkEveryTime이 true일 때 amount 포함")
+	public void createTransferKeywordWithInvalidAmountTest() throws Exception {
+		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		Account testAccount = accountRepository.findByAccountNumber("111-222-3342").orElseThrow();
+		Account testSubAccount = accountRepository.findByAccountNumber("222-342-2223").orElseThrow();
+
+		KeywordDto keywordDto = KeywordDto.builder()
+			.user(testUser)
+			.type(KeywordType.TRANSFER.name())
+			.name("잘못된 송금 키워드")
+			.desc("checkEveryTime이 true인데 amount가 있음")
+			.account(AccountMapper.toDTO(testAccount))
+			.subAccount(AccountMapper.toDTO(testSubAccount))
+			.amount(BigDecimal.valueOf(50000))
+			.checkEveryTime(true)
+			.build();
+
+		String requestBody = objectMapper.writeValueAsString(keywordDto);
+
+		mockMvc.perform(post("/keyword")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.message").value("Amount should not be provided when checkEveryTime is true"));
 	}
 }
