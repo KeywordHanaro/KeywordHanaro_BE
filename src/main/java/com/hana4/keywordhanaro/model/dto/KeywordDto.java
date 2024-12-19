@@ -2,6 +2,8 @@ package com.hana4.keywordhanaro.model.dto;
 
 import java.math.BigDecimal;
 
+import com.hana4.keywordhanaro.model.entity.user.User;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +17,7 @@ import lombok.ToString;
 @ToString
 public class KeywordDto {
 	private Long id;
-	private String userId;
+	private User user;
 	private String type;
 	private String name;
 	private boolean isFavorite = false;
@@ -29,8 +31,8 @@ public class KeywordDto {
 	private String groupMember;
 	private String branch;
 
-	public KeywordDto(String userId, String type, String name, String desc, AccountDto account, String inquiryWord) {
-		this.userId = userId;
+	public KeywordDto(User user, String type, String name, String desc, AccountDto account, String inquiryWord) {
+		this.user = user;
 		this.type = type;
 		this.name = name;
 		this.desc = desc;

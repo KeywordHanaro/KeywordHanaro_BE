@@ -7,7 +7,7 @@ public class KeywordMapper {
 	public static KeywordDto toDto(Keyword keyword) {
 		return KeywordDto.builder()
 			.id(keyword.getId())
-			.userId(keyword.getUser().getId())
+			.user(keyword.getUser())
 			.type(keyword.getType().name())
 			.name(keyword.getName())
 			.desc(keyword.getDescription())

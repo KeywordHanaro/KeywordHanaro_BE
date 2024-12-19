@@ -31,14 +31,14 @@ public class KeywordServiceImpl implements KeywordService {
 
 	@Override
 	public KeywordDto createKeyword(KeywordDto keywordDto) {
-		User user = userRepository.findById(keywordDto.getUserId())
+		User user = userRepository.findById(keywordDto.getUser().getId())
 			.orElseThrow(() -> new NullPointerException("User not found"));
 
 		Account account = null;
 		Account subAccount = null;
 
 		// 리스트 순서
-		Long newSeqOrder = keywordRepository.findTopByUserIdOrderBySeqOrderDesc(keywordDto.getUserId())
+		Long newSeqOrder = keywordRepository.findTopByUserIdOrderBySeqOrderDesc(keywordDto.getUser().getId())
 			.map(keyword -> keyword.getSeqOrder() + SEQ_ORDER_INTERVAL)
 			.orElse(SEQ_ORDER_INTERVAL);
 

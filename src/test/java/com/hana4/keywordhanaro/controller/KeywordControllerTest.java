@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,6 +42,7 @@ import com.hana4.keywordhanaro.repository.UserRepository;
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@WithMockUser(username = "insunID")
 public class KeywordControllerTest {
 
 	@Autowired
@@ -114,12 +116,12 @@ public class KeywordControllerTest {
 	public void createInquiryKeywordTest() throws Exception {
 
 		User testUser = userRepository.findFirstByUsername("insunID")
-			.orElseThrow(() -> new NullPointerException("User not found"));
+			.orElseThrow(() -> new NullPointerException("User not found!!"));
 		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
 			.orElseThrow(() -> new NullPointerException("Account not found"));
 
 		KeywordDto keywordDto = KeywordDto.builder()
-			.userId(testUser.getId())
+			.user(testUser)
 			.type(KeywordType.INQUIRY.name())
 			.name("월급 조회")
 			.desc("생활비 계좌에서 조회 > 월급")
@@ -153,7 +155,7 @@ public class KeywordControllerTest {
 			.orElseThrow(() -> new NullPointerException("Receiving account not found"));
 
 		KeywordDto keywordDto = KeywordDto.builder()
-			.userId(testUser.getId())
+			.user(testUser)
 			.type(KeywordType.TRANSFER.name())
 			.name("성엽이 용돈")
 			.desc("생활비계좌에서 > 성엽이계좌 > 5만원")
@@ -196,7 +198,7 @@ public class KeywordControllerTest {
 			""";
 
 		KeywordDto keywordDto = KeywordDto.builder()
-			.userId(testUser.getId())
+			.user(testUser)
 			.type(KeywordType.TICKET.name())
 			.name("성수역점 번호표")
 			.desc("번호표 > 성수역점")
@@ -237,7 +239,7 @@ public class KeywordControllerTest {
 			""";
 
 		KeywordDto keywordDto = KeywordDto.builder()
-			.userId(testUser.getId())
+			.user(testUser)
 			.type(KeywordType.SETTLEMENT.name())
 			.name("러닝크루 정산")
 			.desc("정산 > 김도희, 문서아")
@@ -397,7 +399,7 @@ public class KeywordControllerTest {
 		Keyword originalKeyword = new Keyword(testUser, KeywordType.INQUIRY, "원래 이름", "원래 설명", 100L, testAccount,
 			"원래 조회어");
 		originalKeyword = keywordRepository.save(originalKeyword);
-		
+
 		Keyword keyword = keywordRepository.findAll().get(0);
 		mockMvc.perform(delete("/keyword/" + keyword.getId()))
 			.andExpect(status().isOk())
