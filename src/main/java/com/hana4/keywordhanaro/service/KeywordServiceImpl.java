@@ -1,5 +1,7 @@
 package com.hana4.keywordhanaro.service;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -9,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
+import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
+import com.hana4.keywordhanaro.model.dto.TransactionDto;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
@@ -29,6 +33,7 @@ public class KeywordServiceImpl implements KeywordService {
 	private final AccountRepository accountRepository;
 
 	private static final Long SEQ_ORDER_INTERVAL = 100L;
+	private final InquiryServiceImpl inquiryServiceImpl;
 
 	@Override
 	public KeywordDto createKeyword(KeywordDto keywordDto) {
@@ -210,5 +215,45 @@ public class KeywordServiceImpl implements KeywordService {
 		if (Boolean.FALSE.equals(keywordDto.getCheckEveryTime()) && keywordDto.getAmount() == null) {
 			throw new InvalidRequestException("Valid amount is required when checkEveryTime is false");
 		}
+	}
+
+	@Override
+	public KeywordResponseDto useKeyword(KeywordDto keywordDto) {
+		Keyword keyword = keywordRepository.findById(keywordDto.getId())
+			.orElseThrow(() -> new NullPointerException("Keyword not found"));
+
+		return switch (keyword.getType()) {
+			case INQUIRY -> handleInquiryKeyword(keyword);
+			case TRANSFER, TICKET, SETTLEMENT -> handleOtherKeywordTypes(keyword);
+			default -> throw new InvalidRequestException("Invalid keyword type");
+		};
+	}
+
+
+	private KeywordResponseDto handleInquiryKeyword(Keyword keyword) {
+		LocalDate endDate = LocalDate.now();
+		LocalDate startDate = endDate.minusMonths(1); // 예: 최근 1개월 조회
+
+		List<TransactionDto> transactions = inquiryServiceImpl.getAccountTransactions(
+			keyword.getAccount().getId(),
+			startDate,
+			endDate,
+			"all",
+			"latest",
+			keyword.getInquiryWord()
+		);
+
+		KeywordDto keywordDto = KeywordMapper.toDto(keyword);
+		return KeywordResponseDto.builder()
+			.keywordDto(keywordDto)
+			.transactions(transactions)
+			.build();
+	}
+
+	private KeywordResponseDto handleOtherKeywordTypes(Keyword keyword) {
+		KeywordDto keywordDto = KeywordMapper.toDto(keyword);
+		return KeywordResponseDto.builder()
+			.keywordDto(keywordDto)
+			.build();
 	}
 }

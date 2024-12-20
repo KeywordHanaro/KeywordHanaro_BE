@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
+import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
 import com.hana4.keywordhanaro.service.KeywordService;
 import com.hana4.keywordhanaro.utils.CustomUserDetails;
 
@@ -78,5 +79,11 @@ public class KeywordController {
 		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(userName);
 		keywordDto.setUser(userDetails.getUser());
 		return ResponseEntity.ok(keywordService.updateKeyword(id, keywordDto));
+	}
+
+	@PostMapping("/use")
+	public ResponseEntity<KeywordResponseDto> useKeyword(@RequestBody KeywordDto keywordDto) {
+		KeywordResponseDto response = keywordService.useKeyword(keywordDto);
+		return ResponseEntity.ok(response);
 	}
 }
