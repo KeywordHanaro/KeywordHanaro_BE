@@ -37,8 +37,7 @@ public class KeywordServiceImpl implements KeywordService {
 
 	@Override
 	public KeywordDto createKeyword(KeywordDto keywordDto) {
-		User user = userRepository.findById(keywordDto.getUser().getId())
-			.orElseThrow(() -> new NullPointerException("User not found"));
+		User user = keywordDto.getUser();
 
 		Account account = null;
 		Account subAccount = null;
@@ -91,7 +90,6 @@ public class KeywordServiceImpl implements KeywordService {
 	}
 
 	private Account getAccount(Long accountId) {
-		System.out.println("!!!!!!accountRepository = " + accountRepository.findById(accountId));
 		return accountRepository.findById(accountId)
 			.orElseThrow(() -> new NullPointerException("Account not found"));
 	}
@@ -228,7 +226,6 @@ public class KeywordServiceImpl implements KeywordService {
 			default -> throw new InvalidRequestException("Invalid keyword type");
 		};
 	}
-
 
 	private KeywordResponseDto handleInquiryKeyword(Keyword keyword) {
 		LocalDate endDate = LocalDate.now();

@@ -31,12 +31,4 @@ public class KeywordDto {
 	private String groupMember;
 	private String branch;
 
-	public KeywordDto(User user, String type, String name, String desc, AccountDto account, String inquiryWord) {
-		this.user = user;
-		this.type = type;
-		this.name = name;
-		this.desc = desc;
-		this.account = account;
-		this.inquiryWord = inquiryWord;
-	}
 }

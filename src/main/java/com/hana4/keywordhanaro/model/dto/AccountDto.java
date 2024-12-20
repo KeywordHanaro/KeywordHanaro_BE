@@ -6,13 +6,9 @@ import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
 import com.hana4.keywordhanaro.model.entity.account.AccountType;
 
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-@Getter
-@Setter
 @SuperBuilder
 @Data
 @NoArgsConstructor
@@ -29,7 +25,4 @@ public class AccountDto extends BaseDto {
 	private Boolean mine;
 	private AccountStatus status;
 
-	public AccountDto(Long id) {
-		this.id = id;
-	}
 }
