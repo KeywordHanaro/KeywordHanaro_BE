@@ -8,4 +8,6 @@ public interface AccountService {
 	AccountDto getAccount(Long id);
 
 	List<AccountDto> getAccounts();
+
+	boolean checkPassword(String accountNumber, String password);
 }
