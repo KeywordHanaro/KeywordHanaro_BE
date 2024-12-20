@@ -67,10 +67,6 @@ public class Account extends BaseEntity {
 	@Column(nullable = false)
 	private AccountStatus status;
 
-	public Account(Long id) {
-		this.id = id;
-	}
-
 	public Account(String accountNumber, User user, Bank bank, String name, String password, BigDecimal balance,
 		BigDecimal transferLimit, AccountType type, Boolean isMine, AccountStatus status) {
 		this.accountNumber = accountNumber;

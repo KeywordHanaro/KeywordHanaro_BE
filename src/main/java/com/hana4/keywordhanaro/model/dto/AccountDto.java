@@ -7,19 +7,13 @@ import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
 import com.hana4.keywordhanaro.model.entity.account.AccountType;
 import com.hana4.keywordhanaro.model.entity.user.User;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @SuperBuilder
-@ToString
+@Data
+@NoArgsConstructor
 public class AccountDto extends BaseDto {
 	private Long id;
 	private String accountNumber;
