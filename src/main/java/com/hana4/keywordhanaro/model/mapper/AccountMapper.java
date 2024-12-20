@@ -5,12 +5,13 @@ import com.hana4.keywordhanaro.model.entity.account.Account;
 
 public class AccountMapper {
 	public static AccountDto toDTO(Account account) {
-		if (account == null)
+		if (account == null) {
 			return null;
+		}
 		return AccountDto.builder()
 			.id(account.getId())
 			.accountNumber(account.getAccountNumber())
-			.userId(account.getUser().getId())
+			.user(account.getUser())
 			.name(account.getName())
 			.password(account.getPassword())
 			.balance(account.getBalance())
@@ -18,9 +19,18 @@ public class AccountMapper {
 			.type(account.getType())
 			.mine(account.getIsMine())
 			.status(account.getStatus())
-			.bankId(account.getBank().getId())
+			.bank(account.getBank())
 			.createAt(account.getCreateAt())
 			.updateAt(account.getUpdateAt())
 			.build();
+	}
+
+	public static Account toEntity(AccountDto accountDto) {
+		if (accountDto == null) {
+			return null;
+		}
+		return new Account(accountDto.getId(), accountDto.getAccountNumber(), accountDto.getUser(),
+			accountDto.getBank(), accountDto.getName(), accountDto.getPassword(), accountDto.getBalance(),
+			accountDto.getTransferLimit(), accountDto.getType(), accountDto.getMine(), accountDto.getStatus());
 	}
 }
