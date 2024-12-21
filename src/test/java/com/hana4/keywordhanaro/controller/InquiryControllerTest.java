@@ -74,14 +74,14 @@ class InquiryControllerTest {
 			Account seoaAccount = new Account("123-456-789", seoaUser,
 				bankRepository.findAll().stream().findFirst().get(), "식비계좌", "1234", BigDecimal.valueOf(0),
 				BigDecimal.valueOf(100000), AccountType.DEPOSIT,
-				true, AccountStatus.ACTIVE);
+				AccountStatus.ACTIVE);
 			accountRepository.save(seoaAccount);
 		}
 		if (accountRepository.findByAccountNumber("987-654-321") == null) {
 			User jongwonUser = userRepository.findFirstByUsername("jongwonKing").orElseThrow();
 			Account jongwonAccount = new Account("987-654-321", jongwonUser,
 				bankRepository.findAll().stream().findFirst().get(), "자유입출금계좌", "1234", BigDecimal.valueOf(0),
-				BigDecimal.valueOf(100000), AccountType.DEPOSIT, true,
+				BigDecimal.valueOf(100000), AccountType.DEPOSIT,
 				AccountStatus.ACTIVE);
 			accountRepository.save(jongwonAccount);
 		}

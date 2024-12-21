@@ -67,7 +67,7 @@ public class KeywordRepositoryTest {
 			Bank bank = bankRepository.findAll().stream().findFirst().get();
 			Account inssAccount = new Account("111-222-3342", inssUser, bank, "생활비 계좌", "1234", BigDecimal.valueOf(0),
 				BigDecimal.valueOf(300000), AccountType.DEPOSIT,
-				true, AccountStatus.ACTIVE);
+				AccountStatus.ACTIVE);
 			accountRepository.save(inssAccount);
 		}
 
@@ -78,7 +78,7 @@ public class KeywordRepositoryTest {
 			Account JunYonAccount = new Account("111-333-3342", JunYongUser, bank, "생활비 계좌", "1234",
 				BigDecimal.valueOf(0),
 				BigDecimal.valueOf(300000), AccountType.DEPOSIT,
-				true, AccountStatus.ACTIVE);
+				AccountStatus.ACTIVE);
 			accountRepository.save(JunYonAccount);
 		}
 	}

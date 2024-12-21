@@ -60,15 +60,12 @@ public class Account extends BaseEntity {
 	@Column(nullable = false)
 	private AccountType type;
 
-	@Column(nullable = false)
-	private Boolean isMine;
-
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private AccountStatus status;
 
 	public Account(String accountNumber, User user, Bank bank, String name, String password, BigDecimal balance,
-		BigDecimal transferLimit, AccountType type, Boolean isMine, AccountStatus status) {
+		BigDecimal transferLimit, AccountType type, AccountStatus status) {
 		this.accountNumber = accountNumber;
 		this.user = user;
 		this.bank = bank;
@@ -77,7 +74,6 @@ public class Account extends BaseEntity {
 		this.balance = balance;
 		this.transferLimit = transferLimit;
 		this.type = type;
-		this.isMine = isMine;
 		this.status = status;
 	}
 

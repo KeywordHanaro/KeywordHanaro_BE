@@ -2,12 +2,18 @@ package com.hana4.keywordhanaro.service;
 
 import java.util.List;
 
+import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.model.dto.AccountDto;
+import com.hana4.keywordhanaro.model.entity.Bank;
 
 public interface AccountService {
-	AccountDto getAccount(Long id);
+	AccountDto getAccount(Long id) throws AccountNotFoundException;
 
 	List<AccountDto> getAccounts();
 
-	boolean checkPassword(String accountNumber, String password);
+	boolean checkPassword(String accountNumber, String password) throws AccountNotFoundException;
+
+	List<AccountDto> getAccountsByUsername(String username);
+
+	String checkAccountNumberAndBank(String accountNumber, Bank bank);
 }

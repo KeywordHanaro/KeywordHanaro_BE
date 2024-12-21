@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
 
 @RestControllerAdvice
@@ -29,7 +30,7 @@ public class ErrorController {
 
 	@ExceptionHandler(NullPointerException.class)
 	public ResponseEntity<Map<String, Object>> nullPointerExceptionHandler(NullPointerException ne) {
-		return createErrorResult(HttpStatus.NOT_FOUND, ne.getMessage());
+		return createErrorResult(HttpStatus.INTERNAL_SERVER_ERROR, ne.getMessage());
 	}
 
 	@ExceptionHandler(InvalidRequestException.class)
@@ -38,9 +39,13 @@ public class ErrorController {
 	}
 
 	@ExceptionHandler(NoHandlerFoundException.class)
-	public ResponseEntity<Map<String, Object>> handleNoHandlerFoundException(
+	public ResponseEntity<Map<String, Object>> noHandlerFoundExceptionHandler(
 		NoHandlerFoundException ex) {
 		return createErrorResult(HttpStatus.BAD_REQUEST, ex.getMessage());
 	}
 
+	@ExceptionHandler(AccountNotFoundException.class)
+	public ResponseEntity<Map<String, Object>> accountNotFoundExceptionHandler(AccountNotFoundException ae) {
+		return createErrorResult(HttpStatus.NOT_FOUND, ae.getMessage());
+	}
 }

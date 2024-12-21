@@ -43,10 +43,10 @@ public class TicketServiceImpl implements TicketService {
 
 			Optional<Ticket> checkTicket = ticketRepository.findByUser(findKeyword.getUser());
 			if (checkTicket.isPresent()) {
-				return TicketMapper.toDTO(checkTicket.get());
+				return TicketMapper.toDto(checkTicket.get());
 			}
 
-			ticket = TicketMapper.toTicket_1(findKeyword, requestDto, waitingNumber, waitingGuest);
+			ticket = TicketMapper.toEntity(findKeyword, requestDto, waitingNumber, waitingGuest);
 		} else { // 일반 사용 시
 			validateWorkNumber(requestDto);
 			validateBranchIdAndName(requestDto);
@@ -57,14 +57,14 @@ public class TicketServiceImpl implements TicketService {
 
 			Optional<Ticket> checkTicket = ticketRepository.findByUser(findUser);
 			if (checkTicket.isPresent()) {
-				return TicketMapper.toDTO(checkTicket.get());
+				return TicketMapper.toDto(checkTicket.get());
 			}
 
-			ticket = TicketMapper.toTicket_2(findUser, requestDto, waitingNumber, waitingGuest);
+			ticket = TicketMapper.toEntity(findUser, requestDto, waitingNumber, waitingGuest);
 		}
 
 		ticket = ticketRepository.save(ticket);
-		return TicketMapper.toDTO(ticket);
+		return TicketMapper.toDto(ticket);
 
 	}
 

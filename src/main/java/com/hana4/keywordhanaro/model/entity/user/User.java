@@ -1,5 +1,7 @@
 package com.hana4.keywordhanaro.model.entity.user;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.hana4.keywordhanaro.model.entity.BaseEntity;
 import com.hana4.keywordhanaro.model.entity.Ticket;
@@ -14,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,10 +51,6 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private UserStatus status;
 
-	private String accessToken;
-
-	private String refreshToken;
-
 	private String email;
 
 	private String tel;
@@ -68,5 +67,19 @@ public class User extends BaseEntity {
 		this.name = name;
 		this.status = status;
 		this.permission = permission;
+	}
+
+	public User(String id, String username, String password, String name, UserStatus status, String email, String tel,
+		int permission, Ticket ticket, LocalDateTime createAt, LocalDateTime updateAt) {
+		super(createAt, updateAt);
+		this.id = id;
+		this.username = username;
+		this.password = password;
+		this.name = name;
+		this.status = status;
+		this.email = email;
+		this.tel = tel;
+		this.permission = permission;
+		this.ticket = ticket;
 	}
 }
