@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.hana4.keywordhanaro.exception.ApiRequestException;
+import com.hana4.keywordhanaro.exception.InvalidRequestException;
 import com.hana4.keywordhanaro.model.dto.BranchResponseDto;
 import com.hana4.keywordhanaro.model.mapper.BranchResponseMapper;
 
@@ -19,7 +21,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class BranchServiceImpl implements BranchService {
-	@Value("${kakao.rest.api.key}")
+	@Value("${KAKAO_CLIENT_ID}")
 	private String kakaoApiKey;
 	@Value("${kakao.api.url}")
 	private String kakaoApiUrl;
@@ -27,9 +29,23 @@ public class BranchServiceImpl implements BranchService {
 	private final WebClient webClient;
 
 	@Override
-	public Mono<List<BranchResponseDto>> searchBranches(String query, double lat, double lng, int radius) {
+	public Mono<List<BranchResponseDto>> searchBranch(String query, Double lat, Double lng) {
+		validateSearchParams(lat, lng);
+
+		if (query != null && !query.trim().isEmpty()) {
+			return searchBranchesByQuery(query);
+		} else if (lat != null && lng != null) {
+			return searchNearbyBranches(lat, lng);
+		} else {
+			throw new InvalidRequestException("Search term or location information (latitude, longitude) is required");
+		}
+	}
+
+	private Mono<List<BranchResponseDto>> searchNearbyBranches(Double lat, Double lng) {
+		int radius = 1500;
+
 		URI uri = UriComponentsBuilder.fromUriString(kakaoApiUrl)
-			.queryParam("query", "하나은행" + query)
+			.queryParam("query", "하나은행")
 			.queryParam("y", lat)
 			.queryParam("x", lng)
 			.queryParam("radius", radius)
@@ -40,10 +56,29 @@ public class BranchServiceImpl implements BranchService {
 			.toUri();
 		// System.out.println("uri = " + uri);
 
+		return fetchBranches(uri);
+
+	}
+
+	private Mono<List<BranchResponseDto>> searchBranchesByQuery(String query) {
+		URI uri = UriComponentsBuilder.fromUriString(kakaoApiUrl)
+			.queryParam("query", "하나은행 " + query)
+			.queryParam("category_group_code", "BK9")
+			.encode()
+			.build()
+			.toUri();
+
+		return fetchBranches(uri);
+	}
+
+	private Mono<List<BranchResponseDto>> fetchBranches(URI uri) {
 		return webClient.get()
 			.uri(uri)
 			.header("Authorization", "KakaoAK " + kakaoApiKey)
 			.retrieve()
+			.onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+				clientResponse -> Mono.error(
+					new ApiRequestException("Kakao API error: " + clientResponse.statusCode())))
 			.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
 			})
 			.map(response -> {
@@ -59,7 +94,19 @@ public class BranchServiceImpl implements BranchService {
 					.toList();
 
 			});
+	}
 
+	private void validateSearchParams(Double lat, Double lng) {
+		if (lat == null || lng == null) {
+			throw new InvalidRequestException("location information (latitude, longitude) is required");
+		}
+		if (lat < -90 || lat > 90) {
+			throw new InvalidRequestException("Latitude must be between -90 and 90.");
+		}
+
+		if (lng < -180 || lng > 180) {
+			throw new InvalidRequestException("Longitude must be between -180 and 180.");
+		}
 	}
 
 }

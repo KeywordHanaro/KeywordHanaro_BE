@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.hana4.keywordhanaro.exception.AccountNotFoundException;
+import com.hana4.keywordhanaro.exception.ApiRequestException;
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
 
 @RestControllerAdvice
@@ -48,4 +49,10 @@ public class ErrorController {
 	public ResponseEntity<Map<String, Object>> accountNotFoundExceptionHandler(AccountNotFoundException ae) {
 		return createErrorResult(HttpStatus.NOT_FOUND, ae.getMessage());
 	}
+
+	@ExceptionHandler(ApiRequestException.class)
+	public ResponseEntity<Map<String, Object>> apiExceptionHandler(ApiRequestException ae) {
+		return createErrorResult(HttpStatus.INTERNAL_SERVER_ERROR, ae.getMessage());
+	}
+
 }

@@ -7,5 +7,9 @@ import com.hana4.keywordhanaro.model.dto.BranchResponseDto;
 import reactor.core.publisher.Mono;
 
 public interface BranchService {
-	Mono<List<BranchResponseDto>> searchBranches(String query, double lat, double lng, int radius);
+	// Mono<List<BranchResponseDto>> searchNearbyBranches(Double lat, Double lng);
+
+	// Mono<List<BranchResponseDto>> searchBranchesByQuery(String query);
+	Mono<List<BranchResponseDto>> searchBranch(String query, Double lat, Double lng);
+
 }
