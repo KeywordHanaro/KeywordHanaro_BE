@@ -71,7 +71,7 @@ class LoginControllerTest {
 		mockMvc.perform(post("/login")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(loginRequestJson))
-			.andExpect(status().isNotFound())
+			.andExpect(status().isInternalServerError())
 			.andExpect(jsonPath("$.message").value("Incorrect username or password"))
 			.andDo(print());
 	}

@@ -1,7 +1,5 @@
 package com.hana4.keywordhanaro.controller;
 
-import java.io.IOException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,7 +47,7 @@ public class TicketController {
 			)))
 	})
 	@PostMapping()
-	public ResponseEntity<TicketDto> createTicket(@RequestBody TicketRequestDto ticketRequestDTO) throws IOException {
+	public ResponseEntity<TicketDto> createTicket(@RequestBody TicketRequestDto ticketRequestDTO) throws Exception {
 		return ResponseEntity.ok(ticketService.createTicket(ticketRequestDTO));
 	}
 }

@@ -55,8 +55,7 @@ public class TicketMapper {
 	}
 
 	public static Ticket toEntity(User user, TicketRequestDto requestDTO, Long waitingNumber,
-		Long waitingGuest) throws
-		JsonProcessingException {
+		Long waitingGuest) {
 		if (requestDTO == null) {
 			return null;
 		}

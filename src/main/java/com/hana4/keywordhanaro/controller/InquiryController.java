@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
 import com.hana4.keywordhanaro.model.dto.TransactionDto;
 import com.hana4.keywordhanaro.service.InquiryServiceImpl;
@@ -68,7 +69,7 @@ public class InquiryController {
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) String endDate,
 		@RequestParam(defaultValue = "all") String transactionType,
 		@RequestParam(defaultValue = "latest") String sortOrder,
-		@RequestParam(required = false) String searchWord) {
+		@RequestParam(required = false) String searchWord) throws AccountNotFoundException {
 
 		LocalDate parsedStartDate;
 		LocalDate parsedEndDate;

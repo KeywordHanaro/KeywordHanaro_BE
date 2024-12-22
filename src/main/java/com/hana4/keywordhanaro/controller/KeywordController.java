@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
@@ -82,7 +83,8 @@ public class KeywordController {
 	}
 
 	@PostMapping("/use")
-	public ResponseEntity<KeywordResponseDto> useKeyword(@RequestBody KeywordDto keywordDto) {
+	public ResponseEntity<KeywordResponseDto> useKeyword(@RequestBody KeywordDto keywordDto) throws
+		AccountNotFoundException {
 		KeywordResponseDto response = keywordService.useKeyword(keywordDto);
 		return ResponseEntity.ok(response);
 	}
