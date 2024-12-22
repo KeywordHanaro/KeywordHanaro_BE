@@ -27,92 +27,92 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class BranchServiceImpl implements BranchService {
-	@Value("${KAKAO_CLIENT_ID}")
-	private String kakaoApiKey;
-	@Value("${kakao.api.url}")
-	private String kakaoApiUrl;
+    @Value("${KAKAO_CLIENT_ID}")
+    private String kakaoApiKey;
+    @Value("${KAKAO_API_URL}")
+    private String kakaoApiUrl;
 
-	private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
-	@Override
-	public List<BranchDto> searchBranch(String query, Double lat, Double lng) {
-		validateSearchParams(lat, lng);
+    @Override
+    public List<BranchDto> searchBranch(String query, Double lat, Double lng) {
+        validateSearchParams(lat, lng);
 
-		if (query == null || query.trim().isEmpty()) {
-			return searchNearbyBranches(lat, lng);
-		} else {
-			return searchBranchesByQuery(query, lat, lng);
-		}
+        if (query == null || query.trim().isEmpty()) {
+            return searchNearbyBranches(lat, lng);
+        } else {
+            return searchBranchesByQuery(query, lat, lng);
+        }
 
-	}
+    }
 
-	private List<BranchDto> searchNearbyBranches(Double lat, Double lng) {
-		int radius = 1500;
+    private List<BranchDto> searchNearbyBranches(Double lat, Double lng) {
+        int radius = 1500;
 
-		URI uri = UriComponentsBuilder.fromUriString(kakaoApiUrl)
-			.queryParam("query", "하나은행")
-			.queryParam("y", lat)
-			.queryParam("x", lng)
-			.queryParam("radius", radius)
-			.queryParam("category_group_code", "BK9")
-			.queryParam("sort", "distance")
-			.encode()
-			.build()
-			.toUri();
+        URI uri = UriComponentsBuilder.fromUriString(kakaoApiUrl)
+                .queryParam("query", "하나은행")
+                .queryParam("y", lat)
+                .queryParam("x", lng)
+                .queryParam("radius", radius)
+                .queryParam("category_group_code", "BK9")
+                .queryParam("sort", "distance")
+                .encode()
+                .build()
+                .toUri();
 
-		return fetchBranches(uri);
+        return fetchBranches(uri);
 
-	}
+    }
 
-	private List<BranchDto> searchBranchesByQuery(String query, Double lat, Double lng) {
-		int radius = 100000;
+    private List<BranchDto> searchBranchesByQuery(String query, Double lat, Double lng) {
+        int radius = 100000;
 
-		URI uri = UriComponentsBuilder.fromUriString(kakaoApiUrl)
-			.queryParam("query", "하나은행 " + query)
-			.queryParam("category_group_code", "BK9")
-			.queryParam("y", lat)
-			.queryParam("x", lng)
-			.queryParam("radius", radius)
-			.encode()
-			.build()
-			.toUri();
+        URI uri = UriComponentsBuilder.fromUriString(kakaoApiUrl)
+                .queryParam("query", "하나은행 " + query)
+                .queryParam("category_group_code", "BK9")
+                .queryParam("y", lat)
+                .queryParam("x", lng)
+                .queryParam("radius", radius)
+                .encode()
+                .build()
+                .toUri();
 
-		return fetchBranches(uri);
-	}
+        return fetchBranches(uri);
+    }
 
-	private List<BranchDto> fetchBranches(URI uri) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Authorization", "KakaoAK " + kakaoApiKey);
-		HttpEntity<?> entity = new HttpEntity<>(headers);
+    private List<BranchDto> fetchBranches(URI uri) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "KakaoAK " + kakaoApiKey);
+        HttpEntity<?> entity = new HttpEntity<>(headers);
 
-		try {
-			ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-				uri, HttpMethod.GET, entity, new ParameterizedTypeReference<Map<String, Object>>() {
-				}
-			);
-			Map<String, Object> body = response.getBody();
-			List<Map<String, Object>> documents = (List<Map<String, Object>>)body.get("documents");
+        try {
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                    uri, HttpMethod.GET, entity, new ParameterizedTypeReference<Map<String, Object>>() {
+                    }
+            );
+            Map<String, Object> body = response.getBody();
+            List<Map<String, Object>> documents = (List<Map<String, Object>>) body.get("documents");
 
-			return documents.stream()
-				.filter(branch -> branch.get("place_name").toString().contains("하나은행"))
-				.map(BranchMapper::toDto)
-				.collect(Collectors.toList());
-		} catch (HttpClientErrorException | HttpServerErrorException e) {
-			throw new KakaoApiException("Kakao API error: " + e.getStatusCode());
-		}
-	}
+            return documents.stream()
+                    .filter(branch -> branch.get("place_name").toString().contains("하나은행"))
+                    .map(BranchMapper::toDto)
+                    .collect(Collectors.toList());
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw new KakaoApiException("Kakao API error: " + e.getStatusCode());
+        }
+    }
 
-	private void validateSearchParams(Double lat, Double lng) {
-		if (lat == null || lng == null) {
-			throw new InvalidRequestException("location information (latitude, longitude) is required");
-		}
-		if (lat < -90 || lat > 90) {
-			throw new InvalidRequestException("Latitude must be between -90 and 90.");
-		}
+    private void validateSearchParams(Double lat, Double lng) {
+        if (lat == null || lng == null) {
+            throw new InvalidRequestException("location information (latitude, longitude) is required");
+        }
+        if (lat < -90 || lat > 90) {
+            throw new InvalidRequestException("Latitude must be between -90 and 90.");
+        }
 
-		if (lng < -180 || lng > 180) {
-			throw new InvalidRequestException("Longitude must be between -180 and 180.");
-		}
-	}
+        if (lng < -180 || lng > 180) {
+            throw new InvalidRequestException("Longitude must be between -180 and 180.");
+        }
+    }
 
 }
