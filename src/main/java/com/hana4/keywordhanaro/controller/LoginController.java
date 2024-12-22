@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hana4.keywordhanaro.exception.UnAuthorizedException;
 import com.hana4.keywordhanaro.model.dto.UserDto;
 import com.hana4.keywordhanaro.utils.JwtUtil;
 
@@ -30,7 +31,7 @@ public class LoginController {
 				new UsernamePasswordAuthenticationToken(userDto.getUsername(), userDto.getPassword())
 			);
 		} catch (BadCredentialsException e) {
-			throw new NullPointerException("Incorrect username or password");
+			throw new UnAuthorizedException("Incorrect username or password");
 		}
 
 		final UserDetails userDetails = userDetailsService

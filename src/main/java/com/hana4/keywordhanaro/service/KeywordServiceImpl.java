@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
@@ -216,7 +217,7 @@ public class KeywordServiceImpl implements KeywordService {
 	}
 
 	@Override
-	public KeywordResponseDto useKeyword(KeywordDto keywordDto) {
+	public KeywordResponseDto useKeyword(KeywordDto keywordDto) throws AccountNotFoundException {
 		Keyword keyword = keywordRepository.findById(keywordDto.getId())
 			.orElseThrow(() -> new NullPointerException("Keyword not found"));
 
@@ -227,7 +228,7 @@ public class KeywordServiceImpl implements KeywordService {
 		};
 	}
 
-	private KeywordResponseDto handleInquiryKeyword(Keyword keyword) {
+	private KeywordResponseDto handleInquiryKeyword(Keyword keyword) throws AccountNotFoundException {
 		LocalDate endDate = LocalDate.now();
 		LocalDate startDate = endDate.minusMonths(1); // 예: 최근 1개월 조회
 

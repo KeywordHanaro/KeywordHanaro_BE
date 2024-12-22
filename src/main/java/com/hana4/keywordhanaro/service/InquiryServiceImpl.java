@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
 import com.hana4.keywordhanaro.model.dto.TransactionDto;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
@@ -26,7 +27,7 @@ public class InquiryServiceImpl implements InquiryService {
 
 	@Override
 	public List<TransactionDto> getAccountTransactions(Long accountId, LocalDate startDate, LocalDate endDate,
-		String transactionType, String sortOrder, String searchWord) {
+		String transactionType, String sortOrder, String searchWord) throws AccountNotFoundException {
 		LocalDateTime startDateTime = startDate.atStartOfDay();
 		LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
 
@@ -35,7 +36,7 @@ public class InquiryServiceImpl implements InquiryService {
 		String dbSortOrder = sortOrder.equalsIgnoreCase("latest") ? "DESC" : "ASC";
 
 		accountRepository.findById(accountId)
-			.orElseThrow(() -> new NullPointerException("Account not found with ID: " + accountId));
+			.orElseThrow(() -> new AccountNotFoundException("Account not found with ID: " + accountId));
 
 		List<Transaction> transactions = inquiryRepository.findTransactions(
 			accountId, startDateTime, endDateTime, transactionType, searchWord, dbSortOrder

@@ -1,6 +1,5 @@
 package com.hana4.keywordhanaro.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hana4.keywordhanaro.model.entity.user.UserStatus;
 
 import lombok.Getter;
@@ -13,7 +12,6 @@ import lombok.experimental.SuperBuilder;
 public class UserDto extends BaseDto {
 	private String id;
 	private String username;
-	@JsonIgnore
 	private String password;
 	private String name;
 	private UserStatus status;

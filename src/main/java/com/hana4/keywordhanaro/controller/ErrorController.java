@@ -12,6 +12,9 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
 import com.hana4.keywordhanaro.exception.KakaoApiException;
+import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
+import com.hana4.keywordhanaro.exception.UnAuthorizedException;
+import com.hana4.keywordhanaro.exception.UserNotFoundException;
 
 @RestControllerAdvice
 public class ErrorController {
@@ -55,4 +58,18 @@ public class ErrorController {
 		return createErrorResult(HttpStatus.INTERNAL_SERVER_ERROR, ae.getMessage());
 	}
 
+	@ExceptionHandler(KeywordNotFoundException.class)
+	public ResponseEntity<Map<String, Object>> keywordNotFoundExceptionHandler(KeywordNotFoundException ke) {
+		return createErrorResult(HttpStatus.NOT_FOUND, ke.getMessage());
+	}
+
+	@ExceptionHandler(UserNotFoundException.class)
+	public ResponseEntity<Map<String, Object>> userNotFoundExceptionHandler(UserNotFoundException ue) {
+		return createErrorResult(HttpStatus.NOT_FOUND, ue.getMessage());
+	}
+
+	@ExceptionHandler(UnAuthorizedException.class)
+	public ResponseEntity<Map<String, Object>> unAuthorizedExceptionHandler(UnAuthorizedException ue) {
+		return createErrorResult(HttpStatus.UNAUTHORIZED, ue.getMessage());
+	}
 }
