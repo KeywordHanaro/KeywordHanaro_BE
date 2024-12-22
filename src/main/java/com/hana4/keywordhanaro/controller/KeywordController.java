@@ -44,7 +44,8 @@ public class KeywordController {
 		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
 	})
 	@PostMapping
-	public ResponseEntity<KeywordDto> createKeyword(@RequestBody KeywordDto keywordDto, Authentication authentication) {
+	public ResponseEntity<KeywordDto> createKeyword(@RequestBody KeywordDto keywordDto,
+		Authentication authentication) {
 		String userName = authentication.getName();
 		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(userName);
 		keywordDto.setUser(userDetails.getUser());
@@ -82,6 +83,12 @@ public class KeywordController {
 		return ResponseEntity.ok(keywordService.updateKeyword(id, keywordDto));
 	}
 
+	@Operation(summary = "키워드 사용", description = "해당 키워드를 실행합니다")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "키워드 생성 성공", content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "404", description = "키워드를 찾을 수 없음", content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
+	})
 	@PostMapping("/use")
 	public ResponseEntity<KeywordResponseDto> useKeyword(@RequestBody KeywordDto keywordDto) throws
 		AccountNotFoundException {
