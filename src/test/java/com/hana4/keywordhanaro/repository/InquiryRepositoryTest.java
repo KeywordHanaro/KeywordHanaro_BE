@@ -21,6 +21,8 @@ import com.hana4.keywordhanaro.model.entity.transaction.TransactionType;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.entity.user.UserStatus;
 
+import jakarta.transaction.Transactional;
+
 @SpringBootTest
 class InquiryRepositoryTest {
 
@@ -62,6 +64,7 @@ class InquiryRepositoryTest {
 	}
 
 	@Test
+	@Transactional
 	void testFindTransactions() {
 		Account account = accountRepository.findByAccountNumber("123-456-789")
 			.orElseThrow(() -> new NullPointerException("해당 계좌번호가 존재하지 않습니다."));
