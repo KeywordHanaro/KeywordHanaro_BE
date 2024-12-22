@@ -12,6 +12,9 @@ import com.hana4.keywordhanaro.service.BranchService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -30,6 +33,11 @@ public class BranchController {
 			@Parameter(name = "x", description = "경도", required = true, example = "127.0560563")
 		}
 	)
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "영업점 검색 성공", content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청(검색어 또는 위치 값이 누락, 위도, 경도 범위 오류)", content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
+	})
 	@GetMapping("/search")
 	public Mono<List<BranchResponseDto>> getSearchBranches(
 		@RequestParam(value = "query", required = false) String query,

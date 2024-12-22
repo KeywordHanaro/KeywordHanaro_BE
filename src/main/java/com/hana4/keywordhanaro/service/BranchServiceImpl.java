@@ -32,13 +32,12 @@ public class BranchServiceImpl implements BranchService {
 	public Mono<List<BranchResponseDto>> searchBranch(String query, Double lat, Double lng) {
 		validateSearchParams(lat, lng);
 
-		if (query != null && !query.trim().isEmpty()) {
-			return searchBranchesByQuery(query);
-		} else if (lat != null && lng != null) {
+		if (query == null || query.trim().isEmpty()) {
 			return searchNearbyBranches(lat, lng);
 		} else {
-			throw new InvalidRequestException("Search term or location information (latitude, longitude) is required");
+			return searchBranchesByQuery(query, lat, lng);
 		}
+
 	}
 
 	private Mono<List<BranchResponseDto>> searchNearbyBranches(Double lat, Double lng) {
@@ -54,16 +53,20 @@ public class BranchServiceImpl implements BranchService {
 			.encode()
 			.build()
 			.toUri();
-		// System.out.println("uri = " + uri);
 
 		return fetchBranches(uri);
 
 	}
 
-	private Mono<List<BranchResponseDto>> searchBranchesByQuery(String query) {
+	private Mono<List<BranchResponseDto>> searchBranchesByQuery(String query, Double lat, Double lng) {
+		int radius = 100000;
+
 		URI uri = UriComponentsBuilder.fromUriString(kakaoApiUrl)
 			.queryParam("query", "하나은행 " + query)
 			.queryParam("category_group_code", "BK9")
+			.queryParam("y", lat)
+			.queryParam("x", lng)
+			.queryParam("radius", radius)
 			.encode()
 			.build()
 			.toUri();
@@ -85,7 +88,7 @@ public class BranchServiceImpl implements BranchService {
 				List<Map<String, Object>> documents = (List<Map<String, Object>>)response.get("documents");
 
 				if (documents == null) {
-					documents = List.of();  // 없으면 빈 리스트
+					documents = List.of();
 				}
 
 				return documents.stream()
