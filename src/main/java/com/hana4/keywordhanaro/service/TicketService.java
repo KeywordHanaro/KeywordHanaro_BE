@@ -7,5 +7,5 @@ import com.hana4.keywordhanaro.model.dto.TicketRequestDto;
 
 @Service
 public interface TicketService {
-	public TicketDto createTicket(TicketRequestDto ticketRequestDTO) throws Exception;
+	TicketDto createTicket(TicketRequestDto ticketRequestDTO) throws Exception;
 }

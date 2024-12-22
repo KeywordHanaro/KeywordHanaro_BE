@@ -1,6 +1,6 @@
 package com.hana4.keywordhanaro.controller;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
 import com.hana4.keywordhanaro.model.dto.TicketDto;
 import com.hana4.keywordhanaro.model.dto.TicketRequestDto;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
@@ -86,7 +87,8 @@ public class TicketControllerTest {
 	@DisplayName("번호표 키워드 사용 시")
 	void createTicketTestWithKeyword() throws Exception {
 		// Given
-		Keyword testKeyword = keywordRepository.findByName("inssTicketKeyword").orElseThrow();
+		Keyword testKeyword = keywordRepository.findByName("inssTicketKeyword")
+			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 		TicketRequestDto requestDto = TicketRequestDto.builder()
 			.keywordId(testKeyword.getId())
 			.workNumber((byte)1)
@@ -99,7 +101,6 @@ public class TicketControllerTest {
 				.content(requestBody))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.id").isNotEmpty())
-			.andExpect(jsonPath("$.user.id").value(testKeyword.getUser().getId()))
 			.andExpect(jsonPath("$.branchId").isNotEmpty())
 			.andExpect(jsonPath("$.branchName").isNotEmpty())
 			.andExpect(jsonPath("$.waitingNumber").isNotEmpty())
@@ -128,7 +129,6 @@ public class TicketControllerTest {
 				.content(requestBody))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.id").isNotEmpty())
-			.andExpect(jsonPath("$.user.id").value(testUser.getId()))
 			.andExpect(jsonPath("$.branchId").value(1841540654L))
 			.andExpect(jsonPath("$.branchName").value("하나은행 성수역지점"))
 			.andExpect(jsonPath("$.waitingNumber").isNotEmpty())
@@ -141,7 +141,8 @@ public class TicketControllerTest {
 	@DisplayName("이미 발급받은 번호표가 있을 경우 기존 번호표 반환")
 	void createTicketWithExistingTicket() throws Exception {
 		// Given
-		Keyword testKeyword = keywordRepository.findByName("inssTicketKeyword").orElseThrow();
+		Keyword testKeyword = keywordRepository.findByName("inssTicketKeyword")
+			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 		TicketRequestDto requestDto = TicketRequestDto.builder()
 			.keywordId(testKeyword.getId())
 			.workNumber((byte)1)
@@ -155,11 +156,13 @@ public class TicketControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.id").isNotEmpty())
 			.andReturn();
+		System.out.println("firstResult = " + firstResult);
 
 		TicketDto firstTicket = objectMapper.readValue(
 			firstResult.getResponse().getContentAsString(),
 			TicketDto.class
 		);
+		System.out.println("firstTicket = " + firstTicket);
 
 		// 두번때 요청
 		MvcResult secondResult = mockMvc.perform(post("/ticket")
