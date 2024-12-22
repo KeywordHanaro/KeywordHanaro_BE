@@ -32,10 +32,12 @@ class LoginControllerTest {
 	@Autowired
 	private ObjectMapper objectMapper;
 
-	@MockBean
+	// @MockBean
+	@Autowired
 	private AuthenticationManager authenticationManager;
 
-	@MockBean
+	// @MockBean
+	@Autowired
 	private JwtUtil jwtTokenProvider;
 
 	@Test
@@ -45,9 +47,9 @@ class LoginControllerTest {
 		String loginRequestJson = objectMapper.writeValueAsString(loginRequest);
 
 		Authentication authentication = mock(Authentication.class);
-		when(authentication.getName()).thenReturn("admin");
-		when(authenticationManager.authenticate(any())).thenReturn(authentication);
-		when(jwtTokenProvider.createJwt("admin")).thenReturn("test.jwt.token");
+		// when(authentication.getName()).thenReturn("admin");
+		// when(authenticationManager.authenticate(any())).thenReturn(authentication);
+		// when(jwtTokenProvider.createJwt("admin")).thenReturn("test.jwt.token");
 
 		ResultActions result = mockMvc.perform(post("/login")
 			.contentType(MediaType.APPLICATION_JSON)
@@ -55,7 +57,7 @@ class LoginControllerTest {
 		);
 
 		result.andExpect(status().isOk())
-			.andExpect(header().string("Authorization", "Bearer test.jwt.token"))
+			.andExpect(content().string("Login Successful"))
 			.andDo(print());
 	}
 
@@ -66,7 +68,7 @@ class LoginControllerTest {
 		UserDto loginRequest = new UserDto("admin", "wrongpassword");
 		String loginRequestJson = objectMapper.writeValueAsString(loginRequest);
 
-		when(authenticationManager.authenticate(any())).thenThrow(new BadCredentialsException("Invalid credentials"));
+		// when(authenticationManager.authenticate(any())).thenThrow(new BadCredentialsException("Invalid credentials"));
 
 		mockMvc.perform(post("/login")
 				.contentType(MediaType.APPLICATION_JSON)
