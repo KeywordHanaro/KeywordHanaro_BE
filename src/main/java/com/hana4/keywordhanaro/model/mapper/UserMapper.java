@@ -18,7 +18,6 @@ public class UserMapper {
 			.email(user.getEmail())
 			.tel(user.getTel())
 			.permission(user.getPermission())
-			.ticket(TicketMapper.toDto(user.getTicket()))
 			.createAt(user.getCreateAt())
 			.updateAt(user.getUpdateAt())
 			.build();
