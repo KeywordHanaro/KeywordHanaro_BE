@@ -9,8 +9,6 @@ import com.hana4.keywordhanaro.model.entity.Ticket;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.user.User;
 
-import lombok.RequiredArgsConstructor;
-
 public class TicketMapper {
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -21,7 +19,7 @@ public class TicketMapper {
 
 		return TicketDto.builder()
 			.id(ticket.getId())
-			.user(UserMapper.toDto(ticket.getUser()))
+			// .user(UserMapper.toDto(ticket.getUser()))
 			.branchId(ticket.getBranchId())
 			.branchName(ticket.getBranchName())
 			.workNumber(ticket.getWorkNumber())
