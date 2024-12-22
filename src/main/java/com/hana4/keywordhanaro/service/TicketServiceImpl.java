@@ -19,11 +19,9 @@ import com.hana4.keywordhanaro.repository.TicketRepository;
 import com.hana4.keywordhanaro.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class TicketServiceImpl implements TicketService {
 	private final TicketRepository ticketRepository;
 	private final KeywordRepository keywordRepository;
@@ -36,43 +34,39 @@ public class TicketServiceImpl implements TicketService {
 		Long waitingGuest = (long)(random.nextInt(10) + 1); // 1 ~ 10
 
 		Ticket ticket;
-		try {
-			// 키워드 사용 시
-			if (requestDto.getKeywordId() != null) {
-				validateWorkNumber(requestDto);
 
-				Keyword findKeyword = keywordRepository.findById(requestDto.getKeywordId())
-					.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+		// 키워드 사용 시
+		if (requestDto.getKeywordId() != null) {
+			validateWorkNumber(requestDto);
 
-				Optional<Ticket> checkTicket = ticketRepository.findByUser(findKeyword.getUser());
-				if (checkTicket.isPresent()) {
-					return TicketMapper.toDto(checkTicket.get());
-				}
+			Keyword findKeyword = keywordRepository.findById(requestDto.getKeywordId())
+				.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 
-				ticket = TicketMapper.toEntity(findKeyword, requestDto, waitingNumber, waitingGuest);
-			} else { // 일반 사용 시
-				validateWorkNumber(requestDto);
-				validateBranchIdAndName(requestDto);
-				validateUser(requestDto);
-
-				User findUser = userRepository.findById(requestDto.getUserId())
-					.orElseThrow(() -> new UserNotFoundException("User not found"));
-
-				Optional<Ticket> checkTicket = ticketRepository.findByUser(findUser);
-				if (checkTicket.isPresent()) {
-					return TicketMapper.toDto(checkTicket.get());
-				}
-
-				ticket = TicketMapper.toEntity(findUser, requestDto, waitingNumber, waitingGuest);
+			Optional<Ticket> checkTicket = ticketRepository.findByUser(findKeyword.getUser());
+			if (checkTicket.isPresent()) {
+				return TicketMapper.toDto(checkTicket.get());
 			}
 
-			ticket = ticketRepository.save(ticket);
-			log.info("저장 되나요 ?");
-			return TicketMapper.toDto(ticket);
-		} catch (Exception e) {
-			log.error("error!!!", e.getMessage());
-			throw e;
+			ticket = TicketMapper.toEntity(findKeyword, requestDto, waitingNumber, waitingGuest);
+		} else { // 일반 사용 시
+			validateWorkNumber(requestDto);
+			validateBranchIdAndName(requestDto);
+			validateUser(requestDto);
+
+			User findUser = userRepository.findById(requestDto.getUserId())
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
+
+			Optional<Ticket> checkTicket = ticketRepository.findByUser(findUser);
+			if (checkTicket.isPresent()) {
+				return TicketMapper.toDto(checkTicket.get());
+			}
+
+			ticket = TicketMapper.toEntity(findUser, requestDto, waitingNumber, waitingGuest);
 		}
+
+		ticket = ticketRepository.save(ticket);
+		return TicketMapper.toDto(ticket);
+
 	}
 
 	private void validateWorkNumber(TicketRequestDto requestDto) {
