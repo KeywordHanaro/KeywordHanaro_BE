@@ -11,6 +11,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
+import com.hana4.keywordhanaro.exception.KakaoApiException;
 
 @RestControllerAdvice
 public class ErrorController {
@@ -48,4 +49,10 @@ public class ErrorController {
 	public ResponseEntity<Map<String, Object>> accountNotFoundExceptionHandler(AccountNotFoundException ae) {
 		return createErrorResult(HttpStatus.NOT_FOUND, ae.getMessage());
 	}
+
+	@ExceptionHandler(KakaoApiException.class)
+	public ResponseEntity<Map<String, Object>> kakaoApiExceptionHandler(KakaoApiException ae) {
+		return createErrorResult(HttpStatus.INTERNAL_SERVER_ERROR, ae.getMessage());
+	}
+
 }

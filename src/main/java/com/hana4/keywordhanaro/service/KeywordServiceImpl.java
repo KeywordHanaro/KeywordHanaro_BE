@@ -31,9 +31,9 @@ public class KeywordServiceImpl implements KeywordService {
 	private final KeywordRepository keywordRepository;
 	private final UserRepository userRepository;
 	private final AccountRepository accountRepository;
+	private final InquiryService inquiryService;
 
 	private static final Long SEQ_ORDER_INTERVAL = 100L;
-	private final InquiryServiceImpl inquiryServiceImpl;
 
 	@Override
 	public KeywordDto createKeyword(KeywordDto keywordDto) {
@@ -231,7 +231,7 @@ public class KeywordServiceImpl implements KeywordService {
 		LocalDate endDate = LocalDate.now();
 		LocalDate startDate = endDate.minusMonths(1); // 예: 최근 1개월 조회
 
-		List<TransactionDto> transactions = inquiryServiceImpl.getAccountTransactions(
+		List<TransactionDto> transactions = inquiryService.getAccountTransactions(
 			keyword.getAccount().getId(),
 			startDate,
 			endDate,

@@ -27,8 +27,6 @@ import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.entity.user.UserStatus;
 
-import jakarta.persistence.EntityManager;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -46,9 +44,6 @@ public class KeywordRepositoryTest {
 
 	@Autowired
 	private BankRepository bankRepository;
-
-	@Autowired
-	private EntityManager em;
 
 	@BeforeAll
 	void beforeAll() {
