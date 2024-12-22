@@ -11,7 +11,7 @@ import lombok.Data;
 @Builder
 public class TicketDto {
 	private Long id;
-	private User user;
+	private UserDto user;
 	private Long branchId;
 	private String branchName;
 	private Long waitingNumber;

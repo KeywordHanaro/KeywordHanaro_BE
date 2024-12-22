@@ -49,7 +49,7 @@ class InquiryRepositoryTest {
 			Account seoaAccount = new Account("123-456-789", seoaUser,
 				bankRepository.findAll().stream().findFirst().get(), "식비계좌", "1234", BigDecimal.valueOf(0),
 				BigDecimal.valueOf(100000), AccountType.DEPOSIT,
-				true, AccountStatus.ACTIVE);
+				AccountStatus.ACTIVE);
 			accountRepository.save(seoaAccount);
 		}
 	}

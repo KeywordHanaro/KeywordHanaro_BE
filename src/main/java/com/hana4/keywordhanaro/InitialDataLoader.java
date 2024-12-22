@@ -57,7 +57,7 @@ public class InitialDataLoader implements ApplicationRunner {
 					new Account("111-222-333" + i, userList.get(i - 1), bank, "계좌" + i,"1234",
 						new BigDecimal(9_199_999_999L).setScale(2, RoundingMode.HALF_UP),
 						new BigDecimal(9_199_999_999L).setScale(2, RoundingMode.HALF_UP),
-						AccountType.DEPOSIT, true, AccountStatus.ACTIVE))));
+						AccountType.DEPOSIT, AccountStatus.ACTIVE))));
 			}
 		} else {
 			accountList.addAll(accountRepository.findAll());

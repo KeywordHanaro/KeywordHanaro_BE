@@ -62,8 +62,8 @@ public class TransferController {
                 transferRequestDTO.getAmount()
         );
         TransactionDto responseDTO = TransactionDto.builder()
-                .account(AccountMapper.toDTO(transaction.getAccount()))
-                .subAccount(AccountMapper.toDTO(transaction.getSubAccount()))
+                .account(AccountMapper.toDto(transaction.getAccount()))
+                .subAccount(AccountMapper.toDto(transaction.getSubAccount()))
                 .amount(transaction.getAmount())
                 .status("SUCCESS")
                 .beforeBalance(transaction.getAccount().getBalance())

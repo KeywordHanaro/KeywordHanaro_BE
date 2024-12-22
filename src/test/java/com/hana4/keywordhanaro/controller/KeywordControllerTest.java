@@ -81,7 +81,7 @@ public class KeywordControllerTest {
 			Bank bank = bankRepository.findAll().stream().findFirst().get();
 			Account inssAccount = new Account("111-222-3342", inssUser, bank, "생활비 계좌", "1234", BigDecimal.valueOf(0),
 				BigDecimal.valueOf(300000), AccountType.DEPOSIT,
-				true, AccountStatus.ACTIVE);
+				AccountStatus.ACTIVE);
 			accountRepository.save(inssAccount);
 		}
 
@@ -91,7 +91,7 @@ public class KeywordControllerTest {
 			Bank bank = bankRepository.findAll().stream().findFirst().get();
 			Account yeobAccount = new Account("222-342-2223", yeobUser, bank, "성엽이 계좌", "1234", BigDecimal.valueOf(0),
 				BigDecimal.valueOf(400000), AccountType.DEPOSIT,
-				true, AccountStatus.ACTIVE);
+				AccountStatus.ACTIVE);
 			accountRepository.save(yeobAccount);
 		}
 
@@ -100,7 +100,7 @@ public class KeywordControllerTest {
 			Bank bank = bankRepository.findAll().stream().findFirst().get();
 			Account inssAccount = new Account("222-333-4455", inssUser, bank, "적금 계좌", "1234", BigDecimal.valueOf(0),
 				BigDecimal.valueOf(300000), AccountType.SAVING,
-				true, AccountStatus.ACTIVE);
+				AccountStatus.ACTIVE);
 			accountRepository.save(inssAccount);
 		}
 	}
@@ -126,7 +126,7 @@ public class KeywordControllerTest {
 			.name("월급 조회")
 			.desc("생활비 계좌에서 조회 > 월급")
 			.inquiryWord("월급")
-			.account(AccountMapper.toDTO(testAccount))
+			.account(AccountMapper.toDto(testAccount))
 			.build();
 
 		String requestBody = objectMapper.writeValueAsString(keywordDto);
@@ -159,8 +159,8 @@ public class KeywordControllerTest {
 			.type(KeywordType.TRANSFER.name())
 			.name("성엽이 용돈")
 			.desc("생활비계좌에서 > 성엽이계좌 > 5만원")
-			.account(AccountMapper.toDTO(testAccount))
-			.subAccount(AccountMapper.toDTO(testSubAccount))
+			.account(AccountMapper.toDto(testAccount))
+			.subAccount(AccountMapper.toDto(testSubAccount))
 			.amount(BigDecimal.valueOf(50000))
 			.checkEveryTime(false)
 			.build();
@@ -243,7 +243,7 @@ public class KeywordControllerTest {
 			.type(KeywordType.SETTLEMENT.name())
 			.name("러닝크루 정산")
 			.desc("정산 > 김도희, 문서아")
-			.account(AccountMapper.toDTO(testAccount))
+			.account(AccountMapper.toDto(testAccount))
 			.groupMember(testGroupMember)
 			.checkEveryTime(true)
 			.build();
@@ -464,8 +464,8 @@ public class KeywordControllerTest {
 			.type(KeywordType.TRANSFER.name())
 			.name("잘못된 송금 키워드")
 			.desc("checkEveryTime이 true인데 amount가 있음")
-			.account(AccountMapper.toDTO(testAccount))
-			.subAccount(AccountMapper.toDTO(testSubAccount))
+			.account(AccountMapper.toDto(testAccount))
+			.subAccount(AccountMapper.toDto(testSubAccount))
 			.amount(BigDecimal.valueOf(50000))
 			.checkEveryTime(true)
 			.build();
