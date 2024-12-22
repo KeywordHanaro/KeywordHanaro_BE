@@ -19,7 +19,7 @@ public class TicketMapper {
 
 		return TicketDto.builder()
 			.id(ticket.getId())
-			.user(UserMapper.toDto(ticket.getUser()))
+			// .user(UserMapper.toDto(ticket.getUser()))
 			.branchId(ticket.getBranchId())
 			.branchName(ticket.getBranchName())
 			.workNumber(ticket.getWorkNumber())
