@@ -1,5 +1,9 @@
 package com.hana4.keywordhanaro.controller;
 
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,9 +15,10 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hana4.keywordhanaro.model.dto.BranchDto;
@@ -27,9 +32,9 @@ import com.hana4.keywordhanaro.service.BranchService;
 public class BranchControllerTest {
 
 	@Autowired
-	private WebTestClient webTestClient;
+	private MockMvc mockMvc;
 
-	@Autowired
+	@MockBean
 	private BranchService branchService;
 
 	@Autowired
@@ -54,22 +59,16 @@ public class BranchControllerTest {
 				"4083",
 				"02-3018-1111"));
 
-		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder
-				.path("/branch/search")
-				.queryParam("query", query)
-				.queryParam("y", String.valueOf(lat))
-				.queryParam("x", String.valueOf(lng))
-				.build())
-			.exchange()
-			.expectStatus().isOk()
-			.expectHeader().contentType(MediaType.APPLICATION_JSON)
-			.expectBody()
-			.jsonPath("$").isArray()
-			.jsonPath("$[0].id").isEqualTo("385462719")
-			.jsonPath("$[0].placeName").isEqualTo("하나은행 강남구청역지점")
-			.jsonPath("$[1].id").isEqualTo("438040759")
-			.jsonPath("$[1].placeName").isEqualTo("하나은행 강남금융센터지점");
+		when(branchService.searchBranch(query, lat, lng)).thenReturn(list);
+		String reqBody = objectMapper.writeValueAsString(list);
+
+		mockMvc.perform(get("/branch/search")
+				.param("query", query)
+				.param("y", String.valueOf(lat))
+				.param("x", String.valueOf(lng)))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(content().json(reqBody));
 
 	}
 
@@ -83,21 +82,15 @@ public class BranchControllerTest {
 			new BranchDto("1733643823", "하나은행365 성수역", "서울 성동구 성수동2가 289-10", "114", ""),
 			new BranchDto("1841540654", "하나은행 성수역지점", "서울 성동구 성수동2가 289-10", "117", "02-462-7627"));
 
-		webTestClient.get()
-			.uri(uriBuilder -> uriBuilder
-				.path("/branch/search")
-				.queryParam("y", String.valueOf(lat))
-				.queryParam("x", String.valueOf(lng))
-				.build())
-			.exchange()
-			.expectStatus().isOk()
-			.expectHeader().contentType(MediaType.APPLICATION_JSON)
-			.expectBody()
-			.jsonPath("$").isArray()
-			.jsonPath("$[0].id").isEqualTo("1733643823")
-			.jsonPath("$[0].placeName").isEqualTo("하나은행365 성수역")
-			.jsonPath("$[1].id").isEqualTo("1841540654")
-			.jsonPath("$[1].placeName").isEqualTo("하나은행 성수역지점");
+		when(branchService.searchBranch(null, lat, lng)).thenReturn(list);
+		String reqBody = objectMapper.writeValueAsString(list);
+
+		mockMvc.perform(get("/branch/search")
+				.param("y", String.valueOf(lat))
+				.param("x", String.valueOf(lng)))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(content().json(reqBody));
 
 	}
 }

@@ -3,20 +3,26 @@ package com.hana4.keywordhanaro.service;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
 import com.hana4.keywordhanaro.exception.KakaoApiException;
 import com.hana4.keywordhanaro.model.dto.BranchDto;
-import com.hana4.keywordhanaro.model.mapper.BranchResponseMapper;
+import com.hana4.keywordhanaro.model.mapper.BranchMapper;
 
 import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -26,10 +32,10 @@ public class BranchServiceImpl implements BranchService {
 	@Value("${kakao.api.url}")
 	private String kakaoApiUrl;
 
-	private final WebClient webClient;
+	private final RestTemplate restTemplate;
 
 	@Override
-	public Mono<List<BranchDto>> searchBranch(String query, Double lat, Double lng) {
+	public List<BranchDto> searchBranch(String query, Double lat, Double lng) {
 		validateSearchParams(lat, lng);
 
 		if (query == null || query.trim().isEmpty()) {
@@ -40,7 +46,7 @@ public class BranchServiceImpl implements BranchService {
 
 	}
 
-	private Mono<List<BranchDto>> searchNearbyBranches(Double lat, Double lng) {
+	private List<BranchDto> searchNearbyBranches(Double lat, Double lng) {
 		int radius = 1500;
 
 		URI uri = UriComponentsBuilder.fromUriString(kakaoApiUrl)
@@ -58,7 +64,7 @@ public class BranchServiceImpl implements BranchService {
 
 	}
 
-	private Mono<List<BranchDto>> searchBranchesByQuery(String query, Double lat, Double lng) {
+	private List<BranchDto> searchBranchesByQuery(String query, Double lat, Double lng) {
 		int radius = 100000;
 
 		URI uri = UriComponentsBuilder.fromUriString(kakaoApiUrl)
@@ -74,29 +80,26 @@ public class BranchServiceImpl implements BranchService {
 		return fetchBranches(uri);
 	}
 
-	private Mono<List<BranchDto>> fetchBranches(URI uri) {
-		return webClient.get()
-			.uri(uri)
-			.header("Authorization", "KakaoAK " + kakaoApiKey)
-			.retrieve()
-			.onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
-				clientResponse -> Mono.error(
-					new KakaoApiException("Kakao API error: " + clientResponse.statusCode())))
-			.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
-			})
-			.map(response -> {
-				List<Map<String, Object>> documents = (List<Map<String, Object>>)response.get("documents");
+	private List<BranchDto> fetchBranches(URI uri) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Authorization", "KakaoAK " + kakaoApiKey);
+		HttpEntity<?> entity = new HttpEntity<>(headers);
 
-				if (documents == null) {
-					documents = List.of();
+		try {
+			ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+				uri, HttpMethod.GET, entity, new ParameterizedTypeReference<Map<String, Object>>() {
 				}
+			);
+			Map<String, Object> body = response.getBody();
+			List<Map<String, Object>> documents = (List<Map<String, Object>>)body.get("documents");
 
-				return documents.stream()
-					.filter(branch -> branch.get("place_name").toString().contains("하나은행"))
-					.map(BranchResponseMapper::toDto)
-					.toList();
-
-			});
+			return documents.stream()
+				.filter(branch -> branch.get("place_name").toString().contains("하나은행"))
+				.map(BranchMapper::toDto)
+				.collect(Collectors.toList());
+		} catch (HttpClientErrorException | HttpServerErrorException e) {
+			throw new KakaoApiException("Kakao API error: " + e.getStatusCode());
+		}
 	}
 
 	private void validateSearchParams(Double lat, Double lng) {
