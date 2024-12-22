@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.hana4.keywordhanaro.model.dto.BranchDto;
 
-public class BranchResponseMapper {
+public class BranchMapper {
 	public static BranchDto toDto(Map<String, Object> document) {
 		if (document == null) {
 			return null;
