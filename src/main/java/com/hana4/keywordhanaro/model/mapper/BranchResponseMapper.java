@@ -2,14 +2,14 @@ package com.hana4.keywordhanaro.model.mapper;
 
 import java.util.Map;
 
-import com.hana4.keywordhanaro.model.dto.BranchResponseDto;
+import com.hana4.keywordhanaro.model.dto.BranchDto;
 
 public class BranchResponseMapper {
-	public static BranchResponseDto toDto(Map<String, Object> document) {
+	public static BranchDto toDto(Map<String, Object> document) {
 		if (document == null) {
 			return null;
 		}
-		return BranchResponseDto.builder()
+		return BranchDto.builder()
 			.id(document.get("id").toString())
 			.placeName(document.get("place_name").toString())
 			.addressName(document.get("address_name").toString())

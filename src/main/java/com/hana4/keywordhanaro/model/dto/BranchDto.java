@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BranchResponseDto {
+public class BranchDto {
 	public String id;
 	public String placeName;
 	public String addressName;

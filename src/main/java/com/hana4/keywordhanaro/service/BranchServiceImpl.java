@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.hana4.keywordhanaro.exception.ApiRequestException;
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
-import com.hana4.keywordhanaro.model.dto.BranchResponseDto;
+import com.hana4.keywordhanaro.exception.KakaoApiException;
+import com.hana4.keywordhanaro.model.dto.BranchDto;
 import com.hana4.keywordhanaro.model.mapper.BranchResponseMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class BranchServiceImpl implements BranchService {
 	private final WebClient webClient;
 
 	@Override
-	public Mono<List<BranchResponseDto>> searchBranch(String query, Double lat, Double lng) {
+	public Mono<List<BranchDto>> searchBranch(String query, Double lat, Double lng) {
 		validateSearchParams(lat, lng);
 
 		if (query == null || query.trim().isEmpty()) {
@@ -40,7 +40,7 @@ public class BranchServiceImpl implements BranchService {
 
 	}
 
-	private Mono<List<BranchResponseDto>> searchNearbyBranches(Double lat, Double lng) {
+	private Mono<List<BranchDto>> searchNearbyBranches(Double lat, Double lng) {
 		int radius = 1500;
 
 		URI uri = UriComponentsBuilder.fromUriString(kakaoApiUrl)
@@ -58,7 +58,7 @@ public class BranchServiceImpl implements BranchService {
 
 	}
 
-	private Mono<List<BranchResponseDto>> searchBranchesByQuery(String query, Double lat, Double lng) {
+	private Mono<List<BranchDto>> searchBranchesByQuery(String query, Double lat, Double lng) {
 		int radius = 100000;
 
 		URI uri = UriComponentsBuilder.fromUriString(kakaoApiUrl)
@@ -74,14 +74,14 @@ public class BranchServiceImpl implements BranchService {
 		return fetchBranches(uri);
 	}
 
-	private Mono<List<BranchResponseDto>> fetchBranches(URI uri) {
+	private Mono<List<BranchDto>> fetchBranches(URI uri) {
 		return webClient.get()
 			.uri(uri)
 			.header("Authorization", "KakaoAK " + kakaoApiKey)
 			.retrieve()
 			.onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
 				clientResponse -> Mono.error(
-					new ApiRequestException("Kakao API error: " + clientResponse.statusCode())))
+					new KakaoApiException("Kakao API error: " + clientResponse.statusCode())))
 			.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
 			})
 			.map(response -> {

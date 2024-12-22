@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hana4.keywordhanaro.model.dto.BranchResponseDto;
+import com.hana4.keywordhanaro.model.dto.BranchDto;
 import com.hana4.keywordhanaro.service.BranchService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,7 +39,7 @@ public class BranchController {
 		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
 	})
 	@GetMapping("/search")
-	public Mono<List<BranchResponseDto>> getSearchBranches(
+	public Mono<List<BranchDto>> getSearchBranches(
 		@RequestParam(value = "query", required = false) String query,
 		@RequestParam(value = "y") Double lat,
 		@RequestParam(value = "x") Double lng

@@ -16,7 +16,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hana4.keywordhanaro.model.dto.BranchResponseDto;
+import com.hana4.keywordhanaro.model.dto.BranchDto;
 import com.hana4.keywordhanaro.service.BranchService;
 
 @SpringBootTest
@@ -41,13 +41,13 @@ public class BranchControllerTest {
 		String query = "강남";
 		Double lat = 37.5445598;
 		Double lng = 127.0560563;
-		List<BranchResponseDto> list = Arrays.asList(
-			new BranchResponseDto("385462719",
+		List<BranchDto> list = Arrays.asList(
+			new BranchDto("385462719",
 				"하나은행 강남구청역지점",
 				"서울 강남구 삼성동 9-1",
 				"3512",
 				"02-511-1111"),
-			new BranchResponseDto(
+			new BranchDto(
 				"438040759",
 				"하나은행 강남금융센터지점",
 				"서울 강남구 삼성동 157-3",
@@ -79,9 +79,9 @@ public class BranchControllerTest {
 		// 현재 위치 성수
 		Double lat = 37.5445598;
 		Double lng = 127.0560563;
-		List<BranchResponseDto> list = Arrays.asList(
-			new BranchResponseDto("1733643823", "하나은행365 성수역", "서울 성동구 성수동2가 289-10", "114", ""),
-			new BranchResponseDto("1841540654", "하나은행 성수역지점", "서울 성동구 성수동2가 289-10", "117", "02-462-7627"));
+		List<BranchDto> list = Arrays.asList(
+			new BranchDto("1733643823", "하나은행365 성수역", "서울 성동구 성수동2가 289-10", "114", ""),
+			new BranchDto("1841540654", "하나은행 성수역지점", "서울 성동구 성수동2가 289-10", "117", "02-462-7627"));
 
 		webTestClient.get()
 			.uri(uriBuilder -> uriBuilder
