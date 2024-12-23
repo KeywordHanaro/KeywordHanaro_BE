@@ -1,19 +1,18 @@
 package com.hana4.keywordhanaro.model.mapper;
 
-import com.hana4.keywordhanaro.model.dto.AccountDto;
+import com.hana4.keywordhanaro.model.dto.AccountResponseDto;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 
-public class AccountMapper {
-	public static AccountDto toDto(Account account) {
+public class AccountResponseMapper {
+	public static AccountResponseDto toDto(Account account) {
 		if (account == null) {
 			return null;
 		}
-		return AccountDto.builder()
+		return AccountResponseDto.builder()
 			.id(account.getId())
 			.accountNumber(account.getAccountNumber())
 			.user(UserResponseMapper.toDto(account.getUser()))
 			.name(account.getName())
-			.password(account.getPassword())
 			.balance(account.getBalance())
 			.transferLimit(account.getTransferLimit())
 			.type(account.getType())
@@ -22,13 +21,13 @@ public class AccountMapper {
 			.build();
 	}
 
-	public static Account toEntity(AccountDto accountDto) {
+	public static Account toEntity(AccountResponseDto accountDto) {
 		if (accountDto == null) {
 			return null;
 		}
 		return new Account(accountDto.getId(), accountDto.getAccountNumber(),
 			UserResponseMapper.toEntity(accountDto.getUser()),
-			accountDto.getBank(), accountDto.getName(), accountDto.getPassword(), accountDto.getBalance(),
+			accountDto.getBank(), accountDto.getName(), accountDto.getBalance(),
 			accountDto.getTransferLimit(), accountDto.getType(), accountDto.getStatus());
 	}
 }

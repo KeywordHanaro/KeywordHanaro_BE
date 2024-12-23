@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
+import com.hana4.keywordhanaro.model.mapper.UserResponseMapper;
 import com.hana4.keywordhanaro.service.KeywordService;
 import com.hana4.keywordhanaro.utils.CustomUserDetails;
 
@@ -48,7 +49,7 @@ public class KeywordController {
 		Authentication authentication) {
 		String userName = authentication.getName();
 		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(userName);
-		keywordDto.setUser(userDetails.getUser());
+		keywordDto.setUser(UserResponseMapper.toDto(userDetails.getUser()));
 		return ResponseEntity.ok(keywordService.createKeyword(keywordDto));
 	}
 
@@ -79,7 +80,7 @@ public class KeywordController {
 		Authentication authentication) {
 		String userName = authentication.getName();
 		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(userName);
-		keywordDto.setUser(userDetails.getUser());
+		keywordDto.setUser(UserResponseMapper.toDto(userDetails.getUser()));
 		return ResponseEntity.ok(keywordService.updateKeyword(id, keywordDto));
 	}
 
@@ -89,10 +90,8 @@ public class KeywordController {
 		@ApiResponse(responseCode = "404", description = "키워드를 찾을 수 없음", content = @Content(mediaType = "application/json")),
 		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
 	})
-	@PostMapping("/use")
-	public ResponseEntity<KeywordResponseDto> useKeyword(@RequestBody KeywordDto keywordDto) throws
-		AccountNotFoundException {
-		KeywordResponseDto response = keywordService.useKeyword(keywordDto);
-		return ResponseEntity.ok(response);
+	@GetMapping("/{id}")
+	public ResponseEntity<KeywordResponseDto> useKeyword(@PathVariable Long id) throws Exception {
+		return ResponseEntity.ok(keywordService.useKeyword(id));
 	}
 }

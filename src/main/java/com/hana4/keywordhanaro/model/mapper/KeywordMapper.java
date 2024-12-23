@@ -10,7 +10,7 @@ public class KeywordMapper {
 		}
 		return KeywordDto.builder()
 			.id(keyword.getId())
-			.user(keyword.getUser())
+			.user(UserResponseMapper.toDto(keyword.getUser()))
 			.type(keyword.getType().name())
 			.name(keyword.getName())
 			.desc(keyword.getDescription())
@@ -20,8 +20,8 @@ public class KeywordMapper {
 			.amount(keyword.getAmount())
 			.groupMember(keyword.getGroupMember())
 			.branch(keyword.getBranch())
-			.account(AccountMapper.toDto(keyword.getAccount()))
-			.subAccount(AccountMapper.toDto(keyword.getSubAccount()))
+			.account(AccountResponseMapper.toDto(keyword.getAccount()))
+			.subAccount(AccountResponseMapper.toDto(keyword.getSubAccount()))
 			.isFavorite(keyword.isFavorite())
 			.build();
 	}
