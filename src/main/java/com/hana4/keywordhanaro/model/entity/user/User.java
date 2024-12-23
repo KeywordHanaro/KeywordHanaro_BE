@@ -56,6 +56,9 @@ public class User extends BaseEntity {
 
 	private int permission;
 
+	@Column(length = 36)
+	private String kakaoUUID;
+
 	@OneToOne(mappedBy = "user")
 	@JsonManagedReference
 	private Ticket ticket;
