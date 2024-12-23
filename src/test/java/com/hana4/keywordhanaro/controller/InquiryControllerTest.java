@@ -21,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
@@ -69,7 +70,7 @@ class InquiryControllerTest {
 			userRepository.save(jongwonUser);
 		}
 
-		if (accountRepository.findByAccountNumber("123-456-789") == null) {
+		if (accountRepository.findByAccountNumber("123-456-789").isEmpty()) {
 			User seoaUser = userRepository.findFirstByUsername("seoaLoginID").orElseThrow();
 			Account seoaAccount = new Account("123-456-789", seoaUser,
 				bankRepository.findAll().stream().findFirst().get(), "식비계좌", "1234", BigDecimal.valueOf(0),
@@ -77,7 +78,7 @@ class InquiryControllerTest {
 				AccountStatus.ACTIVE);
 			accountRepository.save(seoaAccount);
 		}
-		if (accountRepository.findByAccountNumber("987-654-321") == null) {
+		if (accountRepository.findByAccountNumber("987-654-321").isEmpty()) {
 			User jongwonUser = userRepository.findFirstByUsername("jongwonKing").orElseThrow();
 			Account jongwonAccount = new Account("987-654-321", jongwonUser,
 				bankRepository.findAll().stream().findFirst().get(), "자유입출금계좌", "1234", BigDecimal.valueOf(0),
@@ -123,6 +124,7 @@ class InquiryControllerTest {
 
 	@Test
 	@Order(1)
+	@Transactional
 	void testGetAccountTransactions() throws Exception {
 		String accountNumber = "123-456-789";
 		Account account = accountRepository.findByAccountNumber(accountNumber)
