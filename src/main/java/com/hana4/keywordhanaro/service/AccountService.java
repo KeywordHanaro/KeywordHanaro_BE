@@ -15,5 +15,5 @@ public interface AccountService {
 
 	List<AccountDto> getAccountsByUsername(String username);
 
-	String checkAccountNumberAndBank(String accountNumber, Bank bank);
+	String checkAccountNumberAndBank(String accountNumber, Bank bank) throws AccountNotFoundException;
 }

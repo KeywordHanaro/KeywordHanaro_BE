@@ -7,6 +7,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -67,5 +69,30 @@ public class AccountController {
 	public ResponseEntity<List<AccountDto>> getMyAccounts(Authentication authentication) {
 		String username = authentication.getName();
 		return ResponseEntity.ok(accountService.getAccountsByUsername(username));
+	}
+
+	@Operation(summary = "계좌 비밀번호 확인", description = "계좌번호와 비밀번호를 입력받아 일치 여부를 확인합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "비밀번호 확인 성공",
+			content = @Content(schema = @Schema(implementation = Boolean.class))),
+		@ApiResponse(responseCode = "404", description = "계좌를 찾을 수 없음")
+	})
+	@PostMapping("/checkPassword")
+	public ResponseEntity<Boolean> checkPassword(
+		@Parameter(description = "확인할 계좌번호, 비밀번호") @RequestBody AccountDto accountDto) throws AccountNotFoundException {
+		return ResponseEntity.ok(accountService.checkPassword(accountDto.getAccountNumber(), accountDto.getPassword()));
+	}
+
+	@Operation(summary = "예금주 확인", description = "계좌번호와 은행명을 입력받아 예금주 이름을 반환합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "예금주 확인 성공",
+			content = @Content(schema = @Schema(implementation = String.class))),
+		@ApiResponse(responseCode = "404", description = "계좌를 찾을 수 없음")
+	})
+	@PostMapping("/checkDepositor")
+	public ResponseEntity<String> checkAccountNumberAndBank(
+		@Parameter(description = "확인할 계좌번호, 은행명") @RequestBody AccountDto accountDto) throws AccountNotFoundException {
+		return ResponseEntity.ok(
+			accountService.checkAccountNumberAndBank(accountDto.getAccountNumber(), accountDto.getBank()));
 	}
 }

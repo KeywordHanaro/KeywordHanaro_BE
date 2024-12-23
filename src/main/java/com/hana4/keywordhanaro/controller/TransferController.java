@@ -1,5 +1,6 @@
 package com.hana4.keywordhanaro.controller;
 
+import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.model.dto.TransactionDto;
 import com.hana4.keywordhanaro.model.dto.TransferRequestDto;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
@@ -16,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,12 +56,12 @@ public class TransferController {
             )
     })
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<TransactionDto> transfer(@RequestBody @Parameter(description = "송금 요청 데이터", required = true) TransferRequestDto transferRequestDTO) {
+    public ResponseEntity<TransactionDto> transfer(@RequestBody @Parameter(description = "송금 요청 데이터", required = true) TransferRequestDto transferRequestDto) throws
+            AccountNotFoundException {
         Transaction transaction = transferService.transfer(
-                transferRequestDTO.getFromAccountNumber(),
-                transferRequestDTO.getToAccountNumber(),
-                transferRequestDTO.getAmount()
+                transferRequestDto.getFromAccountNumber(),
+                transferRequestDto.getToAccountNumber(),
+                transferRequestDto.getAmount()
         );
         TransactionDto responseDTO = TransactionDto.builder()
                 .account(AccountMapper.toDto(transaction.getAccount()))

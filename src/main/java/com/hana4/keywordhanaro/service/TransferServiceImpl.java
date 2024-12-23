@@ -1,5 +1,6 @@
 package com.hana4.keywordhanaro.service;
 
+import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
 import com.hana4.keywordhanaro.model.entity.transaction.TransactionStatus;
@@ -23,16 +24,12 @@ public class TransferServiceImpl implements TransferService {
     private final TransactionRepository transactionRepository;
 
     @Transactional
-    public Transaction transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount) {
-        Account fromAccount = accountRepository.findByAccountNumber(fromAccountNumber).orElseThrow(() -> new NullPointerException("출금 계좌번호가 존재하지 않습니다."));
-        Account toAccount = accountRepository.findByAccountNumber(toAccountNumber).orElseThrow(() -> new NullPointerException("수취 계좌번호가 존재하지 않습니다."));
-
-        if (fromAccount == null) {
-            throw new NullPointerException("출금 계좌번호가 존재하지 않습니다.");
-        }
-        if (toAccount == null) {
-            throw new NullPointerException("입금 계좌번호가 존재하지 않습니다.");
-        }
+    public Transaction transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount) throws
+        AccountNotFoundException {
+        Account fromAccount = accountRepository.findByAccountNumber(fromAccountNumber)
+            .orElseThrow(() -> new AccountNotFoundException("출금 계좌번호가 존재하지 않습니다."));
+        Account toAccount = accountRepository.findByAccountNumber(toAccountNumber)
+            .orElseThrow(() -> new AccountNotFoundException("입금 계좌번호가 존재하지 않습니다."));
 
         if (!fromAccount.canTransfer()) {
             return logFailedTransaction(fromAccount, toAccount, amount, "적금 계좌 송금 불가");

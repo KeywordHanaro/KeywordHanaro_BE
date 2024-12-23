@@ -7,12 +7,20 @@ import com.hana4.keywordhanaro.model.entity.Bank;
 import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
 import com.hana4.keywordhanaro.model.entity.account.AccountType;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@ToString
 @NoArgsConstructor
 public class AccountDto extends BaseDto {
 	private Long id;
@@ -20,7 +28,6 @@ public class AccountDto extends BaseDto {
 	private UserDto user;
 	private Bank bank;
 	private String name;
-	@JsonIgnore
 	private String password;
 	private BigDecimal balance;
 	private BigDecimal transferLimit;
@@ -32,5 +39,15 @@ public class AccountDto extends BaseDto {
 		this.accountNumber = accountNumber;
 		this.name = name;
 		this.balance = balance;
+	}
+
+	public AccountDto(String accountNumber, String password) {
+		this.accountNumber = accountNumber;
+		this.password = password;
+	}
+
+	public AccountDto(String accountNumber, Bank bank) {
+		this.accountNumber = accountNumber;
+		this.bank = bank;
 	}
 }
