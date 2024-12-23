@@ -1,5 +1,6 @@
 package com.hana4.keywordhanaro.controller;
 
+import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.model.dto.TransactionDto;
 import com.hana4.keywordhanaro.model.dto.TransferRequestDto;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
@@ -55,11 +56,12 @@ public class TransferController {
             )
     })
     @PostMapping
-    public ResponseEntity<TransactionDto> transfer(@RequestBody @Parameter(description = "송금 요청 데이터", required = true) TransferRequestDto transferRequestDTO) {
+    public ResponseEntity<TransactionDto> transfer(@RequestBody @Parameter(description = "송금 요청 데이터", required = true) TransferRequestDto transferRequestDto) throws
+        AccountNotFoundException {
         Transaction transaction = transferService.transfer(
-                transferRequestDTO.getFromAccountNumber(),
-                transferRequestDTO.getToAccountNumber(),
-                transferRequestDTO.getAmount()
+                transferRequestDto.getFromAccountNumber(),
+                transferRequestDto.getToAccountNumber(),
+                transferRequestDto.getAmount()
         );
         TransactionDto responseDTO = TransactionDto.builder()
                 .account(AccountMapper.toDto(transaction.getAccount()))

@@ -1,5 +1,6 @@
 package com.hana4.keywordhanaro.service;
 
+import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
 import com.hana4.keywordhanaro.model.entity.transaction.TransactionStatus;
@@ -30,7 +31,7 @@ public class TransferServiceTest {
     private TransactionRepository transactionRepository;
 
     @Test
-    public void testTransferSuccess() {
+    public void testTransferSuccess() throws AccountNotFoundException {
         // Arrange
         String fromAccountNumber = "123-321-0905";
         String toAccountNumber = "32476762224";
@@ -62,7 +63,7 @@ public class TransferServiceTest {
     }
 
     @Test
-    public void transferInsufficientBalanceTest() {
+    public void transferInsufficientBalanceTest() throws AccountNotFoundException {
         // 초기 상태 확인
         Account fromAccount = accountRepository.findByAccountNumber("111-222-3331").orElseThrow(() -> new NullPointerException("출금 계좌번호가 존재하지 않습니다."));
         Account toAccount = accountRepository.findByAccountNumber("111-222-3332").orElseThrow(() -> new NullPointerException("수취 계좌번호가 존재하지 않습니다."));
@@ -99,7 +100,7 @@ public class TransferServiceTest {
     }
 
     @Test
-    public void checkTransferFromSavingAccountTest() {
+    public void checkTransferFromSavingAccountTest() throws AccountNotFoundException {
         Account savingsAccount = accountRepository.findById(8L).orElseThrow(() ->
                 new IllegalArgumentException("8번 계좌가 존재하지 않습니다."));
         // 일반 예금 계좌 설정 (id = 1)
@@ -138,7 +139,7 @@ public class TransferServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 계좌번호로 이체 시도시 NullPointerException 발생")
+    @DisplayName("존재하지 않는 계좌번호로 이체 시도시 AccountNotFoundException 발생")
     public void transferWithNonExistentAccountTest() {
         // given
         String nonExistentAccountNumber = "999"; // 존재하지 않는 계좌번호
@@ -146,7 +147,7 @@ public class TransferServiceTest {
         BigDecimal amount = BigDecimal.valueOf(1000);
 
         // when & then
-        Exception exception = assertThrows(NullPointerException.class, () -> {
+        Exception exception = assertThrows(AccountNotFoundException.class, () -> {
             transferService.transfer(nonExistentAccountNumber, toAccountNumber, amount);
         });
 
@@ -165,4 +166,3 @@ public class TransferServiceTest {
     }
 
 }
-
