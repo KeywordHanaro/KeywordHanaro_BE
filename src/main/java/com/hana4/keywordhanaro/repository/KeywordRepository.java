@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
@@ -16,4 +18,7 @@ public interface KeywordRepository extends JpaRepository<Keyword, Long> {
 	List<Keyword> findByUserId(String useId);
 
 	Optional<Keyword> findByUserIdAndType(String userId, KeywordType type);
+
+	@Query("SELECT DISTINCT k.type FROM Keyword k WHERE k.user.id = :userId")
+	List<KeywordType> findTypesByUserId(@Param("userId") String userId);
 }

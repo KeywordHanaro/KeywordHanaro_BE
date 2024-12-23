@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.List;
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
@@ -105,7 +106,12 @@ public class KeywordControllerTest {
 
 		User yeobUser = userRepository.findFirstByUsername("yeobID")
 			.orElseThrow(() -> new UserNotFoundException("User not found"));
-		if (keywordRepository.findByUserId(yeobUser.getId()).isEmpty()) {
+
+		List<KeywordType> existingTypes = keywordRepository.findTypesByUserId(yeobUser.getId());
+		// List<KeywordType> missingTypes = new ArrayList<>(Arrays.asList(KeywordType.values()));
+		// missingTypes.removeAll(existingTypes);
+
+		if (existingTypes.size() < 4) {
 			Account inssAccount = accountRepository.findByAccountNumber("111-222-3342")
 				.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 			Account yeobAccount = accountRepository.findByAccountNumber("222-342-2223")
