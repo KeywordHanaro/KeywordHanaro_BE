@@ -505,7 +505,7 @@ public class KeywordControllerTest {
 	public void useInquiryKeywordTest() throws Exception {
 		User yeobUser = userRepository.findFirstByUsername("yeobID")
 			.orElseThrow(() -> new UserNotFoundException("User not found"));
-		Keyword inquiryKeyword = keywordRepository.findByUserIdAndType(yeobUser.getId(),
+		Keyword inquiryKeyword = keywordRepository.findTopByUserIdAndType(yeobUser.getId(),
 			KeywordType.INQUIRY).orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 
 		mockMvc.perform(get("/keyword/" + inquiryKeyword.getId()))
@@ -523,7 +523,7 @@ public class KeywordControllerTest {
 	public void useTransferKeywordTest() throws Exception {
 		User yeobUser = userRepository.findFirstByUsername("yeobID")
 			.orElseThrow(() -> new UserNotFoundException("User not found"));
-		Keyword transferKeyword = keywordRepository.findByUserIdAndType(yeobUser.getId(),
+		Keyword transferKeyword = keywordRepository.findTopByUserIdAndType(yeobUser.getId(),
 			KeywordType.TRANSFER).orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 
 		mockMvc.perform(get("/keyword/" + transferKeyword.getId()))
@@ -540,7 +540,7 @@ public class KeywordControllerTest {
 	public void useTicketKeywordTest() throws Exception {
 		User yeobUser = userRepository.findFirstByUsername("yeobID")
 			.orElseThrow(() -> new UserNotFoundException("User not found"));
-		Keyword ticketKeyword = keywordRepository.findByUserIdAndType(yeobUser.getId(),
+		Keyword ticketKeyword = keywordRepository.findTopByUserIdAndType(yeobUser.getId(),
 			KeywordType.TICKET).orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 
 		mockMvc.perform(get("/keyword/" + ticketKeyword.getId()))
@@ -556,7 +556,7 @@ public class KeywordControllerTest {
 	public void useSettlementKeywordTest() throws Exception {
 		User yeobUser = userRepository.findFirstByUsername("yeobID")
 			.orElseThrow(() -> new UserNotFoundException("User not found"));
-		Keyword settlementKeyword = keywordRepository.findByUserIdAndType(yeobUser.getId(),
+		Keyword settlementKeyword = keywordRepository.findTopByUserIdAndType(yeobUser.getId(),
 			KeywordType.SETTLEMENT).orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 
 		mockMvc.perform(get("/keyword/" + settlementKeyword.getId()))

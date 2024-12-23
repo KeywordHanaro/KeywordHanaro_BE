@@ -270,7 +270,7 @@ public class KeywordRepositoryTest {
 	public void useKeywordTest() throws Exception {
 		User JunYongUser = userRepository.findFirstByUsername("JunYongID")
 			.orElseThrow(() -> new UserNotFoundException("User not found"));
-		Keyword testKeyword = keywordRepository.findByUserIdAndType(JunYongUser.getId(),
+		Keyword testKeyword = keywordRepository.findTopByUserIdAndType(JunYongUser.getId(),
 			KeywordType.TRANSFER).orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 
 		assertThat(testKeyword).isNotNull();
