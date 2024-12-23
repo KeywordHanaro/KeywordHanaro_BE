@@ -21,7 +21,7 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
     @Value("${KAKAO_CLIENT_ID}")
     private String clientId;
 
-    private final String redirectUri = "http://localhost:3000/comps-test/step2";
+    private final String redirectUri = "http://keyword.hanaro.topician.com";
 
     @Value("${KAKAO_CLIENT_SECRET}")
     private String clientSecret;
