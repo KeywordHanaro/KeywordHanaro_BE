@@ -29,16 +29,4 @@ public class AccountResponseDto {
 	private BigDecimal transferLimit;
 	private AccountType type;
 	private AccountStatus status;
-
-	public AccountResponseDto(Long id, String accountNumber, String name, BigDecimal balance) {
-		this.id = id;
-		this.accountNumber = accountNumber;
-		this.name = name;
-		this.balance = balance;
-	}
-
-	public AccountResponseDto(String accountNumber, Bank bank) {
-		this.accountNumber = accountNumber;
-		this.bank = bank;
-	}
 }
