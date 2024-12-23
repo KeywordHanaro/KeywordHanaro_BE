@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -18,6 +17,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 
+import com.hana4.keywordhanaro.exception.AccountNotFoundException;
+import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
+import com.hana4.keywordhanaro.exception.UserNotFoundException;
 import com.hana4.keywordhanaro.model.entity.Bank;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
@@ -46,7 +48,7 @@ public class KeywordRepositoryTest {
 	private BankRepository bankRepository;
 
 	@BeforeAll
-	void beforeAll() {
+	void beforeAll() throws Exception {
 		if (userRepository.findFirstByUsername("insunID").isEmpty()) {
 			User inssUser = new User("insunID", "insss123", "김인선", UserStatus.ACTIVE, 0);
 			userRepository.save(inssUser);
@@ -58,7 +60,7 @@ public class KeywordRepositoryTest {
 
 		if (accountRepository.findByAccountNumber("111-222-3342").isEmpty()) {
 			User inssUser = userRepository.findFirstByUsername("insunID")
-				.orElseThrow(() -> new NullPointerException("User not found"));
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
 			Bank bank = bankRepository.findAll().stream().findFirst().get();
 			Account inssAccount = new Account("111-222-3342", inssUser, bank, "생활비 계좌", "1234", BigDecimal.valueOf(0),
 				BigDecimal.valueOf(300000), AccountType.DEPOSIT,
@@ -68,7 +70,7 @@ public class KeywordRepositoryTest {
 
 		if (accountRepository.findByAccountNumber("111-333-3342").isEmpty()) {
 			User JunYongUser = userRepository.findFirstByUsername("JunYongID")
-				.orElseThrow(() -> new NullPointerException("User not found"));
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
 			Bank bank = bankRepository.findAll().stream().findFirst().get();
 			Account JunYonAccount = new Account("111-333-3342", JunYongUser, bank, "생활비 계좌", "1234",
 				BigDecimal.valueOf(0),
@@ -76,11 +78,20 @@ public class KeywordRepositoryTest {
 				AccountStatus.ACTIVE);
 			accountRepository.save(JunYonAccount);
 		}
-	}
 
-	@AfterEach
-	void tearDown() {
-		keywordRepository.deleteAll();
+		User JunYongUser = userRepository.findFirstByUsername("JunYongID")
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
+		if (keywordRepository.findByUserId(JunYongUser.getId()).isEmpty()) {
+			Account inssAccount = accountRepository.findByAccountNumber("111-222-3342")
+				.orElseThrow(() -> new AccountNotFoundException("Account not found"));
+			Account JunYongAccount = accountRepository.findByAccountNumber("111-333-3342")
+				.orElseThrow(() -> new AccountNotFoundException("SubAccount not found"));
+
+			Keyword k1 = new Keyword(JunYongUser, KeywordType.TRANSFER, "성엽이 용돈", "사용 repository 테스트", 200L,
+				JunYongAccount,
+				inssAccount, BigDecimal.valueOf(50000), false);
+			keywordRepository.save(k1);
+		}
 	}
 
 	@Test
@@ -104,11 +115,11 @@ public class KeywordRepositoryTest {
 
 	@Test
 	@DisplayName("키워드 생성 테스트")
-	void createKeywordTest() {
+	void createKeywordTest() throws Exception {
 		User testUser = userRepository.findFirstByUsername("insunID")
-			.orElseThrow(() -> new NullPointerException("User not found"));
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
 		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
-			.orElseThrow(() -> new NullPointerException("Account not found"));
+			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
 		Keyword keyword = new Keyword(testUser, KeywordType.INQUIRY, "월급 조회", "자유입출금계좌에서 조회 > 월급", 100L, testAccount,
 			"급여");
@@ -126,11 +137,11 @@ public class KeywordRepositoryTest {
 
 	@Test
 	@DisplayName("조회 키워드 수정 테스트")
-	public void updateInquiryKeywordTest() {
+	public void updateInquiryKeywordTest() throws Exception {
 		User testUser = userRepository.findFirstByUsername("insunID")
-			.orElseThrow(() -> new NullPointerException("User not found"));
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
 		Account testFromAccount = accountRepository.findByAccountNumber("111-222-3342")
-			.orElseThrow(() -> new NullPointerException("Account not found"));
+			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
 		Keyword keyword = new Keyword(testUser, KeywordType.INQUIRY, "title", "description", 100L, testFromAccount,
 			"조회어");
@@ -149,13 +160,13 @@ public class KeywordRepositoryTest {
 
 	@Test
 	@DisplayName("송금 키워드 수정 테스트")
-	public void updateTransferKeywordTest() {
+	public void updateTransferKeywordTest() throws Exception {
 		User testUser = userRepository.findFirstByUsername("insunID")
-			.orElseThrow(() -> new NullPointerException("User not found"));
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
 		Account testFromAccount = accountRepository.findByAccountNumber("111-222-3342")
-			.orElseThrow(() -> new NullPointerException("Account not found"));
+			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 		Account testToAccount = accountRepository.findByAccountNumber("111-333-3342")
-			.orElseThrow(() -> new NullPointerException("Account not found"));
+			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
 		Keyword keyword = new Keyword(testUser, KeywordType.TRANSFER, "title", "description", 100L, testFromAccount,
 			testToAccount, BigDecimal.valueOf(200000), false);
@@ -176,11 +187,11 @@ public class KeywordRepositoryTest {
 
 	@Test
 	@DisplayName("정산 키워드 수정 테스트")
-	public void updateSettlementKeywordTest() {
+	public void updateSettlementKeywordTest() throws Exception {
 		User testUser = userRepository.findFirstByUsername("insunID")
-			.orElseThrow(() -> new NullPointerException("User not found"));
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
 		Account testFromAccount = accountRepository.findByAccountNumber("111-222-3342")
-			.orElseThrow(() -> new NullPointerException("Account not found"));
+			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
 		Keyword keyword = new Keyword(testUser, KeywordType.SETTLEMENT, "원래 이름", "원래 설명", 100L, testFromAccount, "[]",
 			null, false);
@@ -203,9 +214,9 @@ public class KeywordRepositoryTest {
 
 	@Test
 	@DisplayName("번호표 키워드 수정 테스트")
-	public void updateTicketKeywordTest() {
+	public void updateTicketKeywordTest() throws Exception {
 		User testUser = userRepository.findFirstByUsername("insunID")
-			.orElseThrow(() -> new NullPointerException("User not found"));
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
 
 		Keyword keyword = new Keyword(testUser, KeywordType.TICKET, "원래 이름", "원래 설명", 100L, """
 			{
@@ -252,6 +263,22 @@ public class KeywordRepositoryTest {
 				"y": "37.54512527783082"
 			}
 			""");
+	}
+
+	@Test
+	@DisplayName("키워드 사용 테스트")
+	public void useKeywordTest() throws Exception {
+		User JunYongUser = userRepository.findFirstByUsername("JunYongID")
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
+		Keyword testKeyword = keywordRepository.findByUserIdAndType(JunYongUser.getId(),
+			KeywordType.TRANSFER).orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+
+		assertThat(testKeyword).isNotNull();
+		assertThat(testKeyword.getType()).isEqualTo(KeywordType.TRANSFER);
+		assertThat(testKeyword.getName()).isEqualTo("성엽이 용돈");
+		assertThat(testKeyword.getAmount()).isNotNull();
+		assertThat(testKeyword.getSubAccount()).isNotNull();
+
 	}
 
 }

@@ -2,16 +2,16 @@ package com.hana4.keywordhanaro.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -23,6 +23,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hana4.keywordhanaro.exception.AccountNotFoundException;
+import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
+import com.hana4.keywordhanaro.exception.UserNotFoundException;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.entity.Bank;
 import com.hana4.keywordhanaro.model.entity.account.Account;
@@ -36,6 +39,7 @@ import com.hana4.keywordhanaro.model.mapper.AccountMapper;
 import com.hana4.keywordhanaro.repository.AccountRepository;
 import com.hana4.keywordhanaro.repository.BankRepository;
 import com.hana4.keywordhanaro.repository.KeywordRepository;
+import com.hana4.keywordhanaro.repository.TransactionRepository;
 import com.hana4.keywordhanaro.repository.UserRepository;
 
 @SpringBootTest
@@ -63,21 +67,24 @@ public class KeywordControllerTest {
 	@Autowired
 	private BankRepository bankRepository;
 
+	@Autowired
+	private TransactionRepository transactionRepository;
+
 	@BeforeAll
-	void beforeAll() {
+	void beforeAll() throws Exception {
 		if (userRepository.findFirstByUsername("insunID").isEmpty()) {
 			User inssUser = new User("insunID", "insss123", "김인선", UserStatus.ACTIVE, 0);
 			userRepository.save(inssUser);
 		}
 
 		if (userRepository.findFirstByUsername("yeobID").isEmpty()) {
-			User inssUser = new User("yeobID", "yeobbbb", "정성엽", UserStatus.ACTIVE, 0);
-			userRepository.save(inssUser);
+			User yeobUser = new User("yeobID", "yeobbbb", "정성엽", UserStatus.ACTIVE, 0);
+			userRepository.save(yeobUser);
 		}
 
 		if (accountRepository.findByAccountNumber("111-222-3342").isEmpty()) {
 			User inssUser = userRepository.findFirstByUsername("insunID")
-				.orElseThrow(() -> new NullPointerException("User not found"));
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
 			Bank bank = bankRepository.findAll().stream().findFirst().get();
 			Account inssAccount = new Account("111-222-3342", inssUser, bank, "생활비 계좌", "1234", BigDecimal.valueOf(0),
 				BigDecimal.valueOf(300000), AccountType.DEPOSIT,
@@ -87,7 +94,7 @@ public class KeywordControllerTest {
 
 		if (accountRepository.findByAccountNumber("222-342-2223").isEmpty()) {
 			User yeobUser = userRepository.findFirstByUsername("yeobID")
-				.orElseThrow(() -> new NullPointerException("User not found"));
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
 			Bank bank = bankRepository.findAll().stream().findFirst().get();
 			Account yeobAccount = new Account("222-342-2223", yeobUser, bank, "성엽이 계좌", "1234", BigDecimal.valueOf(0),
 				BigDecimal.valueOf(400000), AccountType.DEPOSIT,
@@ -95,30 +102,38 @@ public class KeywordControllerTest {
 			accountRepository.save(yeobAccount);
 		}
 
-		if (accountRepository.findByAccountNumber("222-333-4455").isEmpty()) {
-			User inssUser = userRepository.findFirstByUsername("insunID").orElseThrow();
-			Bank bank = bankRepository.findAll().stream().findFirst().get();
-			Account inssAccount = new Account("222-333-4455", inssUser, bank, "적금 계좌", "1234", BigDecimal.valueOf(0),
-				BigDecimal.valueOf(300000), AccountType.SAVING,
-				AccountStatus.ACTIVE);
-			accountRepository.save(inssAccount);
-		}
-	}
+		User yeobUser = userRepository.findFirstByUsername("yeobID")
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
+		if (keywordRepository.findByUserId(yeobUser.getId()).isEmpty()) {
+			Account inssAccount = accountRepository.findByAccountNumber("111-222-3342")
+				.orElseThrow(() -> new AccountNotFoundException("Account not found"));
+			Account yeobAccount = accountRepository.findByAccountNumber("222-342-2223")
+				.orElseThrow(() -> new AccountNotFoundException("SubAccount not found"));
 
-	@AfterEach
-	void tearDown() {
-		keywordRepository.deleteAll();
+			Keyword k1 = new Keyword(yeobUser, KeywordType.INQUIRY, "밥값 조회", "조회 사용 테스트", 100L, inssAccount, "밥값");
+			Keyword k2 = new Keyword(yeobUser, KeywordType.TRANSFER, "성엽이 용돈", "송금 사용 테스트", 200L, inssAccount,
+				yeobAccount, BigDecimal.valueOf(50000), false);
+			Keyword k3 = new Keyword(yeobUser, KeywordType.SETTLEMENT, "터틀넥즈 정산", "정산 사용 테스트", 300L, inssAccount,
+				"[{\"name\":\"김도희\",\"tel\":\"010-1234-5678\"},{\"name\":\"문서아\",\"tel\":\"010-8765-4321\"}]",
+				BigDecimal.valueOf(20000),
+				false);
+			Keyword k4 = new Keyword(yeobUser, KeywordType.TICKET, "성수역점 번호표", "번호표 사용 테스트", 400L,
+				"{\"place_name\":\"하나은행 성수역지점\",\"address_name\":\"서울 성동구 성수동2가 289-10\",\"phone\":\"02-462-7627\",\"distance\":\"117\",\"id\":\"1841540654\"}");
+
+			keywordRepository.saveAll(Arrays.asList(k1, k2, k3, k4));
+
+		}
+
 	}
 
 	@Test
-	@Order(1)
 	@DisplayName("조회 키워드 생성 테스트")
 	public void createInquiryKeywordTest() throws Exception {
 
 		User testUser = userRepository.findFirstByUsername("insunID")
-			.orElseThrow(() -> new NullPointerException("User not found!!"));
+			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
 		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
-			.orElseThrow(() -> new NullPointerException("Account not found"));
+			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
 		KeywordDto keywordDto = KeywordDto.builder()
 			.user(testUser)
@@ -144,15 +159,15 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(2)
 	@DisplayName("송금 키워드 생성 테스트")
 	public void createTransferKeywordTest() throws Exception {
 
-		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		User testUser = userRepository.findFirstByUsername("insunID")
+			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
 		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
-			.orElseThrow(() -> new NullPointerException("Account not found"));
+			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 		Account testSubAccount = accountRepository.findByAccountNumber("222-342-2223")
-			.orElseThrow(() -> new NullPointerException("Receiving account not found"));
+			.orElseThrow(() -> new AccountNotFoundException("Receiving account not found"));
 
 		KeywordDto keywordDto = KeywordDto.builder()
 			.user(testUser)
@@ -180,20 +195,17 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(3)
 	@DisplayName("번호표 키워드 생성 테스트")
 	public void createTicketKeywordTest() throws Exception {
-		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		User testUser = userRepository.findFirstByUsername("insunID")
+			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
 		String testBranch = """
 			{
 				"address_name": "서울 성동구 성수동2가 289-10",
 				"distance": "117",
 				"id": "1841540654",
 				"phone": "02-462-7627",
-				"place_name": "하나은행 성수역지점",
-				"road_address_name": "서울 성동구 성수이로 113",
-				"x": "127.05717861008637",
-				"y": "37.54512527783082"
+				"place_name": "하나은행 성수역지점"				
 			}
 			""";
 
@@ -219,12 +231,12 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(4)
 	@DisplayName("정산 키워드 생성 테스트")
 	public void createSettlementKeywordTest() throws Exception {
-		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		User testUser = userRepository.findFirstByUsername("insunID")
+			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
 		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
-			.orElseThrow(() -> new NullPointerException("Account not found"));
+			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 		String testGroupMember = """
 			[
 			    {
@@ -264,12 +276,12 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(5)
 	@DisplayName("조회(Inquiry) 키워드 수정 테스트")
 	public void updateInquiryKeywordTest() throws Exception {
-		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		User testUser = userRepository.findFirstByUsername("insunID")
+			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
 		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
-			.orElseThrow(() -> new NullPointerException("Account not found"));
+			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
 		Keyword originalKeyword = new Keyword(testUser, KeywordType.INQUIRY, "원래 이름", "원래 설명", 100L, testAccount,
 			"원래 조회어");
@@ -295,14 +307,14 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(6)
 	@DisplayName("이체(Transfer) 키워드 수정 테스트")
 	public void updateTransferKeywordTest() throws Exception {
-		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		User testUser = userRepository.findFirstByUsername("insunID")
+			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
 		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
-			.orElseThrow(() -> new NullPointerException("Account not found"));
+			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 		Account subAccount = accountRepository.findByAccountNumber("222-333-4455")
-			.orElseThrow(() -> new NullPointerException("subAccount not found"));
+			.orElseThrow(() -> new AccountNotFoundException("subAccount not found"));
 
 		Keyword originalKeyword = new Keyword(testUser, KeywordType.TRANSFER, "원래 이름", "원래 설명", 100L, testAccount,
 			subAccount, BigDecimal.valueOf(50000), false);
@@ -329,12 +341,12 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(7)
 	@DisplayName("정산(Settlement) 키워드 수정 테스트")
 	public void updateSettlementKeywordTest() throws Exception {
-		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		User testUser = userRepository.findFirstByUsername("insunID")
+			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
 		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
-			.orElseThrow(() -> new NullPointerException("Account not found"));
+			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
 		Keyword originalKeyword = new Keyword(testUser, KeywordType.SETTLEMENT, "원래 이름", "원래 설명", 100L, testAccount,
 			"[{\"name\":\"김철수\",\"tel\":\"010-1234-5678\"}]", BigDecimal.valueOf(50000), false);
@@ -362,10 +374,10 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(8)
 	@DisplayName("티켓(Ticket) 키워드 수정 테스트")
 	public void updateTicketKeywordTest() throws Exception {
-		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		User testUser = userRepository.findFirstByUsername("insunID")
+			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
 
 		Keyword originalKeyword = new Keyword(testUser, KeywordType.TICKET, "원래 이름", "원래 설명", 100L,
 			"{\"name\":\"하나은행 강남지점\",\"address\":\"서울특별시 강남구 테헤란로 152\",\"tel\":\"02-123-4567\"}");
@@ -389,12 +401,12 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(9)
 	@DisplayName("키워드 삭제 테스트")
 	void deleteKeywordTest() throws Exception {
-		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		User testUser = userRepository.findFirstByUsername("insunID")
+			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
 		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
-			.orElseThrow(() -> new NullPointerException("Account not found"));
+			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
 		Keyword originalKeyword = new Keyword(testUser, KeywordType.INQUIRY, "원래 이름", "원래 설명", 100L, testAccount,
 			"원래 조회어");
@@ -410,10 +422,10 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(10)
 	@DisplayName("예외처리 - 잘못된 키워드 타입으로 요청")
 	public void createInvalidTypeKeywordTest() throws Exception {
-		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		User testUser = userRepository.findFirstByUsername("insunID")
+			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
 		KeywordDto keywordDto = KeywordDto.builder()
 			.user(testUser)
 			.type("INVALID_TYPE")
@@ -431,10 +443,10 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(11)
 	@DisplayName("예외처리 - 필수 필드 누락")
 	public void createKeywordWithMissingFieldTest() throws Exception {
-		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		User testUser = userRepository.findFirstByUsername("insunID")
+			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
 		KeywordDto keywordDto = KeywordDto.builder()
 			.user(testUser)
 			.type(KeywordType.INQUIRY.name())
@@ -452,12 +464,14 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(12)
 	@DisplayName("예외처리 - checkEveryTime이 true일 때 amount 포함")
 	public void createTransferKeywordWithInvalidAmountTest() throws Exception {
-		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
-		Account testAccount = accountRepository.findByAccountNumber("111-222-3342").orElseThrow();
-		Account testSubAccount = accountRepository.findByAccountNumber("222-342-2223").orElseThrow();
+		User testUser = userRepository.findFirstByUsername("insunID")
+			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
+		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
+			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
+		Account testSubAccount = accountRepository.findByAccountNumber("222-342-2223")
+			.orElseThrow(() -> new AccountNotFoundException("SubAccount not found"));
 
 		KeywordDto keywordDto = KeywordDto.builder()
 			.user(testUser)
@@ -477,5 +491,73 @@ public class KeywordControllerTest {
 				.content(requestBody))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.message").value("Amount should not be provided when checkEveryTime is true"));
+	}
+
+	@Test
+	@DisplayName("조회 키워드 사용 테스트")
+	public void useInquiryKeywordTest() throws Exception {
+		User yeobUser = userRepository.findFirstByUsername("yeobID")
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
+		Keyword inquiryKeyword = keywordRepository.findByUserIdAndType(yeobUser.getId(),
+			KeywordType.INQUIRY).orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+
+		mockMvc.perform(get("/keyword/" + inquiryKeyword.getId()))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.keywordDto.type").value("INQUIRY"))
+			.andExpect(jsonPath("$.keywordDto.inquiryWord").value(inquiryKeyword.getInquiryWord()))
+			.andExpect(jsonPath("$.keywordDto.account.id").value(inquiryKeyword.getAccount().getId()))
+			.andExpect(jsonPath("$.transactions").isArray())
+			.andDo(print());
+	}
+
+	@Test
+	@DisplayName("송금 키워드 사용 테스트")
+	public void useTransferKeywordTest() throws Exception {
+		User yeobUser = userRepository.findFirstByUsername("yeobID")
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
+		Keyword transferKeyword = keywordRepository.findByUserIdAndType(yeobUser.getId(),
+			KeywordType.TRANSFER).orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+
+		mockMvc.perform(get("/keyword/" + transferKeyword.getId()))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.keywordDto.type").value("TRANSFER"))
+			.andExpect(jsonPath("$.keywordDto.account.id").value(transferKeyword.getAccount().getId()))
+			.andExpect(jsonPath("$.keywordDto.subAccount.id").value(transferKeyword.getSubAccount().getId()))
+			.andDo(print());
+	}
+
+	@Test
+	@DisplayName("번호표 키워드 사용 테스트")
+	public void useTicketKeywordTest() throws Exception {
+		User yeobUser = userRepository.findFirstByUsername("yeobID")
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
+		Keyword ticketKeyword = keywordRepository.findByUserIdAndType(yeobUser.getId(),
+			KeywordType.TICKET).orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+
+		mockMvc.perform(get("/keyword/" + ticketKeyword.getId()))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.keywordDto.type").value("TICKET"))
+			.andExpect(jsonPath("$.keywordDto.branch").isNotEmpty())
+			.andDo(print());
+	}
+
+	@Test
+	@DisplayName("정산 키워드 사용 테스트")
+	public void useSettlementKeywordTest() throws Exception {
+		User yeobUser = userRepository.findFirstByUsername("yeobID")
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
+		Keyword settlementKeyword = keywordRepository.findByUserIdAndType(yeobUser.getId(),
+			KeywordType.SETTLEMENT).orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+
+		mockMvc.perform(get("/keyword/" + settlementKeyword.getId()))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.keywordDto.type").value("SETTLEMENT"))
+			.andExpect(jsonPath("$.keywordDto.groupMember").isNotEmpty())
+			.andExpect(jsonPath("$.keywordDto.account.id").value(settlementKeyword.getAccount().getId()))
+			.andDo(print());
 	}
 }
