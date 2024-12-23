@@ -570,7 +570,6 @@ public class KeywordControllerTest {
 	}
 
 	@Test
-	@Order(13)
 	@DisplayName("멀티 키워드 생성 테스트")
 	public void createMultiKeywordTest() throws Exception {
 		// Arrange
@@ -590,7 +589,7 @@ public class KeywordControllerTest {
 
 		// Build main keyword DTO
 		KeywordDto keywordDto = KeywordDto.builder()
-			.user(testUser)
+			.user(UserResponseMapper.toDto(testUser))
 			.type(KeywordType.MULTI.name())
 			.name("멀티 키워드")
 			.desc("잔액 조회 후 용돈 보내기")
@@ -623,7 +622,7 @@ public class KeywordControllerTest {
 				.type(KeywordType.INQUIRY.name())
 				.name("잔액 조회")
 				.desc("잔액 조회하기")
-				.account(AccountMapper.toDto(account))
+				.account(AccountResponseMapper.toDto(account))
 				.inquiryWord("잔액")
 				.build())
 			.seqOrder(seqOrder)
@@ -637,8 +636,8 @@ public class KeywordControllerTest {
 				.type(KeywordType.TRANSFER.name())
 				.name("성엽 용돈")
 				.desc("생활비계좌에서 > 성엽계좌 > 3만원")
-				.account(AccountMapper.toDto(account))
-				.subAccount(AccountMapper.toDto(subAccount))
+				.account(AccountResponseMapper.toDto(account))
+				.subAccount(AccountResponseMapper.toDto(subAccount))
 				.amount(amount)
 				.checkEveryTime(false)
 				.build())

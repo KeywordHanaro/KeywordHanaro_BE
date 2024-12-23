@@ -32,7 +32,8 @@ public class KeywordMapper {
 			return null;
 		}
 
-		return new Keyword(keywordDto.getUser(), KeywordType.valueOf(keywordDto.getType()), keywordDto.getName(),
+		return new Keyword(UserMapper.toEntity(keywordDto.getUser()), KeywordType.valueOf(keywordDto.getType()),
+			keywordDto.getName(),
 			keywordDto.getDesc(),
 			keywordDto.getSeqOrder());
 	}
