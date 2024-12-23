@@ -14,10 +14,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Data
 @NoArgsConstructor
-public class AccountDto extends BaseDto {
+public class AccountDto {
 	private Long id;
 	private String accountNumber;
-	private UserDto user;
+	private UserResponseDto user;
 	private Bank bank;
 	private String name;
 	@JsonIgnore

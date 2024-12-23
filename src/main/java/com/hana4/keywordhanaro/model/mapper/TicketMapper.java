@@ -60,4 +60,5 @@ public class TicketMapper {
 		return new Ticket(requestDTO.getBranchId(), requestDTO.getBranchName(), user,
 			waitingGuest, waitingNumber, requestDTO.getWorkNumber());
 	}
+
 }

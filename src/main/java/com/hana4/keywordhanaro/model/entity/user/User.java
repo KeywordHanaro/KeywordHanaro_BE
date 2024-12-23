@@ -16,7 +16,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -82,4 +81,16 @@ public class User extends BaseEntity {
 		this.permission = permission;
 		this.ticket = ticket;
 	}
+
+	public User(String id, String username, String name, UserStatus status, String email, String tel,
+		int permission) {
+		this.id = id;
+		this.username = username;
+		this.name = name;
+		this.status = status;
+		this.email = email;
+		this.tel = tel;
+		this.permission = permission;
+	}
+
 }

@@ -10,7 +10,7 @@ public class KeywordMapper {
 		}
 		return KeywordDto.builder()
 			.id(keyword.getId())
-			.user(keyword.getUser())
+			.user(UserResponseMapper.toDto(keyword.getUser()))
 			.type(keyword.getType().name())
 			.name(keyword.getName())
 			.desc(keyword.getDescription())

@@ -20,6 +20,7 @@ import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.mapper.KeywordMapper;
+import com.hana4.keywordhanaro.model.mapper.UserResponseMapper;
 import com.hana4.keywordhanaro.repository.AccountRepository;
 import com.hana4.keywordhanaro.repository.KeywordRepository;
 import com.hana4.keywordhanaro.repository.UserRepository;
@@ -39,7 +40,7 @@ public class KeywordServiceImpl implements KeywordService {
 
 	@Override
 	public KeywordDto createKeyword(KeywordDto keywordDto) {
-		User user = keywordDto.getUser();
+		User user = UserResponseMapper.toEntity(keywordDto.getUser());
 
 		Account account = null;
 		Account subAccount = null;

@@ -2,7 +2,7 @@ package com.hana4.keywordhanaro.model.dto;
 
 import java.math.BigDecimal;
 
-import com.hana4.keywordhanaro.model.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,9 +15,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class KeywordDto {
 	private Long id;
-	private User user;
+	private UserResponseDto user;
 	private String type;
 	private String name;
 	private boolean isFavorite = false;
