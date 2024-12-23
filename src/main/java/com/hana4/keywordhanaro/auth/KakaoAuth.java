@@ -11,6 +11,7 @@ import java.util.Map;
 @Getter
 @Setter
 public class KakaoAuth {
+
     @Value("${KAKAO_TOKEN_URL}")
     private static String TOKEN_URL;
     @Value("${KAKAO_CLIENT_ID}")

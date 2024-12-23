@@ -1,13 +1,12 @@
 package com.hana4.keywordhanaro.controller;
 
+import com.hana4.keywordhanaro.service.KakaoAuthService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -18,27 +17,33 @@ import java.util.Map;
 @RequestMapping("/settlement")
 public class SettlementController {
     private static final String KAKAO_API_URL = "https://kapi.kakao.com/v2/api/talk/memo/default/send";
-    private static final String KAKAO_ACCESS_TOKEN = "YOUR_ACCESS_TOKEN";
+
+    @Autowired
+    private KakaoAuthService kakaoAuthService;
 
     @PostMapping("/message")
-    public ResponseEntity<String> sendSettlementRequest(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<String> sendSettlementRequest(@RequestHeader("Authorization") String token,
+                                                        @RequestBody Map<String, Object> request) {
+        // JWT에서 사용자 정보 추출
+        String accessToken = kakaoAuthService.getAccessToken(token);
+
         List<String> users = (List<String>) request.get("users");
         String amount = (String) request.get("amount");
 
         for (String user : users) {
-            sendKakaoMessage(user, amount);
+            sendKakaoMessage(user, amount, accessToken);
         }
 
         return ResponseEntity.ok("settlement request has been processed successfully");
     }
 
-    private void sendKakaoMessage(String userId, String amount) {
+    private void sendKakaoMessage(String userId, String amount, String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
-
+//
         // 요청 헤더 설정
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.set("Authorization", "Bearer " + KAKAO_ACCESS_TOKEN);
+        headers.set("Authorization", "Bearer " + accessToken);
 
         // 요청 데이터 설정
         String templateObject = String.format(

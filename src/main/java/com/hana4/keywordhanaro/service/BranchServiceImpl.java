@@ -1,10 +1,10 @@
 package com.hana4.keywordhanaro.service;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.hana4.keywordhanaro.exception.InvalidRequestException;
+import com.hana4.keywordhanaro.exception.KakaoApiException;
+import com.hana4.keywordhanaro.model.dto.BranchDto;
+import com.hana4.keywordhanaro.model.mapper.BranchMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -17,12 +17,10 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.hana4.keywordhanaro.exception.InvalidRequestException;
-import com.hana4.keywordhanaro.exception.KakaoApiException;
-import com.hana4.keywordhanaro.model.dto.BranchDto;
-import com.hana4.keywordhanaro.model.mapper.BranchMapper;
-
-import lombok.RequiredArgsConstructor;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

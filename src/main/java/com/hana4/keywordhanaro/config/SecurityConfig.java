@@ -60,7 +60,12 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
+<<<<<<< HEAD
                         authorize -> authorize.requestMatchers("/", "/login", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll().anyRequest().authenticated())
+=======
+                        authorize -> authorize.requestMatchers("/", "/login", "/swagger-ui/**", "/v3/api-docs/**",
+                                "/swagger-resources/**", "/webjars/**", "/branch/search", "/api/auth/**").permitAll().anyRequest().authenticated())
+>>>>>>> 0d6c9ae (jwtToken발행완료)
                 .sessionManagement(session -> session.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
