@@ -20,7 +20,7 @@ public class SettlementController {
     private static final String KAKAO_API_URL = "https://kapi.kakao.com/v2/api/talk/memo/default/send";
     private static final String KAKAO_ACCESS_TOKEN = "YOUR_ACCESS_TOKEN";
 
-    @PostMapping
+    @PostMapping("/message")
     public ResponseEntity<String> sendSettlementRequest(@RequestBody Map<String, Object> request) {
         List<String> users = (List<String>) request.get("users");
         String amount = (String) request.get("amount");
@@ -29,7 +29,7 @@ public class SettlementController {
             sendKakaoMessage(user, amount);
         }
 
-        return ResponseEntity.ok("정산 요청이 성공적으로 처리되었습니다.");
+        return ResponseEntity.ok("settlement request has been processed successfully");
     }
 
     private void sendKakaoMessage(String userId, String amount) {
@@ -63,7 +63,7 @@ public class SettlementController {
         ResponseEntity<String> response = restTemplate.postForEntity(KAKAO_API_URL, entity, String.class);
 
         if (!response.getStatusCode().is2xxSuccessful()) {
-            System.err.println("Failed to send message to user: " + userId);
+            System.err.println("Failed to send message to user: " + userId);//todo error 처리
         }
     }
 }
