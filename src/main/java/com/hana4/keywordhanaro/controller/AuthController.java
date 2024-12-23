@@ -15,10 +15,10 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "keyword.hanaro.topician.com")
 @RequiredArgsConstructor
 public class AuthController {
-    
+
     private final KakaoAuthService kakaoAuthService;
 
     private final JwtTokenProvider jwtTokenProvider;
