@@ -20,8 +20,8 @@ public class KeywordMapper {
 			.amount(keyword.getAmount())
 			.groupMember(keyword.getGroupMember())
 			.branch(keyword.getBranch())
-			.account(AccountMapper.toDto(keyword.getAccount()))
-			.subAccount(AccountMapper.toDto(keyword.getSubAccount()))
+			.account(AccountResponseMapper.toDto(keyword.getAccount()))
+			.subAccount(AccountResponseMapper.toDto(keyword.getSubAccount()))
 			.isFavorite(keyword.isFavorite())
 			.build();
 	}

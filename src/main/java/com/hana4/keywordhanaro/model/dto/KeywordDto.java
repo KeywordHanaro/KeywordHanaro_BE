@@ -24,8 +24,8 @@ public class KeywordDto {
 	private boolean isFavorite = false;
 	private String desc;
 	private Long seqOrder;
-	private AccountDto account;
-	private AccountDto subAccount;
+	private AccountResponseDto account;
+	private AccountResponseDto subAccount;
 	private String inquiryWord;
 	private Boolean checkEveryTime;
 	private BigDecimal amount;

@@ -77,6 +77,19 @@ public class Account extends BaseEntity {
 		this.status = status;
 	}
 
+	public Account(Long id, String accountNumber, User user, Bank bank, String name, BigDecimal balance,
+		BigDecimal transferLimit, AccountType type, AccountStatus status) {
+		this.id = id;
+		this.accountNumber = accountNumber;
+		this.user = user;
+		this.bank = bank;
+		this.name = name;
+		this.balance = balance;
+		this.transferLimit = transferLimit;
+		this.type = type;
+		this.status = status;
+	}
+
 	public boolean canTransfer() {
 		return this.type != AccountType.SAVING; // 적금 계좌는 송금 불가
 	}
