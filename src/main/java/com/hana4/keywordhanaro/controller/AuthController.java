@@ -18,9 +18,8 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 public class AuthController {
-
+    
     private final KakaoAuthService kakaoAuthService;
-
 
     private final JwtTokenProvider jwtTokenProvider;
 
