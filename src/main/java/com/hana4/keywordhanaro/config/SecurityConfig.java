@@ -30,47 +30,28 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
-<<<<<<< HEAD
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http.csrf(AbstractHttpConfigurer::disable)
-			.httpBasic(AbstractHttpConfigurer::disable)
-			.formLogin(AbstractHttpConfigurer::disable)
-			.authorizeHttpRequests(
-				authorize -> authorize.requestMatchers("/", "/login", "/swagger-ui/**", "/v3/api-docs/**",
-						"/swagger-resources/**", "/webjars/**", "/branch/search", "/api/auth/**")
-					.permitAll()
-					.anyRequest()
-					.authenticated())
-			.sessionManagement(session -> session.sessionCreationPolicy(
-				SessionCreationPolicy.STATELESS))
-			.logout(logout -> logout.logoutUrl("/logout")
-				.logoutSuccessUrl("/login?logout")
-				.deleteCookies("JSESSIONID")
-				.invalidateHttpSession(true)
-				.logoutSuccessHandler(((request, response, authentication) -> {
-					ResponseEntity.ok("Logout Successful");
-				})))
-			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-			.cors(Customizer.withDefaults());
-=======
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
-<<<<<<< HEAD
-                        authorize -> authorize.requestMatchers("/", "/login", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll().anyRequest().authenticated())
-=======
                         authorize -> authorize.requestMatchers("/", "/login", "/swagger-ui/**", "/v3/api-docs/**",
-                                "/swagger-resources/**", "/webjars/**", "/branch/search", "/api/auth/**").permitAll().anyRequest().authenticated())
->>>>>>> 0d6c9ae (jwtToken발행완료)
+                                        "/swagger-resources/**", "/webjars/**", "/branch/search", "/api/auth/**")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS))
+                .logout(logout -> logout.logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .deleteCookies("JSESSIONID")
+                        .invalidateHttpSession(true)
+                        .logoutSuccessHandler(((request, response, authentication) -> {
+                            ResponseEntity.ok("Logout Successful");
+                        })))
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .cors(Customizer.withDefaults());
->>>>>>> cf30d00 (pull and CORS 처리중)
 
         return http.build();
     }
