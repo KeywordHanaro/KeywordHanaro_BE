@@ -42,9 +42,9 @@ public class InquiryCustomRepositoryImpl implements InquiryCustomRepository {
 		cw.cq.where(predicates.toArray(new Predicate[0]));
 
 		if ("desc".equalsIgnoreCase(sortOrder)) {
-			cw.cq.orderBy(cw.cb.desc(cw.root.get("createAt")));
+			cw.cq.orderBy(cw.cb.desc(cw.root.get("createAt")), cw.cb.desc(cw.root.get("id")));
 		} else {
-			cw.cq.orderBy(cw.cb.asc(cw.root.get("createAt")));
+			cw.cq.orderBy(cw.cb.asc(cw.root.get("createAt")), cw.cb.desc(cw.root.get("id")));
 		}
 
 		TypedQuery<Transaction> query = entityManager.createQuery(cw.cq);
@@ -88,7 +88,12 @@ public class InquiryCustomRepositoryImpl implements InquiryCustomRepository {
 		// (:searchWord IS NULL OR LOWER(t.alias) LIKE LOWER('%searchWord%'))
 		if (searchWord != null && !searchWord.trim().isEmpty()) {
 			String pattern = "%" + searchWord.toLowerCase() + "%";
-			predicates.add(cb.like(cb.lower(root.get("alias")), pattern));
+			// alias가 null일 경우 subAccount.name으로 검색
+			Predicate aliasMatch = cb.or(
+				cb.like(cb.lower(root.get("alias")), pattern),
+				cb.like(cb.lower(root.get("subAccount").get("name")), pattern)
+			);
+			predicates.add(aliasMatch);
 		}
 
 		return predicates;
