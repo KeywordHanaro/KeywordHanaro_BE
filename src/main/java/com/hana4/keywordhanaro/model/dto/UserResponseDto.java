@@ -2,13 +2,13 @@ package com.hana4.keywordhanaro.model.dto;
 
 import com.hana4.keywordhanaro.model.entity.user.UserStatus;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@SuperBuilder
+@Builder
 public class UserResponseDto {
 	private String id;
 	private String username;

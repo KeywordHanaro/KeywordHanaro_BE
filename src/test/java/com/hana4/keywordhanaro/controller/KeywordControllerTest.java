@@ -36,6 +36,7 @@ import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.entity.user.UserStatus;
 import com.hana4.keywordhanaro.model.mapper.AccountMapper;
+import com.hana4.keywordhanaro.model.mapper.UserResponseMapper;
 import com.hana4.keywordhanaro.repository.AccountRepository;
 import com.hana4.keywordhanaro.repository.BankRepository;
 import com.hana4.keywordhanaro.repository.KeywordRepository;
@@ -136,7 +137,7 @@ public class KeywordControllerTest {
 			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
 		KeywordDto keywordDto = KeywordDto.builder()
-			.user(testUser)
+			.user(UserResponseMapper.toDto(testUser))
 			.type(KeywordType.INQUIRY.name())
 			.name("월급 조회")
 			.desc("생활비 계좌에서 조회 > 월급")
@@ -170,7 +171,7 @@ public class KeywordControllerTest {
 			.orElseThrow(() -> new AccountNotFoundException("Receiving account not found"));
 
 		KeywordDto keywordDto = KeywordDto.builder()
-			.user(testUser)
+			.user(UserResponseMapper.toDto(testUser))
 			.type(KeywordType.TRANSFER.name())
 			.name("성엽이 용돈")
 			.desc("생활비계좌에서 > 성엽이계좌 > 5만원")
@@ -210,7 +211,7 @@ public class KeywordControllerTest {
 			""";
 
 		KeywordDto keywordDto = KeywordDto.builder()
-			.user(testUser)
+			.user(UserResponseMapper.toDto(testUser))
 			.type(KeywordType.TICKET.name())
 			.name("성수역점 번호표")
 			.desc("번호표 > 성수역점")
@@ -251,7 +252,7 @@ public class KeywordControllerTest {
 			""";
 
 		KeywordDto keywordDto = KeywordDto.builder()
-			.user(testUser)
+			.user(UserResponseMapper.toDto(testUser))
 			.type(KeywordType.SETTLEMENT.name())
 			.name("러닝크루 정산")
 			.desc("정산 > 김도희, 문서아")
@@ -427,7 +428,7 @@ public class KeywordControllerTest {
 		User testUser = userRepository.findFirstByUsername("insunID")
 			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
 		KeywordDto keywordDto = KeywordDto.builder()
-			.user(testUser)
+			.user(UserResponseMapper.toDto(testUser))
 			.type("INVALID_TYPE")
 			.name("잘못된 타입")
 			.desc("잘못된 타입의 키워드")
@@ -448,7 +449,7 @@ public class KeywordControllerTest {
 		User testUser = userRepository.findFirstByUsername("insunID")
 			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
 		KeywordDto keywordDto = KeywordDto.builder()
-			.user(testUser)
+			.user(UserResponseMapper.toDto(testUser))
 			.type(KeywordType.INQUIRY.name())
 			// name 필드 누락
 			.desc("필수 필드 누락 테스트")
@@ -474,7 +475,7 @@ public class KeywordControllerTest {
 			.orElseThrow(() -> new AccountNotFoundException("SubAccount not found"));
 
 		KeywordDto keywordDto = KeywordDto.builder()
-			.user(testUser)
+			.user(UserResponseMapper.toDto(testUser))
 			.type(KeywordType.TRANSFER.name())
 			.name("잘못된 송금 키워드")
 			.desc("checkEveryTime이 true인데 amount가 있음")
