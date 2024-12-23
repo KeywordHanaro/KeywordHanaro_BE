@@ -4,10 +4,8 @@ import static org.assertj.core.api.Assertions.*;
 
 
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.model.entity.account.Account;
@@ -28,7 +26,7 @@ class AccountServiceImplTest {
 	}
 
 	@Test
-	void checkAccountNumberAndBankTest() {
+	void checkAccountNumberAndBankTest() throws AccountNotFoundException {
 		Account account = accountRepository.findByAccountNumber("9999999").get();
 		// BDDMockito.given(accountRepository.findUserUsernameByAccountNumberAndBank(accountNumber, bank))
 		// 	.willReturn(Optional.of("Kim Hana"));

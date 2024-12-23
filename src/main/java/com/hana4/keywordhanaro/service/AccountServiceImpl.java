@@ -45,11 +45,10 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public String checkAccountNumberAndBank(String accountNumber, Bank bank) {
-		Account account = accountRepository.findByAccountNumberAndBank(accountNumber, bank).orElse(null);
-		if (account == null) {
-			return null;
-		}
+	public String checkAccountNumberAndBank(String accountNumber, Bank bank) throws AccountNotFoundException {
+		Account account = accountRepository.findByAccountNumberAndBank(accountNumber, bank)
+			.orElseThrow(() -> new AccountNotFoundException("cannot find account by accountNumber"));
+
 		return account.getUser().getName();
 	}
 }
