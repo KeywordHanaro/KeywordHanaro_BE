@@ -18,11 +18,14 @@ import com.hana4.keywordhanaro.model.dto.TransactionDto;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
+import com.hana4.keywordhanaro.model.entity.keyword.MultiKeyword;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.mapper.KeywordMapper;
+import com.hana4.keywordhanaro.model.mapper.MultiKeywordMapper;
 import com.hana4.keywordhanaro.model.mapper.UserResponseMapper;
 import com.hana4.keywordhanaro.repository.AccountRepository;
 import com.hana4.keywordhanaro.repository.KeywordRepository;
+import com.hana4.keywordhanaro.repository.MultiKeywordRepository;
 import com.hana4.keywordhanaro.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -35,6 +38,7 @@ public class KeywordServiceImpl implements KeywordService {
 	private final UserRepository userRepository;
 	private final AccountRepository accountRepository;
 	private final InquiryService inquiryService;
+	private final MultiKeywordRepository multiKeywordRepository;
 
 	private static final Long SEQ_ORDER_INTERVAL = 100L;
 
@@ -53,6 +57,7 @@ public class KeywordServiceImpl implements KeywordService {
 			.orElse(SEQ_ORDER_INTERVAL);
 
 		Keyword keyword;
+		List<MultiKeyword> multiKeywords = new ArrayList<>();
 
 		switch (keywordDto.getType()) {
 			case "INQUIRY":
@@ -82,6 +87,19 @@ public class KeywordServiceImpl implements KeywordService {
 				keyword = new Keyword(user, KeywordType.SETTLEMENT, keywordDto.getName(), keywordDto.getDesc(),
 					newSeqOrder, account, keywordDto.getGroupMember(), keywordDto.getAmount(),
 					keywordDto.getCheckEveryTime());
+				break;
+
+			case "MULTI":
+				validateMultiKeyword(keywordDto);
+				keyword = new Keyword(user, KeywordType.MULTI, keywordDto.getName(), keywordDto.getDesc(), newSeqOrder);
+
+				if (keywordDto.getMultiKeyword() != null) {
+					Keyword finalKeyword = keyword;
+					keywordDto.getMultiKeyword().forEach(multiKeywordDto -> {
+						MultiKeyword multiKeyword = MultiKeywordMapper.toEntity(multiKeywordDto);
+						finalKeyword.addMultiKeyword(multiKeyword);
+					});
+				}
 				break;
 
 			default:
@@ -245,6 +263,12 @@ public class KeywordServiceImpl implements KeywordService {
 			throw new InvalidRequestException("Group member information is required for SETTLEMENT keyword");
 		}
 		validateAmountAndCheckEveryTime(keywordDto);
+	}
+
+	private void validateMultiKeyword(KeywordDto keywordDto) {
+		if (keywordDto.getMultiKeyword() == null) {
+			throw new InvalidRequestException("Multi keyword is required for MULTI keyword");
+		}
 	}
 
 	private void validateAmountAndCheckEveryTime(KeywordDto keywordDto) {

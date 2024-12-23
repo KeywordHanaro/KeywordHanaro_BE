@@ -28,6 +28,7 @@ import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
 import com.hana4.keywordhanaro.exception.UserNotFoundException;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
+import com.hana4.keywordhanaro.model.dto.MultiKeywordDto;
 import com.hana4.keywordhanaro.model.entity.Bank;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
@@ -567,4 +568,82 @@ public class KeywordControllerTest {
 			.andExpect(jsonPath("$.keywordDto.account.id").value(settlementKeyword.getAccount().getId()))
 			.andDo(print());
 	}
+
+	@Test
+	@Order(13)
+	@DisplayName("멀티 키워드 생성 테스트")
+	public void createMultiKeywordTest() throws Exception {
+		// Arrange
+		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
+			.orElseThrow(() -> new IllegalStateException("Account not found"));
+		Account testSubAccount = accountRepository.findByAccountNumber("222-342-2223")
+			.orElseThrow(() -> new IllegalStateException("Sub-account not found"));
+
+		// Build multi-keywords
+		List<MultiKeywordDto> multiKeywords = List.of(
+			createInquiryKeyword(testAccount, (byte)1),
+			createTransferKeyword(testAccount, testSubAccount, BigDecimal.valueOf(30000), (byte)2)
+		);
+
+		System.out.println("multiKeywords = " + multiKeywords);
+
+		// Build main keyword DTO
+		KeywordDto keywordDto = KeywordDto.builder()
+			.user(testUser)
+			.type(KeywordType.MULTI.name())
+			.name("멀티 키워드")
+			.desc("잔액 조회 후 용돈 보내기")
+			.multiKeyword(multiKeywords)
+			.build();
+
+		String requestBody = objectMapper.writeValueAsString(keywordDto);
+
+		System.out.println("requestBody = " + requestBody);
+
+		// Act & Assert
+		mockMvc.perform(post("/keyword")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.type").value("MULTI"))
+			.andExpect(jsonPath("$.name").value(keywordDto.getName()))
+			.andExpect(jsonPath("$.desc").value(keywordDto.getDesc()))
+			.andExpect(jsonPath("$.multiKeyword", Matchers.hasSize(2)))
+			.andExpect(jsonPath("$.multiKeyword[0].keyword.type").value("INQUIRY"))
+			.andExpect(jsonPath("$.multiKeyword[0].keyword.name").value("잔액 조회"))
+			.andExpect(jsonPath("$.multiKeyword[1].keyword.type").value("TRANSFER"))
+			.andExpect(jsonPath("$.multiKeyword[1].keyword.name").value("성엽 용돈"));
+	}
+
+	// Helper Methods
+	private MultiKeywordDto createInquiryKeyword(Account account, byte seqOrder) {
+		return MultiKeywordDto.builder()
+			.keyword(KeywordDto.builder()
+				.type(KeywordType.INQUIRY.name())
+				.name("잔액 조회")
+				.desc("잔액 조회하기")
+				.account(AccountMapper.toDto(account))
+				.inquiryWord("잔액")
+				.build())
+			.seqOrder(seqOrder)
+			.build();
+	}
+
+	private MultiKeywordDto createTransferKeyword(Account account, Account subAccount, BigDecimal amount,
+		byte seqOrder) {
+		return MultiKeywordDto.builder()
+			.keyword(KeywordDto.builder()
+				.type(KeywordType.TRANSFER.name())
+				.name("성엽 용돈")
+				.desc("생활비계좌에서 > 성엽계좌 > 3만원")
+				.account(AccountMapper.toDto(account))
+				.subAccount(AccountMapper.toDto(subAccount))
+				.amount(amount)
+				.checkEveryTime(false)
+				.build())
+			.seqOrder(seqOrder)
+			.build();
+	}
+
 }

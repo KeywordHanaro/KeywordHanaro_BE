@@ -1,6 +1,8 @@
 package com.hana4.keywordhanaro.model.entity.keyword;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.user.User;
@@ -9,12 +11,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -77,6 +81,17 @@ public class Keyword {
 	@JoinColumn(name = "subAccountId", foreignKey = @ForeignKey(name = "fk_Keyword_subAccountId_Account"))
 	private Account subAccount;
 
+	@OneToMany(mappedBy = "multiKeyword", fetch = FetchType.EAGER)
+	private List<MultiKeyword> multiKeywords = new ArrayList<>();
+
+	public void addMultiKeyword(MultiKeyword multiKeyword) {
+		if (this.multiKeywords == null) {
+			this.multiKeywords = new ArrayList<>();
+		}
+		this.multiKeywords.add(multiKeyword);
+		multiKeyword.setMultiKeyword(this);
+	}
+
 	// inquiry keyword
 	public Keyword(User user, KeywordType type, String name, String description, Long seqOrder, Account account,
 		String inquiryWord) {
@@ -125,6 +140,16 @@ public class Keyword {
 		this.name = name;
 		this.branch = branch;
 		this.description = description;
+	}
+
+	// multi keyword
+	public Keyword(User user, KeywordType type, String name, String description, Long seqOrder
+	) {
+		this.user = user;
+		this.type = type;
+		this.name = name;
+		this.description = description;
+		this.seqOrder = seqOrder;
 	}
 
 }

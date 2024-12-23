@@ -1,6 +1,7 @@
 package com.hana4.keywordhanaro.model.dto;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -31,5 +32,5 @@ public class KeywordDto {
 	private BigDecimal amount;
 	private String groupMember;
 	private String branch;
-
+	private List<MultiKeywordDto> multiKeyword;
 }

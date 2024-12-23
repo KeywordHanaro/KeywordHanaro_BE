@@ -10,8 +10,20 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Builder
+@ToString
 @Table(uniqueConstraints = {
 	@UniqueConstraint(
 		name = "uk_multiKeyword_composition",
