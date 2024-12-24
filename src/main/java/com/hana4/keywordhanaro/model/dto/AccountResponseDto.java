@@ -22,7 +22,7 @@ import lombok.experimental.SuperBuilder;
 public class AccountResponseDto {
 	private Long id;
 	private String accountNumber;
-	private UserAccountDto user;
+	private AccountUserDto user;
 	private Bank bank;
 	private String name;
 	private BigDecimal balance;
