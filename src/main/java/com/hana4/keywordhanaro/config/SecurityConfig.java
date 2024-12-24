@@ -1,8 +1,5 @@
 package com.hana4.keywordhanaro.config;
 
-import com.hana4.keywordhanaro.config.filter.JwtAuthenticationFilter;
-import com.hana4.keywordhanaro.utils.JwtUtil;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
@@ -18,71 +15,73 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.hana4.keywordhanaro.config.filter.JwtAuthenticationFilter;
+import com.hana4.keywordhanaro.utils.JwtUtil;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtUtil jwtUtil;
-    private final UserDetailsService userDetailsService;
+	private final JwtUtil jwtUtil;
+	private final UserDetailsService userDetailsService;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        authorize -> authorize.requestMatchers("/", "/login", "/swagger-ui/**", "/v3/api-docs/**",
-                                        "/swagger-resources/**", "/webjars/**", "/branch/search", "/api/auth/**")
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated())
-                .sessionManagement(session -> session.sessionCreationPolicy(
-                        SessionCreationPolicy.STATELESS))
-                .logout(logout -> logout.logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
-                        .deleteCookies("JSESSIONID")
-                        .invalidateHttpSession(true)
-                        .logoutSuccessHandler(((request, response, authentication) -> {
-                            ResponseEntity.ok("Logout Successful");
-                        })))
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .cors(Customizer.withDefaults());
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.csrf(AbstractHttpConfigurer::disable)
+			.httpBasic(AbstractHttpConfigurer::disable)
+			.formLogin(AbstractHttpConfigurer::disable)
+			.authorizeHttpRequests(
+				authorize -> authorize.requestMatchers("/", "/login", "/swagger-ui/**", "/v3/api-docs/**",
+						"/swagger-resources/**", "/webjars/**", "/branch/search", "/api/auth/**")
+					.permitAll()
+					.anyRequest()
+					.authenticated())
+			.sessionManagement(session -> session.sessionCreationPolicy(
+				SessionCreationPolicy.STATELESS))
+			.logout(logout -> logout.logoutUrl("/logout")
+				.logoutSuccessUrl("/login?logout")
+				.deleteCookies("JSESSIONID")
+				.invalidateHttpSession(true)
+				.logoutSuccessHandler(((request, response, authentication) -> {
+					ResponseEntity.ok("Logout Successful");
+				})))
+			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+			.cors(Customizer.withDefaults());
 
-        return http.build();
-    }
+		return http.build();
+	}
 
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public BCryptPasswordEncoder bCryptPasswordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtUtil, userDetailsService);
-    }
+	@Bean
+	public JwtAuthenticationFilter jwtAuthenticationFilter() {
+		return new JwtAuthenticationFilter(jwtUtil, userDetailsService);
+	}
 
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
+	@Bean
+	public AuthenticationManager authenticationManager(
+		AuthenticationConfiguration authenticationConfiguration) throws Exception {
+		return authenticationConfiguration.getAuthenticationManager();
+	}
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("keyword.hanaro.topician.com"); // 허용할 출처 (Next.js)
-        configuration.addAllowedMethod("*"); // 모든 메서드 허용
-        configuration.addAllowedHeader("*"); // 모든 헤더 허용
-        configuration.setAllowCredentials(true); // 쿠키 인증 허용
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+	// @Bean
+	// public CorsConfigurationSource corsConfigurationSource() {
+	//     CorsConfiguration configuration = new CorsConfiguration();
+	//     configuration.addAllowedOrigin("keyword.hanaro.topician.com "); // 허용할 출처 (Next.js)
+	//     configuration.addAllowedMethod("*"); // 모든 메서드 허용
+	//     configuration.addAllowedHeader("*"); // 모든 헤더 허용
+	//     configuration.setAllowCredentials(true); // 쿠키 인증 허용
+	//
+	//     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	//     source.registerCorsConfiguration("/**", configuration);
+	//     return source;
+	// }
 
 }
