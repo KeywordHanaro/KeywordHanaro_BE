@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
+import com.hana4.keywordhanaro.exception.UserNotFoundException;
 import com.hana4.keywordhanaro.model.dto.TicketDto;
 import com.hana4.keywordhanaro.model.dto.TicketRequestDto;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
@@ -28,6 +29,7 @@ import com.hana4.keywordhanaro.model.entity.user.UserStatus;
 import com.hana4.keywordhanaro.repository.KeywordRepository;
 import com.hana4.keywordhanaro.repository.TicketRepository;
 import com.hana4.keywordhanaro.repository.UserRepository;
+import com.hana4.keywordhanaro.service.TicketService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -48,6 +50,9 @@ public class TicketControllerTest {
 
 	@Autowired
 	private TicketRepository ticketRepository;
+
+	@Autowired
+	private TicketService ticketService;
 
 	@BeforeAll
 	void beforeAll() {
@@ -247,6 +252,19 @@ public class TicketControllerTest {
 				.content(requestBody))
 			.andExpect(status().isNotFound())
 			.andExpect(jsonPath("$.message").value("Keyword not found"));
+	}
+
+	@Test
+	@DisplayName("위치 기반 서비스 이용 동의")
+	void updatePermissionTest() throws Exception {
+		User testUser = userRepository.findFirstByUsername("admin")
+			.orElseThrow((() -> new UserNotFoundException("User not found")));
+
+		mockMvc.perform(post("/ticket/permission")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("1"))
+			.andExpect(status().isOk())
+			.andExpect(content().string("Permission updated successfully"));
 	}
 
 }

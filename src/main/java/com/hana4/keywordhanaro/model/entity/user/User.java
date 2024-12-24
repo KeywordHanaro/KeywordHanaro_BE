@@ -85,14 +85,10 @@ public class User extends BaseEntity {
 		this.ticket = ticket;
 	}
 
-	public User(String id, String username, String name, UserStatus status, String email, String tel,
-		int permission) {
+	public User(String id, String name, UserStatus status, int permission) {
 		this.id = id;
-		this.username = username;
 		this.name = name;
 		this.status = status;
-		this.email = email;
-		this.tel = tel;
 		this.permission = permission;
 	}
 
