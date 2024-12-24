@@ -57,7 +57,7 @@ public class TransferController {
     })
     @PostMapping
     public ResponseEntity<TransactionDto> transfer(@RequestBody @Parameter(description = "송금 요청 데이터", required = true) TransferRequestDto transferRequestDto) throws
-        AccountNotFoundException {
+            AccountNotFoundException {
         Transaction transaction = transferService.transfer(
                 transferRequestDto.getFromAccountNumber(),
                 transferRequestDto.getToAccountNumber(),
