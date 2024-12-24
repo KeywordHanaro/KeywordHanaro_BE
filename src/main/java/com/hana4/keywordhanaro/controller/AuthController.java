@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -19,18 +18,19 @@ import com.hana4.keywordhanaro.model.dto.SettlementReqDto;
 import com.hana4.keywordhanaro.model.dto.UserDto;
 import com.hana4.keywordhanaro.service.KakaoAuthService;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * 전체 인증 흐름 처리
  */
-@SuppressWarnings("checkstyle:RegexpMultiline")
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
+@RequiredArgsConstructor
 public class AuthController {
-	@Autowired
-	private KakaoAuthService kakaoAuthService;
 
-	@Autowired
-	private JwtTokenProvider jwtTokenProvider;
+	private final KakaoAuthService kakaoAuthService;
+
+	private final JwtTokenProvider jwtTokenProvider;
 
 	@PostMapping("/settlement/message")
 	public ResponseEntity<Map<String, Object>> kakaoCallback(@RequestBody SettlementReqDto requestBody) {

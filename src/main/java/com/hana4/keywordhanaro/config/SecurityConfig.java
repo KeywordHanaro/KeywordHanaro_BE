@@ -71,4 +71,17 @@ public class SecurityConfig {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
 
+	// @Bean
+	// public CorsConfigurationSource corsConfigurationSource() {
+	//     CorsConfiguration configuration = new CorsConfiguration();
+	//     configuration.addAllowedOrigin("keyword.hanaro.topician.com "); // 허용할 출처 (Next.js)
+	//     configuration.addAllowedMethod("*"); // 모든 메서드 허용
+	//     configuration.addAllowedHeader("*"); // 모든 헤더 허용
+	//     configuration.setAllowCredentials(true); // 쿠키 인증 허용
+	//
+	//     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	//     source.registerCorsConfiguration("/**", configuration);
+	//     return source;
+	// }
+
 }

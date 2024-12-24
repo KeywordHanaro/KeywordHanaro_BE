@@ -2,6 +2,7 @@ package com.hana4.keywordhanaro.controller;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hana4.keywordhanaro.model.dto.AccountDto;
+import com.hana4.keywordhanaro.model.entity.Bank;
 import com.hana4.keywordhanaro.service.AccountService;
 
 @SpringBootTest
@@ -82,5 +84,37 @@ class AccountControllerTest {
 		mockMvc.perform(get(url).contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk())
 			.andExpect(content().json(reqBody));
+	}
+
+	@Test
+	@DisplayName("[모두] 계좌 비밀번호 검증")
+	@WithMockUser(username = "ues", roles = {"USER"})
+	void checkPasswordTest() throws Exception {
+		AccountDto accountDto = new AccountDto("1231-1231-1231", "1234");
+		String reqBody = objectMapper.writeValueAsString(accountDto);
+		System.out.println("reqBody = " + reqBody);
+
+		when(accountService.checkPassword(accountDto.getAccountNumber(), accountDto.getPassword())).thenReturn(true);
+
+		mockMvc.perform(post(url + "/checkPassword").contentType(MediaType.APPLICATION_JSON).content(reqBody))
+			.andExpect(status().isOk())
+			.andExpect(content().string("true"))
+			.andDo(print());
+	}
+
+	@Test
+	@DisplayName("[모두] 예금주 검증")
+	@WithMockUser(username = "ues", roles = {"USER"})
+	void checkAccountNumberAndBankTest() throws Exception {
+		AccountDto accountDto = new AccountDto("1231-1231-1231", new Bank((short) 1,"신한은행"));
+		String reqBody = objectMapper.writeValueAsString(accountDto);
+		System.out.println("reqBody = " + reqBody);
+
+		when(accountService.checkAccountNumberAndBank(accountDto.getAccountNumber(), accountDto.getBank())).thenReturn("남인우");
+
+		mockMvc.perform(post(url + "/checkDepositor").contentType(MediaType.APPLICATION_JSON).content(reqBody))
+			.andExpect(status().isOk())
+			.andExpect(content().string("남인우"))
+			.andDo(print());
 	}
 }

@@ -11,7 +11,7 @@ public class AccountMapper {
 		return AccountDto.builder()
 			.id(account.getId())
 			.accountNumber(account.getAccountNumber())
-			.user(UserMapper.toDto(account.getUser()))
+			.user(UserResponseMapper.toDto(account.getUser()))
 			.name(account.getName())
 			.password(account.getPassword())
 			.balance(account.getBalance())
@@ -19,8 +19,6 @@ public class AccountMapper {
 			.type(account.getType())
 			.status(account.getStatus())
 			.bank(account.getBank())
-			.createAt(account.getCreateAt())
-			.updateAt(account.getUpdateAt())
 			.build();
 	}
 
@@ -28,7 +26,8 @@ public class AccountMapper {
 		if (accountDto == null) {
 			return null;
 		}
-		return new Account(accountDto.getId(), accountDto.getAccountNumber(), UserMapper.toEntity(accountDto.getUser()),
+		return new Account(accountDto.getId(), accountDto.getAccountNumber(),
+			UserResponseMapper.toEntity(accountDto.getUser()),
 			accountDto.getBank(), accountDto.getName(), accountDto.getPassword(), accountDto.getBalance(),
 			accountDto.getTransferLimit(), accountDto.getType(), accountDto.getStatus());
 	}

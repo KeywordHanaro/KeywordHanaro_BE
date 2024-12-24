@@ -10,6 +10,7 @@ import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
 import com.hana4.keywordhanaro.exception.UserNotFoundException;
 import com.hana4.keywordhanaro.model.dto.TicketDto;
 import com.hana4.keywordhanaro.model.dto.TicketRequestDto;
+import com.hana4.keywordhanaro.model.dto.UserDto;
 import com.hana4.keywordhanaro.model.entity.Ticket;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.user.User;
@@ -36,43 +37,51 @@ public class TicketServiceImpl implements TicketService {
 		Long waitingGuest = (long)(random.nextInt(10) + 1); // 1 ~ 10
 
 		Ticket ticket;
-		try {
-			// 키워드 사용 시
-			if (requestDto.getKeywordId() != null) {
-				validateWorkNumber(requestDto);
 
-				Keyword findKeyword = keywordRepository.findById(requestDto.getKeywordId())
-					.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+		// 키워드 사용 시
+		if (requestDto.getKeywordId() != null) {
+			validateWorkNumber(requestDto);
 
-				Optional<Ticket> checkTicket = ticketRepository.findByUser(findKeyword.getUser());
-				if (checkTicket.isPresent()) {
-					return TicketMapper.toDto(checkTicket.get());
-				}
+			Keyword findKeyword = keywordRepository.findById(requestDto.getKeywordId())
+				.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 
-				ticket = TicketMapper.toEntity(findKeyword, requestDto, waitingNumber, waitingGuest);
-			} else { // 일반 사용 시
-				validateWorkNumber(requestDto);
-				validateBranchIdAndName(requestDto);
-				validateUser(requestDto);
-
-				User findUser = userRepository.findById(requestDto.getUserId())
-					.orElseThrow(() -> new UserNotFoundException("User not found"));
-
-				Optional<Ticket> checkTicket = ticketRepository.findByUser(findUser);
-				if (checkTicket.isPresent()) {
-					return TicketMapper.toDto(checkTicket.get());
-				}
-
-				ticket = TicketMapper.toEntity(findUser, requestDto, waitingNumber, waitingGuest);
+			Optional<Ticket> checkTicket = ticketRepository.findByUser(findKeyword.getUser());
+			if (checkTicket.isPresent()) {
+				return TicketMapper.toDto(checkTicket.get());
 			}
 
-			ticket = ticketRepository.save(ticket);
-			log.info("저장 되나요 ?");
-			return TicketMapper.toDto(ticket);
-		} catch (Exception e) {
-			log.error("error!!!", e.getMessage());
-			throw e;
+			ticket = TicketMapper.toEntity(findKeyword, requestDto, waitingNumber, waitingGuest);
+		} else { // 일반 사용 시
+			validateWorkNumber(requestDto);
+			validateBranchIdAndName(requestDto);
+			validateUser(requestDto);
+
+			User findUser = userRepository.findById(requestDto.getUserId())
+				.orElseThrow(() -> new UserNotFoundException("User not found"));
+
+			Optional<Ticket> checkTicket = ticketRepository.findByUser(findUser);
+			if (checkTicket.isPresent()) {
+				return TicketMapper.toDto(checkTicket.get());
+			}
+
+			ticket = TicketMapper.toEntity(findUser, requestDto, waitingNumber, waitingGuest);
 		}
+
+		ticket = ticketRepository.save(ticket);
+		return TicketMapper.toDto(ticket);
+
+	}
+
+	@Override
+	public void updatePermission(Short location, UserDto userDto) throws UserNotFoundException {
+		if (location == null || location != 1) {
+			throw new InvalidRequestException("Invalid location value");
+		}
+		User user = userRepository.findById(userDto.getId())
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
+
+		user.setPermission(location);
+		userRepository.save(user);
 	}
 
 	private void validateWorkNumber(TicketRequestDto requestDto) {

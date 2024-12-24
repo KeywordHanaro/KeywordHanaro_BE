@@ -24,14 +24,18 @@ import com.hana4.keywordhanaro.model.dto.AccountDto;
 import com.hana4.keywordhanaro.model.dto.UserDto;
 import com.hana4.keywordhanaro.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * 카카오 API와 통신하여 토큰과 사용자 정보 관리
  */
 @Service
+@RequiredArgsConstructor
 public class KakaoAuthServiceImpl implements KakaoAuthService {
 
-	private final RestTemplate restTemplate = new RestTemplate();
 	private final UserRepository userRepository;
+
+	private final RestTemplate restTemplate;
 
 	@Value("${KAKAO_CLIENT_ID}")
 	private String clientId;
@@ -40,17 +44,12 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
 
 	@Value("${KAKAO_CLIENT_SECRET}")
 	private String clientSecret;
-	private final String KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token";
+	@Value("${KAKAO_TOKEN_URL}")
+	private String KAKAO_TOKEN_URL;
 	private final String KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me";
-
-	public KakaoAuthServiceImpl(UserRepository userRepository) {
-		this.userRepository = userRepository;
-	}
 
 	@Override
 	public String getAccessToken(String authorizationCode) {
-		RestTemplate restTemplate = new RestTemplate();
-
 		// HTTP 헤더 설정
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -87,7 +86,6 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
 
 	@Override
 	public Map<String, Object> getUserInfo(String accessToken) {
-		RestTemplate restTemplate = new RestTemplate();
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(accessToken);
@@ -130,8 +128,6 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}
-
-		RestTemplate restTemplate = new RestTemplate();
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(accessToken);

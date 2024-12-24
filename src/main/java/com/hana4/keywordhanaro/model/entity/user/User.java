@@ -56,6 +56,7 @@ public class User extends BaseEntity {
 
 	private int permission;
 
+	@Column(length = 36)
 	private String kakaoUUID;
 
 	@OneToOne(mappedBy = "user")
@@ -83,4 +84,12 @@ public class User extends BaseEntity {
 		this.permission = permission;
 		this.ticket = ticket;
 	}
+
+	public User(String id, String name, UserStatus status, int permission) {
+		this.id = id;
+		this.name = name;
+		this.status = status;
+		this.permission = permission;
+	}
+
 }
