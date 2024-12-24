@@ -1,5 +1,6 @@
 package com.hana4.keywordhanaro.controller;
 
+import static org.hamcrest.collection.IsCollectionWithSize.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
@@ -73,9 +74,6 @@ public class KeywordControllerTest {
 
 	@Autowired
 	private BankRepository bankRepository;
-
-	@Autowired
-	private TransactionRepository transactionRepository;
 
 	@BeforeAll
 	void beforeAll() throws Exception {
@@ -570,6 +568,16 @@ public class KeywordControllerTest {
 			.andExpect(jsonPath("$.keywordDto.type").value("SETTLEMENT"))
 			.andExpect(jsonPath("$.keywordDto.groupMember").isNotEmpty())
 			.andExpect(jsonPath("$.keywordDto.account.id").value(settlementKeyword.getAccount().getId()))
+			.andDo(print());
+	}
+
+	@Test
+	@DisplayName("내 모든 키워드 조회 테스트")
+	@WithMockUser(username = "yeobID")
+	void getKeywordsTest() throws Exception {
+		mockMvc.perform(get("/keyword"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$", hasSize(4)))
 			.andDo(print());
 	}
 

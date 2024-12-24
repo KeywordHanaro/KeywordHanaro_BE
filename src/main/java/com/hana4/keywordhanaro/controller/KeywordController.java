@@ -1,5 +1,7 @@
 package com.hana4.keywordhanaro.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,13 +19,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
+import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.mapper.UserResponseMapper;
 import com.hana4.keywordhanaro.service.KeywordService;
 import com.hana4.keywordhanaro.utils.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -41,14 +46,14 @@ public class KeywordController {
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "키워드 생성 성공", content = @Content(mediaType = "application/json")),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "404", description = "사용자 또는 계좌 또는 멀티키워드 하위 키워드를 찾을 수 없음", content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "404", description = "사용자 또는 계좌를 찾을 수 없음", content = @Content(mediaType = "application/json")),
 		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
 	})
 	@PostMapping
 	public ResponseEntity<KeywordDto> createKeyword(@RequestBody KeywordDto keywordDto,
 		Authentication authentication) throws Exception {
-		String userName = authentication.getName();
-		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(userName);
+		String username = authentication.getName();
+		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(username);
 		keywordDto.setUser(UserResponseMapper.toDto(userDetails.getUser()));
 		return ResponseEntity.ok(keywordService.createKeyword(keywordDto));
 	}
@@ -78,8 +83,8 @@ public class KeywordController {
 	@PatchMapping("/{id}")
 	public ResponseEntity<KeywordDto> updateKeyword(@PathVariable Long id, @RequestBody KeywordDto keywordDto,
 		Authentication authentication) {
-		String userName = authentication.getName();
-		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(userName);
+		String username = authentication.getName();
+		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(username);
 		keywordDto.setUser(UserResponseMapper.toDto(userDetails.getUser()));
 		return ResponseEntity.ok(keywordService.updateKeyword(id, keywordDto));
 	}
@@ -93,5 +98,16 @@ public class KeywordController {
 	@GetMapping("/{id}")
 	public ResponseEntity<KeywordResponseDto> useKeyword(@PathVariable Long id) throws Exception {
 		return ResponseEntity.ok(keywordService.useKeyword(id));
+	}
+
+	@Operation(summary = "내 모든 키워드 조회", description = "내 모든 키워드를 조회합니다")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "키워드 생성 성공", content = @Content(array = @ArraySchema(schema = @Schema(implementation = KeywordDto.class)))),
+		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
+	})
+	@GetMapping
+	public ResponseEntity<List<KeywordDto>> getKeywords(Authentication authentication) {
+		String username = authentication.getName();
+		return ResponseEntity.ok(keywordService.getKeywordsByUsername(username));
 	}
 }

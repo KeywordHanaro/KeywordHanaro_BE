@@ -12,11 +12,8 @@ public class UserResponseMapper {
 
 		return UserResponseDto.builder()
 			.id(user.getId())
-			.username(user.getUsername())
 			.name(user.getName())
 			.status(user.getStatus())
-			.email(user.getEmail())
-			.tel(user.getTel())
 			.permission(user.getPermission())
 			.build();
 	}
@@ -26,7 +23,6 @@ public class UserResponseMapper {
 			return null;
 		}
 
-		return new User(userDto.getId(), userDto.getUsername(), userDto.getName(),
-			userDto.getStatus(), userDto.getEmail(), userDto.getTel(), userDto.getPermission());
+		return new User(userDto.getId(), userDto.getName(), userDto.getStatus(), userDto.getPermission());
 	}
 }

@@ -1,5 +1,7 @@
 package com.hana4.keywordhanaro.service;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
@@ -14,4 +16,6 @@ public interface KeywordService {
 	ResponseEntity<DeleteResponseDto> removeKeyword(Long id);
 
 	KeywordResponseDto useKeyword(Long id) throws Exception;
+
+	List<KeywordDto> getKeywordsByUsername(String username);
 }

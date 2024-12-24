@@ -11,7 +11,7 @@ public class AccountResponseMapper {
 		return AccountResponseDto.builder()
 			.id(account.getId())
 			.accountNumber(account.getAccountNumber())
-			.user(UserResponseMapper.toDto(account.getUser()))
+			.user(UserAccountMapper.toDto(account.getUser()))
 			.name(account.getName())
 			.balance(account.getBalance())
 			.transferLimit(account.getTransferLimit())
@@ -19,15 +19,5 @@ public class AccountResponseMapper {
 			.status(account.getStatus())
 			.bank(account.getBank())
 			.build();
-	}
-
-	public static Account toEntity(AccountResponseDto accountDto) {
-		if (accountDto == null) {
-			return null;
-		}
-		return new Account(accountDto.getId(), accountDto.getAccountNumber(),
-			UserResponseMapper.toEntity(accountDto.getUser()),
-			accountDto.getBank(), accountDto.getName(), accountDto.getBalance(),
-			accountDto.getTransferLimit(), accountDto.getType(), accountDto.getStatus());
 	}
 }

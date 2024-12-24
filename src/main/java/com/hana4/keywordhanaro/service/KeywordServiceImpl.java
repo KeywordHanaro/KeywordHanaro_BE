@@ -212,6 +212,11 @@ public class KeywordServiceImpl implements KeywordService {
 		};
 	}
 
+	@Override
+	public List<KeywordDto> getKeywordsByUsername(String username) {
+		return keywordRepository.findAllByUserUsername(username).stream().map(KeywordMapper::toDto).toList();
+	}
+
 	private KeywordResponseDto useInquiryKeyword(Keyword keyword) throws AccountNotFoundException {
 		LocalDate endDate = LocalDate.now();
 		LocalDate startDate = endDate.minusMonths(3); // 최근 3개월 조회
