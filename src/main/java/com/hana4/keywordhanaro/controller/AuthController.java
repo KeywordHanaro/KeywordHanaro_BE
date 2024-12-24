@@ -1,6 +1,8 @@
 package com.hana4.keywordhanaro.controller;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hana4.keywordhanaro.auth.JwtTokenProvider;
-import com.hana4.keywordhanaro.model.dto.KeywordDto;
+import com.hana4.keywordhanaro.model.dto.AccountDto;
 import com.hana4.keywordhanaro.model.dto.SettlementReqDto;
+import com.hana4.keywordhanaro.model.dto.UserDto;
 import com.hana4.keywordhanaro.service.KakaoAuthService;
 
 /**
@@ -34,12 +37,18 @@ public class AuthController {
 		Map<String, Object> response = new HashMap<>();
 		try {
 			String code = requestBody.getCode();
-			KeywordDto formData = requestBody.getFormData();
-			System.out.println(formData);
+			List<UserDto> groupMember = requestBody.getGroupMember();
+			BigDecimal amount = requestBody.getAmount();
+			AccountDto account = requestBody.getAccount();
+			String type = requestBody.getType();
+			// for (UserDto user : groupMember) {
+			// 	System.out.println(user.getName());
+			// }
+
 			String accessToken = kakaoAuthService.getAccessToken(code);
 			// System.out.println(accessToken);
 
-			kakaoAuthService.sendMessage(accessToken);
+			kakaoAuthService.sendMessage(accessToken, groupMember, amount, account, type);
 
 			response.put("success", "success");
 

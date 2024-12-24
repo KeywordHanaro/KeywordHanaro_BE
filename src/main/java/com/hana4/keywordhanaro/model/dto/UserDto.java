@@ -19,6 +19,7 @@ public class UserDto extends BaseDto {
 	private String tel;
 	private int permission;
 	private TicketDto ticket;
+	private String kakaoUUID;
 
 	public UserDto(String username, String password) {
 		this.username = username;

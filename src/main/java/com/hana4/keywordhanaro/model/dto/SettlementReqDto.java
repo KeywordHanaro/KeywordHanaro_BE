@@ -1,5 +1,8 @@
 package com.hana4.keywordhanaro.model.dto;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,5 +12,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class SettlementReqDto {
 	private String code;
-	private KeywordDto formData;
+	private BigDecimal amount;
+	private AccountDto account;
+	private List<UserDto> groupMember;
+	private String type;
 }

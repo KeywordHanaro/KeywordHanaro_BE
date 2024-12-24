@@ -16,7 +16,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -56,6 +55,8 @@ public class User extends BaseEntity {
 	private String tel;
 
 	private int permission;
+
+	private String kakaoUUID;
 
 	@OneToOne(mappedBy = "user")
 	@JsonManagedReference

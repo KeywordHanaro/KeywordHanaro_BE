@@ -1,6 +1,11 @@
 package com.hana4.keywordhanaro.service;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
+
+import com.hana4.keywordhanaro.model.dto.AccountDto;
+import com.hana4.keywordhanaro.model.dto.UserDto;
 
 public interface KakaoAuthService {
 	/**
@@ -19,5 +24,6 @@ public interface KakaoAuthService {
 	 */
 	Map<String, Object> getUserInfo(String accessToken);
 
-	void sendMessage(String accessToken);
+	void sendMessage(String accessToken, List<UserDto> groupMember, BigDecimal amount, AccountDto account,
+		String type);
 }
