@@ -11,8 +11,8 @@ public class TransactionMapper {
 
 		return TransactionDto.builder()
 			.id(transaction.getId())
-			.account(AccountMapper.toDto(transaction.getAccount()))
-			.subAccount(AccountMapper.toDto(transaction.getSubAccount()))
+			.account(AccountResponseMapper.toDto(transaction.getAccount()))
+			.subAccount(AccountResponseMapper.toDto(transaction.getSubAccount()))
 			.amount(transaction.getAmount())
 			.type(transaction.getType())
 			.alias(transaction.getAlias())

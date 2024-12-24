@@ -1,22 +1,29 @@
 package com.hana4.keywordhanaro.model.entity.keyword;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.user.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,7 +35,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @Entity
 @Builder
-@ToString
+// @ToString(exclude = {"multiKeywords"})
+// @EqualsAndHashCode(exclude = {"multiKeywords"})
 public class Keyword {
 
 	@Id
@@ -77,6 +85,23 @@ public class Keyword {
 	@JoinColumn(name = "subAccountId", foreignKey = @ForeignKey(name = "fk_Keyword_subAccountId_Account"))
 	private Account subAccount;
 
+	@OneToMany(mappedBy = "multiKeyword", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@JsonManagedReference // 순환 참조 방지
+	private List<MultiKeyword> multiKeywords = new ArrayList<>();
+
+	public void addMultiKeyword(MultiKeyword multiKeyword) {
+		if (this.multiKeywords == null) {
+			this.multiKeywords = new ArrayList<>();
+		}
+		this.multiKeywords.add(multiKeyword);
+		multiKeyword.setMultiKeyword(this);
+	}
+
+	public void removeMultiKeyword(MultiKeyword multiKeyword) {
+		this.multiKeywords.remove(multiKeyword);
+		multiKeyword.setMultiKeyword(null);
+	}
+
 	// inquiry keyword
 	public Keyword(User user, KeywordType type, String name, String description, Long seqOrder, Account account,
 		String inquiryWord) {
@@ -124,6 +149,24 @@ public class Keyword {
 		this.seqOrder = seqOrder;
 		this.name = name;
 		this.branch = branch;
+		this.description = description;
+	}
+
+	// multi keyword
+	public Keyword(User user, KeywordType type, String name, String description, Long seqOrder
+	) {
+		this.user = user;
+		this.type = type;
+		this.name = name;
+		this.description = description;
+		this.seqOrder = seqOrder;
+	}
+
+	public Keyword(Long id, User user, String name, KeywordType type, String description) {
+		this.id = id;
+		this.user = user;
+		this.name = name;
+		this.type = type;
 		this.description = description;
 	}
 

@@ -9,7 +9,7 @@ import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
 
 public interface KeywordService {
-	KeywordDto createKeyword(KeywordDto keywordDto);
+	KeywordDto createKeyword(KeywordDto keywordDto) throws Exception;
 
 	KeywordDto updateKeyword(Long id, KeywordDto keywordDto);
 

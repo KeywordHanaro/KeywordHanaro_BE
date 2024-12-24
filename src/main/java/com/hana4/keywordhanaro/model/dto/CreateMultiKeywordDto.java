@@ -1,7 +1,5 @@
 package com.hana4.keywordhanaro.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,9 +11,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class MultiKeywordDto {
-	private Long id;
-	private SubKeywordDto multiKeyword;
-	private SubKeywordDto keyword;
-	private byte seqOrder;
+public class CreateMultiKeywordDto {
+	private Long keywordId;
+	private Long seqOrder;
 }

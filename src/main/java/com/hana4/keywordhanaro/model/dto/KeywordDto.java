@@ -1,20 +1,21 @@
 package com.hana4.keywordhanaro.model.dto;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.Setter;
 
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class KeywordDto {
 	private Long id;
@@ -31,5 +32,5 @@ public class KeywordDto {
 	private BigDecimal amount;
 	private String groupMember;
 	private String branch;
-
+	private List<MultiKeywordDto> multiKeyword;
 }
