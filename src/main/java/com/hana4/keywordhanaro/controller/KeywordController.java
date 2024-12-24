@@ -44,10 +44,14 @@ public class KeywordController {
 
 	@Operation(summary = "키워드 생성", description = "사용자가 송금, 조회, 정산, 번호표 중 키워드를 생성합니다.")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "키워드 생성 성공", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "404", description = "사용자 또는 계좌를 찾을 수 없음", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
+		@ApiResponse(responseCode = "200", description = "키워드 생성 성공",
+			content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청",
+			content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "404", description = "사용자 또는 계좌를 찾을 수 없음",
+			content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "500", description = "서버 오류",
+			content = @Content(mediaType = "application/json"))
 	})
 	@PostMapping
 	public ResponseEntity<KeywordDto> createKeyword(@RequestBody KeywordDto keywordDto,
@@ -62,9 +66,12 @@ public class KeywordController {
 		parameters = {
 			@Parameter(name = "id", description = "keywordId", required = true, example = "1")})
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "키워드 생성 성공", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "404", description = "사용자 또는 계좌를 찾을 수 없음", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
+		@ApiResponse(responseCode = "200", description = "키워드 생성 성공",
+			content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "404", description = "사용자 또는 계좌를 찾을 수 없음",
+			content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "500", description = "서버 오류",
+			content = @Content(mediaType = "application/json"))
 	})
 	@DeleteMapping("/{id}")
 	public ResponseEntity<DeleteResponseDto> deleteKeyword(@PathVariable Long id) {
@@ -75,10 +82,14 @@ public class KeywordController {
 		parameters = {
 			@Parameter(name = "id", description = "keywordId", required = true, example = "2")})
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "키워드 수정 성공", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "404", description = "키워드, 사용자 또는 계좌를 찾을 수 없음", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
+		@ApiResponse(responseCode = "200", description = "키워드 수정 성공",
+			content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청",
+			content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "404", description = "키워드, 사용자 또는 계좌를 찾을 수 없음",
+			content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "500", description = "서버 오류",
+			content = @Content(mediaType = "application/json"))
 	})
 	@PatchMapping("/{id}")
 	public ResponseEntity<KeywordDto> updateKeyword(@PathVariable Long id, @RequestBody KeywordDto keywordDto,
@@ -91,9 +102,12 @@ public class KeywordController {
 
 	@Operation(summary = "키워드 사용", description = "해당 키워드를 실행합니다")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "키워드 생성 성공", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "404", description = "키워드를 찾을 수 없음", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
+		@ApiResponse(responseCode = "200", description = "키워드 생성 성공",
+			content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "404", description = "키워드를 찾을 수 없음",
+			content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "500", description = "서버 오류",
+			content = @Content(mediaType = "application/json"))
 	})
 	@GetMapping("/{id}")
 	public ResponseEntity<KeywordResponseDto> useKeyword(@PathVariable Long id) throws Exception {
