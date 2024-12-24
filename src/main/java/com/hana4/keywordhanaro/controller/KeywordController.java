@@ -41,12 +41,12 @@ public class KeywordController {
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "키워드 생성 성공", content = @Content(mediaType = "application/json")),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "404", description = "사용자 또는 계좌를 찾을 수 없음", content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "404", description = "사용자 또는 계좌 또는 멀티키워드 하위 키워드를 찾을 수 없음", content = @Content(mediaType = "application/json")),
 		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
 	})
 	@PostMapping
 	public ResponseEntity<KeywordDto> createKeyword(@RequestBody KeywordDto keywordDto,
-		Authentication authentication) {
+		Authentication authentication) throws Exception {
 		String userName = authentication.getName();
 		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(userName);
 		keywordDto.setUser(UserResponseMapper.toDto(userDetails.getUser()));

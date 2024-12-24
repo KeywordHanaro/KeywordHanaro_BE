@@ -15,6 +15,7 @@ import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
+import com.hana4.keywordhanaro.model.dto.MultiKeywordDto;
 import com.hana4.keywordhanaro.model.dto.TransactionDto;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
@@ -29,6 +30,8 @@ import com.hana4.keywordhanaro.repository.KeywordRepository;
 import com.hana4.keywordhanaro.repository.MultiKeywordRepository;
 import com.hana4.keywordhanaro.repository.UserRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -44,7 +47,8 @@ public class KeywordServiceImpl implements KeywordService {
 	private static final Long SEQ_ORDER_INTERVAL = 100L;
 
 	@Override
-	public KeywordDto createKeyword(KeywordDto keywordDto) {
+	@Transactional
+	public KeywordDto createKeyword(KeywordDto keywordDto) throws Exception {
 		User user = UserResponseMapper.toEntity(keywordDto.getUser());
 
 		Account account = null;
@@ -58,7 +62,6 @@ public class KeywordServiceImpl implements KeywordService {
 			.orElse(SEQ_ORDER_INTERVAL);
 
 		Keyword keyword;
-		List<MultiKeyword> multiKeywords = new ArrayList<>();
 
 		switch (keywordDto.getType()) {
 			case "INQUIRY":
@@ -93,14 +96,6 @@ public class KeywordServiceImpl implements KeywordService {
 			case "MULTI":
 				validateMultiKeyword(keywordDto);
 				keyword = new Keyword(user, KeywordType.MULTI, keywordDto.getName(), keywordDto.getDesc(), newSeqOrder);
-
-				if (keywordDto.getMultiKeyword() != null) {
-					Keyword finalKeyword = keyword;
-					keywordDto.getMultiKeyword().forEach(multiKeywordDto -> {
-						MultiKeyword multiKeyword = MultiKeywordMapper.toEntity(multiKeywordDto);
-						finalKeyword.addMultiKeyword(multiKeyword);
-					});
-				}
 				break;
 
 			default:
@@ -108,6 +103,30 @@ public class KeywordServiceImpl implements KeywordService {
 		}
 
 		keyword = keywordRepository.save(keyword);
+
+		// System.out.println("keyword = " + keyword);
+		// System.out.println("Saved Keyword ID: " + keyword.getId());
+
+		// MULTI 키워드 처리
+		if (keywordDto.getType().equals("MULTI") && keywordDto.getMultiKeyword() != null) {
+			for (MultiKeywordDto multiKeywordDto : keywordDto.getMultiKeyword()) {
+				Keyword subKeyword = keywordRepository.findById(multiKeywordDto.getKeyword().getId())
+					.orElseThrow(() -> new KeywordNotFoundException("Keyword not found with id: " + multiKeywordDto.getKeyword().getId()));
+
+				MultiKeyword multiKeyword = new MultiKeyword();
+				multiKeyword.setMultiKeyword(keyword);
+				multiKeyword.setKeyword(subKeyword);
+				multiKeyword.setSeqOrder(multiKeywordDto.getSeqOrder());
+
+				keyword.getMultiKeywords().add(multiKeyword); // 중요
+			}
+
+			keyword = keywordRepository.save(keyword);
+		}
+
+		// System.out.println("Final Keyword: " + keyword);
+		// System.out.println("Number of MultiKeywords: " + (keyword.getMultiKeywords() != null ? keyword.getMultiKeywords().size() : 0));
+
 		return KeywordMapper.toDto(keyword);
 	}
 

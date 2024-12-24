@@ -1,5 +1,8 @@
 package com.hana4.keywordhanaro.model.entity.keyword;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ForeignKey;
@@ -15,7 +18,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
@@ -23,7 +25,6 @@ import lombok.ToString;
 @AllArgsConstructor
 @Entity
 @Builder
-@ToString
 @Table(uniqueConstraints = {
 	@UniqueConstraint(
 		name = "uk_multiKeyword_composition",
@@ -37,6 +38,7 @@ public class MultiKeyword {
 	private Long id;
 
 	@ManyToOne
+	@JsonBackReference
 	@JoinColumn(name = "multiKeywordId", nullable = false, foreignKey = @ForeignKey(name = "fk_MultiKeyword_multiKeywordId_Keyword"))
 	private Keyword multiKeyword;
 
@@ -46,5 +48,4 @@ public class MultiKeyword {
 
 	@Column(name = "seqOrder", nullable = false)
 	private byte seqOrder;
-
 }
