@@ -12,8 +12,8 @@ import lombok.Data;
 @Builder
 public class TransactionDto {
 	private Long id;
-	private AccountDto account;
-	private AccountDto subAccount;
+	private AccountResponseDto account;
+	private AccountResponseDto subAccount;
 	private BigDecimal amount;
 	private TransactionType type;
 	private String alias;
