@@ -34,10 +34,15 @@ public class AccountController {
 
 	@Operation(summary = "특정 계좌 조회", description = "관리자가 특정 ID의 계좌 정보를 조회합니다.")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "성공적으로 계좌 정보를 조회함",
-			content = @Content(schema = @Schema(implementation = AccountDto.class))),
-		@ApiResponse(responseCode = "404", description = "계좌를 찾을 수 없음"),
-		@ApiResponse(responseCode = "403", description = "접근 권한 없음")
+		@ApiResponse(responseCode = "200", description = "성공적으로 계좌 정보를 조회함"),
+		@ApiResponse(responseCode = "404", description = "계좌를 찾을 수 없음",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 404, \"error\": \"Bad Request\", \"message\": \"Account not Found\" }"
+			))),
+		@ApiResponse(responseCode = "403", description = "접근 권한 없음",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 403, \"error\": \"Bad Request\", \"message\": \"Access denied\" }"
+			)))
 	})
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/{id}")
@@ -48,9 +53,11 @@ public class AccountController {
 
 	@Operation(summary = "모든 계좌 조회", description = "관리자가 모든 계좌 정보를 조회합니다.")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "성공적으로 모든 계좌 정보를 조회함",
-			content = @Content(schema = @Schema(implementation = AccountDto.class))),
-		@ApiResponse(responseCode = "403", description = "접근 권한 없음")
+		@ApiResponse(responseCode = "200", description = "성공적으로 모든 계좌 정보를 조회함"),
+		@ApiResponse(responseCode = "403", description = "접근 권한 없음",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 403, \"error\": \"Bad Request\", \"message\": \"Access denied\" }"
+			)))
 	})
 	@GetMapping
 	@PreAuthorize("hasRole('ADMIN')")
@@ -85,9 +92,11 @@ public class AccountController {
 
 	@Operation(summary = "예금주 확인", description = "계좌번호와 은행명을 입력받아 예금주 이름을 반환합니다.")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "예금주 확인 성공",
-			content = @Content(schema = @Schema(implementation = String.class))),
-		@ApiResponse(responseCode = "404", description = "계좌를 찾을 수 없음")
+		@ApiResponse(responseCode = "200", description = "예금주 확인 성공"),
+		@ApiResponse(responseCode = "404", description = "계좌를 찾을 수 없음",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 404, \"error\": \"Bad Request\", \"message\": \"Account not Found\" }"
+			)))
 	})
 	@PostMapping("/checkDepositor")
 	public ResponseEntity<String> checkAccountNumberAndBank(

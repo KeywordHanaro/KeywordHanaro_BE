@@ -1,12 +1,9 @@
 package com.hana4.keywordhanaro.model.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hana4.keywordhanaro.model.dto.TicketDto;
 import com.hana4.keywordhanaro.model.dto.TicketRequestDto;
 import com.hana4.keywordhanaro.model.entity.Ticket;
-import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.user.User;
 
 public class TicketMapper {
@@ -19,7 +16,7 @@ public class TicketMapper {
 
 		return TicketDto.builder()
 			.id(ticket.getId())
-			.user(UserMapper.toDto(ticket.getUser()))
+			// .user(UserMapper.toDto(ticket.getUser()))
 			.branchId(ticket.getBranchId())
 			.branchName(ticket.getBranchName())
 			.workNumber(ticket.getWorkNumber())
@@ -34,22 +31,10 @@ public class TicketMapper {
 			return null;
 		}
 
-		return new Ticket(ticketDto.getId(), UserMapper.toEntity(ticketDto.getUser()), ticketDto.getBranchId(),
+		return new Ticket(ticketDto.getId(), null, ticketDto.getBranchId(),
 			ticketDto.getBranchName(),
 			ticketDto.getWaitingNumber(), ticketDto.getWaitingGuest(), ticketDto.getWorkNumber(),
 			ticketDto.getCreateAt());
-	}
-
-	public static Ticket toEntity(Keyword keyword, TicketRequestDto requestDTO, Long waitingNumber,
-		Long waitingGuest) throws
-		JsonProcessingException {
-		if (requestDTO == null) {
-			return null;
-		}
-		JsonNode branchInfo = objectMapper.readTree(keyword.getBranch());
-
-		return new Ticket(branchInfo.get("id").asLong(), branchInfo.get("place_name").asText(), keyword.getUser(),
-			waitingGuest, waitingNumber, requestDTO.getWorkNumber());
 	}
 
 	public static Ticket toEntity(User user, TicketRequestDto requestDTO, Long waitingNumber,

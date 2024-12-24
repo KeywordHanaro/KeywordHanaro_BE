@@ -9,7 +9,7 @@ import lombok.Data;
 @Builder
 public class TicketDto {
 	private Long id;
-	private UserDto user;
+	// private UserDto user;
 	private Long branchId;
 	private String branchName;
 	private Long waitingNumber;
