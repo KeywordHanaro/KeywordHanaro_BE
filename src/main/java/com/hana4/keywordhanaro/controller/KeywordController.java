@@ -51,7 +51,7 @@ public class KeywordController {
 	})
 	@PostMapping
 	public ResponseEntity<KeywordDto> createKeyword(@RequestBody KeywordDto keywordDto,
-		Authentication authentication) {
+		Authentication authentication) throws Exception {
 		String username = authentication.getName();
 		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(username);
 		keywordDto.setUser(UserResponseMapper.toDto(userDetails.getUser()));

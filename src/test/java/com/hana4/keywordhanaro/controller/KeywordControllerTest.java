@@ -22,6 +22,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +30,8 @@ import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
 import com.hana4.keywordhanaro.exception.UserNotFoundException;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
+import com.hana4.keywordhanaro.model.dto.MultiKeywordDto;
+import com.hana4.keywordhanaro.model.dto.SubKeywordDto;
 import com.hana4.keywordhanaro.model.entity.Bank;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
@@ -44,6 +47,8 @@ import com.hana4.keywordhanaro.repository.BankRepository;
 import com.hana4.keywordhanaro.repository.KeywordRepository;
 import com.hana4.keywordhanaro.repository.TransactionRepository;
 import com.hana4.keywordhanaro.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -575,4 +580,85 @@ public class KeywordControllerTest {
 			.andExpect(jsonPath("$", hasSize(4)))
 			.andDo(print());
 	}
+
+	@Test
+	@DisplayName("멀티 키워드 생성 테스트")
+	@Transactional
+	@Rollback(false)
+	public void createMultiKeywordTest() throws Exception {
+		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
+			.orElseThrow(() -> new IllegalStateException("Account not found"));
+		Account testSubAccount = accountRepository.findByAccountNumber("222-342-2223")
+			.orElseThrow(() -> new IllegalStateException("Sub-account not found"));
+
+		// 키워드 먼저 우선 저장
+		Keyword inquiryKeyword = Keyword.builder()
+			.type(KeywordType.INQUIRY)
+			.name("잔액 조회")
+			.description("잔액 조회하기")
+			.account(testAccount)
+			.inquiryWord("잔액")
+			.user(testUser)
+			.seqOrder(3L)
+			.build();
+		inquiryKeyword = keywordRepository.save(inquiryKeyword);
+
+		Keyword transferKeyword = Keyword.builder()
+			.type(KeywordType.TRANSFER)
+			.name("성엽 용돈")
+			.description("생활비계좌에서 > 성엽계좌 > 3만원")
+			.account(testAccount)
+			.subAccount(testSubAccount)
+			.amount(BigDecimal.valueOf(30000))
+			.checkEveryTime(false)
+			.user(testUser)
+			.seqOrder(5L)
+			.build();
+		transferKeyword = keywordRepository.save(transferKeyword);
+
+		System.out.println("Pre-created keywords: inquiry = " + inquiryKeyword.getId() + ", transfer = " + transferKeyword.getId());
+
+
+		List<MultiKeywordDto> multiKeywords = List.of(
+			MultiKeywordDto.builder()
+				.keyword(SubKeywordDto.builder()
+					.id(inquiryKeyword.getId())
+					.build())
+				.seqOrder((byte) 1)
+				.build(),
+			MultiKeywordDto.builder()
+				.keyword(SubKeywordDto.builder()
+					.id(transferKeyword.getId())
+					.build())
+				.seqOrder((byte) 2)
+				.build()
+		);
+
+		KeywordDto keywordDto = KeywordDto.builder()
+			.user(UserResponseMapper.toDto(testUser))
+			.type(KeywordType.MULTI.name())
+			.name("멀티 키워드")
+			.desc("잔액 조회 후 용돈 보내기")
+			.multiKeyword(multiKeywords)
+			.build();
+
+		String requestBody = objectMapper.writeValueAsString(keywordDto);
+
+		System.out.println("requestBody = " + requestBody);
+
+		mockMvc.perform(post("/keyword")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.type").value("MULTI"))
+			.andExpect(jsonPath("$.name").value(keywordDto.getName()))
+			.andExpect(jsonPath("$.desc").value(keywordDto.getDesc()))
+			.andExpect(jsonPath("$.multiKeyword", Matchers.hasSize(2)))
+			.andExpect(jsonPath("$.multiKeyword[0].keyword.id").value(inquiryKeyword.getId()))
+			.andExpect(jsonPath("$.multiKeyword[1].keyword.id").value(transferKeyword.getId()));
+		;
+	}
+
+
 }

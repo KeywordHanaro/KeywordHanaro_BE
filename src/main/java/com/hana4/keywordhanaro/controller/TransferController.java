@@ -5,6 +5,7 @@ import com.hana4.keywordhanaro.model.dto.TransactionDto;
 import com.hana4.keywordhanaro.model.dto.TransferRequestDto;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
 import com.hana4.keywordhanaro.model.mapper.AccountMapper;
+import com.hana4.keywordhanaro.model.mapper.AccountResponseMapper;
 import com.hana4.keywordhanaro.service.TransferService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -64,8 +65,8 @@ public class TransferController {
                 transferRequestDto.getAmount()
         );
         TransactionDto responseDTO = TransactionDto.builder()
-                .account(AccountMapper.toDto(transaction.getAccount()))
-                .subAccount(AccountMapper.toDto(transaction.getSubAccount()))
+                .account(AccountResponseMapper.toDto(transaction.getAccount()))
+                .subAccount(AccountResponseMapper.toDto(transaction.getSubAccount()))
                 .amount(transaction.getAmount())
                 .status("SUCCESS")
                 .beforeBalance(transaction.getAccount().getBalance())
