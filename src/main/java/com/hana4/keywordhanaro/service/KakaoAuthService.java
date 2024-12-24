@@ -18,4 +18,6 @@ public interface KakaoAuthService {
 	 * @return 사용자 정보 (JSON 형태)
 	 */
 	Map<String, Object> getUserInfo(String accessToken);
+
+	void sendMessage(String accessToken);
 }

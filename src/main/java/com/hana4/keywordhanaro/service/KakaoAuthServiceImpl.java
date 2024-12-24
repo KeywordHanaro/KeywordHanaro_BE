@@ -19,12 +19,13 @@ import org.springframework.web.client.RestTemplate;
  */
 @Service
 public class KakaoAuthServiceImpl implements KakaoAuthService {
+
 	private final RestTemplate restTemplate = new RestTemplate();
 
 	@Value("${KAKAO_CLIENT_ID}")
 	private String clientId;
 
-	private final String redirectUri = "http://localhost:3000/comps-test/step2";
+	private final String redirectUri = "http://localhost:3000/settlement/kakao-login";
 
 	@Value("${KAKAO_CLIENT_SECRET}")
 	private String clientSecret;
@@ -87,5 +88,10 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
 		);
 
 		return response.getBody();
+	}
+	
+	@Override
+	public void sendMessage(String accessToken) {
+
 	}
 }
