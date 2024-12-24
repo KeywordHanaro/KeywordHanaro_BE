@@ -118,7 +118,7 @@ public class KeywordServiceImpl implements KeywordService {
 				multiKeyword.setKeyword(subKeyword);
 				multiKeyword.setSeqOrder(multiKeywordDto.getSeqOrder());
 
-				keyword.getMultiKeywords().add(multiKeyword); // 중요
+				keyword.addMultiKeyword(multiKeyword); // 중요
 			}
 
 			keyword = keywordRepository.save(keyword);
