@@ -47,8 +47,8 @@ public class KeywordController {
 	@PostMapping
 	public ResponseEntity<KeywordDto> createKeyword(@RequestBody KeywordDto keywordDto,
 		Authentication authentication) {
-		String userName = authentication.getName();
-		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(userName);
+		String username = authentication.getName();
+		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(username);
 		keywordDto.setUser(UserResponseMapper.toDto(userDetails.getUser()));
 		return ResponseEntity.ok(keywordService.createKeyword(keywordDto));
 	}
@@ -78,8 +78,8 @@ public class KeywordController {
 	@PatchMapping("/{id}")
 	public ResponseEntity<KeywordDto> updateKeyword(@PathVariable Long id, @RequestBody KeywordDto keywordDto,
 		Authentication authentication) {
-		String userName = authentication.getName();
-		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(userName);
+		String username = authentication.getName();
+		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(username);
 		keywordDto.setUser(UserResponseMapper.toDto(userDetails.getUser()));
 		return ResponseEntity.ok(keywordService.updateKeyword(id, keywordDto));
 	}
