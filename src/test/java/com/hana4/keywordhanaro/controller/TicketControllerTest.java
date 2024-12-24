@@ -1,7 +1,6 @@
 package com.hana4.keywordhanaro.controller;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.*;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -27,7 +26,6 @@ import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.entity.user.UserStatus;
-import com.hana4.keywordhanaro.model.mapper.UserMapper;
 import com.hana4.keywordhanaro.repository.KeywordRepository;
 import com.hana4.keywordhanaro.repository.TicketRepository;
 import com.hana4.keywordhanaro.repository.UserRepository;
@@ -262,11 +260,9 @@ public class TicketControllerTest {
 		User testUser = userRepository.findFirstByUsername("admin")
 			.orElseThrow((() -> new UserNotFoundException("User not found")));
 
-		doNothing().when(ticketService).updatePermission((short)1, UserMapper.toDto(testUser));
-
 		mockMvc.perform(post("/ticket/permission")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content("{\"location\": 1}"))
+				.content("1"))
 			.andExpect(status().isOk())
 			.andExpect(content().string("Permission updated successfully"));
 	}
