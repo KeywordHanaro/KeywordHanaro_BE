@@ -53,8 +53,13 @@ public class TicketController {
 			content = @Content(mediaType = "application/json", schema = @Schema(
 				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
 	@PostMapping()
-	public ResponseEntity<TicketDto> createTicket(@RequestBody TicketRequestDto ticketRequestDto) throws Exception {
-		return ResponseEntity.ok(ticketService.createTicket(ticketRequestDto));
+	public ResponseEntity<TicketDto> createTicket(@RequestBody TicketRequestDto ticketRequestDto,
+		Authentication authentication) throws Exception {
+		String username = authentication.getName();
+		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(username);
+		// ticketRequestDto.setUserId(userDetails.getUser().getId());
+		UserDto userDto = UserMapper.toDto(userDetails.getUser());
+		return ResponseEntity.ok(ticketService.createTicket(ticketRequestDto, userDto));
 	}
 
 	@Operation(

@@ -10,5 +10,5 @@ public class TicketRequestDto {
 	private byte workNumber;
 	private Long branchId;
 	private String branchName;
-	private String userId;
+	// private String userId;
 }

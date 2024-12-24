@@ -6,13 +6,11 @@ import java.util.Random;
 import org.springframework.stereotype.Service;
 
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
-import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
 import com.hana4.keywordhanaro.exception.UserNotFoundException;
 import com.hana4.keywordhanaro.model.dto.TicketDto;
 import com.hana4.keywordhanaro.model.dto.TicketRequestDto;
 import com.hana4.keywordhanaro.model.dto.UserDto;
 import com.hana4.keywordhanaro.model.entity.Ticket;
-import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.mapper.TicketMapper;
 import com.hana4.keywordhanaro.repository.KeywordRepository;
@@ -32,40 +30,24 @@ public class TicketServiceImpl implements TicketService {
 	private final Random random = new Random();
 
 	@Override
-	public TicketDto createTicket(TicketRequestDto ticketRequestDto) throws Exception {
+	public TicketDto createTicket(TicketRequestDto ticketRequestDto, UserDto userDto) throws Exception {
 		Long waitingNumber = (long)(random.nextInt(300) + 1); // 1 ~ 300
 		Long waitingGuest = (long)(random.nextInt(10) + 1); // 1 ~ 10
 
 		Ticket ticket;
 
-		// 키워드 사용 시
-		if (ticketRequestDto.getKeywordId() != null) {
-			validateWorkNumber(ticketRequestDto);
+		validateWorkNumber(ticketRequestDto);
+		validateBranchIdAndName(ticketRequestDto);
 
-			Keyword findKeyword = keywordRepository.findById(ticketRequestDto.getKeywordId())
-				.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+		User findUser = userRepository.findById(userDto.getId())
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
 
-			Optional<Ticket> checkTicket = ticketRepository.findByUser(findKeyword.getUser());
-			if (checkTicket.isPresent()) {
-				return TicketMapper.toDto(checkTicket.get());
-			}
-
-			ticket = TicketMapper.toEntity(findKeyword, ticketRequestDto, waitingNumber, waitingGuest);
-		} else { // 일반 사용 시
-			validateWorkNumber(ticketRequestDto);
-			validateBranchIdAndName(ticketRequestDto);
-			validateUser(ticketRequestDto);
-
-			User findUser = userRepository.findById(ticketRequestDto.getUserId())
-				.orElseThrow(() -> new UserNotFoundException("User not found"));
-
-			Optional<Ticket> checkTicket = ticketRepository.findByUser(findUser);
-			if (checkTicket.isPresent()) {
-				return TicketMapper.toDto(checkTicket.get());
-			}
-
-			ticket = TicketMapper.toEntity(findUser, ticketRequestDto, waitingNumber, waitingGuest);
+		Optional<Ticket> checkTicket = ticketRepository.findByUser(findUser);
+		if (checkTicket.isPresent()) {
+			return TicketMapper.toDto(checkTicket.get());
 		}
+
+		ticket = TicketMapper.toEntity(findUser, ticketRequestDto, waitingNumber, waitingGuest);
 
 		ticket = ticketRepository.save(ticket);
 		return TicketMapper.toDto(ticket);
@@ -100,10 +82,5 @@ public class TicketServiceImpl implements TicketService {
 			throw new InvalidRequestException("Branch name is required");
 		}
 	}
-
-	private void validateUser(TicketRequestDto requestDto) {
-		if (requestDto.getUserId() == null) {
-			throw new InvalidRequestException("User ID is required");
-		}
-	}
+	
 }
