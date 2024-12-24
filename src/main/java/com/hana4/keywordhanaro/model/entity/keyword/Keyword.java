@@ -170,8 +170,4 @@ public class Keyword {
 		this.description = description;
 	}
 
-	// public Keyword(Long id){
-	// 	this.id = id;
-	// }
-
 }

@@ -29,11 +29,10 @@ public class KeywordMapper {
 			.isFavorite(keyword.isFavorite())
 			.build();
 
-		// 순환 참조 방지: 필요한 경우에만 MultiKeyword DTO를 매핑
 		if (keyword.getMultiKeywords() != null && !keyword.getMultiKeywords().isEmpty()) {
 			dto.setMultiKeyword(keyword.getMultiKeywords().stream()
 				.map(mk -> MultiKeywordDto.builder()
-					.id(mk.getId()) // 필요한 필드만 변환
+					.id(mk.getId())
 					.keyword(SubKeywordMapper.toDto(mk.getKeyword()))
 					.seqOrder(mk.getSeqOrder())
 					.multiKeyword(SubKeywordMapper.toDto(mk.getMultiKeyword()))

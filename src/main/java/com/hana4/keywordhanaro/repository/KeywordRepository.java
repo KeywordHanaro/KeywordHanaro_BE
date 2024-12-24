@@ -13,12 +13,6 @@ import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
 
 public interface KeywordRepository extends JpaRepository<Keyword, Long> {
 
-	// @EntityGraph(attributePaths = {"multiKeyword"})
-	// Optional<Keyword> findByIdWithKeyword(Long id);
-
-	@Query("SELECT k FROM Keyword k LEFT JOIN FETCH k.multiKeywords WHERE k.id = :id")
-	Optional<Keyword> findByIdWithMultiKeywords(@Param("id") Long id);
-
 	Optional<Keyword> findByName(String name);
 
 	Optional<Keyword> findTopByUserIdOrderBySeqOrderDesc(String userId);
