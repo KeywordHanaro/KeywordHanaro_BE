@@ -21,4 +21,6 @@ public interface KeywordRepository extends JpaRepository<Keyword, Long> {
 
 	@Query("SELECT DISTINCT k.type FROM Keyword k WHERE k.user.id = :userId")
 	List<KeywordType> findTypesByUserId(@Param("userId") String userId);
+
+	List<Keyword> findAllByUserUsername(String username);
 }
