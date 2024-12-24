@@ -15,11 +15,13 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hana4.keywordhanaro.model.dto.UserDto;
+import com.hana4.keywordhanaro.repository.UserRepository;
 import com.hana4.keywordhanaro.utils.JwtUtil;
 
 @SpringBootTest
@@ -42,12 +44,13 @@ class LoginControllerTest {
 
 	@Test
 	@DisplayName("로그인 성공 테스트")
-	void loginSuccessTest() throws Exception {
+	@WithMockUser(username = "admin")
+	void loginSuccessTest(@Autowired UserRepository userRepository) throws Exception {
 		UserDto loginRequest = new UserDto("admin", "password");
 		String loginRequestJson = objectMapper.writeValueAsString(loginRequest);
 
 		Authentication authentication = mock(Authentication.class);
-		// when(authentication.getName()).thenReturn("admin");
+		when(authentication.getName()).thenReturn("admin");
 		// when(authenticationManager.authenticate(any())).thenReturn(authentication);
 		// when(jwtTokenProvider.createJwt("admin")).thenReturn("test.jwt.token");
 
@@ -57,7 +60,8 @@ class LoginControllerTest {
 		);
 
 		result.andExpect(status().isOk())
-			.andExpect(content().string("Login Successful"))
+			.andExpect(jsonPath("$.permission").value(
+				userRepository.findFirstByUsername(authentication.getName()).get().getPermission()))
 			.andDo(print());
 	}
 
