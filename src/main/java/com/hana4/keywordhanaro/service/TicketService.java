@@ -6,7 +6,7 @@ import com.hana4.keywordhanaro.model.dto.TicketRequestDto;
 import com.hana4.keywordhanaro.model.dto.UserDto;
 
 public interface TicketService {
-	TicketDto createTicket(TicketRequestDto ticketRequestDTO) throws Exception;
+	TicketDto createTicket(TicketRequestDto ticketRequestDto) throws Exception;
 
 	void updatePermission(Short location, UserDto userDto) throws UserNotFoundException;
 }

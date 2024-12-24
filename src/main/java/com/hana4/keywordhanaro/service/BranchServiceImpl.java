@@ -94,7 +94,12 @@ public class BranchServiceImpl implements BranchService {
 			List<Map<String, Object>> documents = (List<Map<String, Object>>)body.get("documents");
 
 			return documents.stream()
-				.filter(branch -> branch.get("place_name").toString().contains("하나은행"))
+				.filter(branch -> {
+					String placeName = branch.get("place_name").toString();
+					return placeName.contains("하나은행") &&
+						!placeName.contains("ATM") &&
+						!placeName.contains("하나은행365");
+				})
 				.map(BranchMapper::toDto)
 				.collect(Collectors.toList());
 		} catch (HttpClientErrorException | HttpServerErrorException e) {

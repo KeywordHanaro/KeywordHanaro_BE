@@ -32,17 +32,17 @@ public class TicketServiceImpl implements TicketService {
 	private final Random random = new Random();
 
 	@Override
-	public TicketDto createTicket(TicketRequestDto requestDto) throws Exception {
+	public TicketDto createTicket(TicketRequestDto ticketRequestDto) throws Exception {
 		Long waitingNumber = (long)(random.nextInt(300) + 1); // 1 ~ 300
 		Long waitingGuest = (long)(random.nextInt(10) + 1); // 1 ~ 10
 
 		Ticket ticket;
 
 		// 키워드 사용 시
-		if (requestDto.getKeywordId() != null) {
-			validateWorkNumber(requestDto);
+		if (ticketRequestDto.getKeywordId() != null) {
+			validateWorkNumber(ticketRequestDto);
 
-			Keyword findKeyword = keywordRepository.findById(requestDto.getKeywordId())
+			Keyword findKeyword = keywordRepository.findById(ticketRequestDto.getKeywordId())
 				.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 
 			Optional<Ticket> checkTicket = ticketRepository.findByUser(findKeyword.getUser());
@@ -50,13 +50,13 @@ public class TicketServiceImpl implements TicketService {
 				return TicketMapper.toDto(checkTicket.get());
 			}
 
-			ticket = TicketMapper.toEntity(findKeyword, requestDto, waitingNumber, waitingGuest);
+			ticket = TicketMapper.toEntity(findKeyword, ticketRequestDto, waitingNumber, waitingGuest);
 		} else { // 일반 사용 시
-			validateWorkNumber(requestDto);
-			validateBranchIdAndName(requestDto);
-			validateUser(requestDto);
+			validateWorkNumber(ticketRequestDto);
+			validateBranchIdAndName(ticketRequestDto);
+			validateUser(ticketRequestDto);
 
-			User findUser = userRepository.findById(requestDto.getUserId())
+			User findUser = userRepository.findById(ticketRequestDto.getUserId())
 				.orElseThrow(() -> new UserNotFoundException("User not found"));
 
 			Optional<Ticket> checkTicket = ticketRepository.findByUser(findUser);
@@ -64,7 +64,7 @@ public class TicketServiceImpl implements TicketService {
 				return TicketMapper.toDto(checkTicket.get());
 			}
 
-			ticket = TicketMapper.toEntity(findUser, requestDto, waitingNumber, waitingGuest);
+			ticket = TicketMapper.toEntity(findUser, ticketRequestDto, waitingNumber, waitingGuest);
 		}
 
 		ticket = ticketRepository.save(ticket);
