@@ -20,14 +20,17 @@ import com.hana4.keywordhanaro.utils.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/ticket")
 @ResponseStatus(HttpStatus.OK)
 @RequiredArgsConstructor
+@Tag(name = "Ticket", description = "번호표 관련 API")
 public class TicketController {
 	private final TicketService ticketService;
 	private final UserDetailsService userDetailsService;
@@ -37,11 +40,18 @@ public class TicketController {
 		description = "지점별 번호표를 생성합니다"
 	)
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "번호표가 성공적으로 생성되었습니다.", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "400", description = "잘못된 요청 (필수 필드 누락, 잘못된 데이터 등)", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "404", description = "사용자 또는 키워드를 찾을 수 없음", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
-	})
+		@ApiResponse(responseCode = "200", description = "번호표가 성공적으로 생성되었습니다."),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청 (필수 필드 누락, 잘못된 데이터 등)",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 400, \"error\": \"Bad Request\", \"message\": \"Error description\" }"
+			))),
+		@ApiResponse(responseCode = "404", description = "사용자 또는 키워드를 찾을 수 없음",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 404, \"error\": \"Not Found\", \"message\": \"User or Keyword not found\" }"
+			))),
+		@ApiResponse(responseCode = "500", description = "서버 오류",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
 	@PostMapping()
 	public ResponseEntity<TicketDto> createTicket(@RequestBody TicketRequestDto ticketRequestDto) throws Exception {
 		return ResponseEntity.ok(ticketService.createTicket(ticketRequestDto));
@@ -52,11 +62,18 @@ public class TicketController {
 		description = "위치 기반 서비스 이용 동의를 사용자 정보에 저장합니다"
 	)
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "서비스 이용 동의가 저장되었습니다.", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
-	})
+		@ApiResponse(responseCode = "200", description = "서비스 이용 동의가 저장되었습니다."),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청 (필수 필드 누락, 잘못된 데이터 등)",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 400, \"error\": \"Bad Request\", \"message\": \"Error description\" }"
+			))),
+		@ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 404, \"error\": \"Not Found\", \"message\": \"User not found\" }"
+			))),
+		@ApiResponse(responseCode = "500", description = "서버 오류",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
 	@PostMapping("/permission")
 	public ResponseEntity<String> updatePermission(@RequestBody Short location, Authentication authentication) throws
 		UserNotFoundException {

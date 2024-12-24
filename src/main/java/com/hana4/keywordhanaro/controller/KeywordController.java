@@ -31,12 +31,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/keyword")
 @ResponseStatus(HttpStatus.OK)
 @RequiredArgsConstructor
+@Tag(name = "Keyword", description = "키워드 관련 API")
 public class KeywordController {
 
 	private final KeywordService keywordService;
@@ -44,15 +46,18 @@ public class KeywordController {
 
 	@Operation(summary = "키워드 생성", description = "사용자가 송금, 조회, 정산, 번호표 중 키워드를 생성합니다.")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "키워드 생성 성공",
-			content = @Content(mediaType = "application/json")),
+		@ApiResponse(responseCode = "200", description = "키워드 생성 성공"),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청",
-			content = @Content(mediaType = "application/json")),
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 400, \"error\": \"Bad Request\", \"message\": \"Error description\" }"
+			))),
 		@ApiResponse(responseCode = "404", description = "사용자 또는 계좌를 찾을 수 없음",
-			content = @Content(mediaType = "application/json")),
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 404, \"error\": \"Not Found\", \"message\": \"User or Account not found\" }"
+			))),
 		@ApiResponse(responseCode = "500", description = "서버 오류",
-			content = @Content(mediaType = "application/json"))
-	})
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
 	@PostMapping
 	public ResponseEntity<KeywordDto> createKeyword(@RequestBody KeywordDto keywordDto,
 		Authentication authentication) throws Exception {
@@ -69,9 +74,12 @@ public class KeywordController {
 		@ApiResponse(responseCode = "200", description = "키워드 생성 성공",
 			content = @Content(mediaType = "application/json")),
 		@ApiResponse(responseCode = "404", description = "사용자 또는 계좌를 찾을 수 없음",
-			content = @Content(mediaType = "application/json")),
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 404, \"error\": \"Not Found\", \"message\": \"User or Account not found\" }"
+			))),
 		@ApiResponse(responseCode = "500", description = "서버 오류",
-			content = @Content(mediaType = "application/json"))
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))
 	})
 	@DeleteMapping("/{id}")
 	public ResponseEntity<DeleteResponseDto> deleteKeyword(@PathVariable Long id) {
@@ -85,12 +93,15 @@ public class KeywordController {
 		@ApiResponse(responseCode = "200", description = "키워드 수정 성공",
 			content = @Content(mediaType = "application/json")),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청",
-			content = @Content(mediaType = "application/json")),
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 400, \"error\": \"Bad Request\", \"message\": \"Error description\" }"))),
 		@ApiResponse(responseCode = "404", description = "키워드, 사용자 또는 계좌를 찾을 수 없음",
-			content = @Content(mediaType = "application/json")),
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 404, \"error\": \"Not Found\", \"message\": \"User or Account not found\" }"
+			))),
 		@ApiResponse(responseCode = "500", description = "서버 오류",
-			content = @Content(mediaType = "application/json"))
-	})
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
 	@PatchMapping("/{id}")
 	public ResponseEntity<KeywordDto> updateKeyword(@PathVariable Long id, @RequestBody KeywordDto keywordDto,
 		Authentication authentication) {
@@ -100,15 +111,17 @@ public class KeywordController {
 		return ResponseEntity.ok(keywordService.updateKeyword(id, keywordDto));
 	}
 
-	@Operation(summary = "키워드 사용", description = "해당 키워드를 실행합니다")
+	@Operation(summary = "키워드 사용", description = "해당 키워드를 실행합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "키워드 생성 성공",
 			content = @Content(mediaType = "application/json")),
 		@ApiResponse(responseCode = "404", description = "키워드를 찾을 수 없음",
-			content = @Content(mediaType = "application/json")),
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 404, \"error\": \"Not Found\", \"message\": \"Keyword not found\" }"
+			))),
 		@ApiResponse(responseCode = "500", description = "서버 오류",
-			content = @Content(mediaType = "application/json"))
-	})
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
 	@GetMapping("/{id}")
 	public ResponseEntity<KeywordResponseDto> useKeyword(@PathVariable Long id) throws Exception {
 		return ResponseEntity.ok(keywordService.useKeyword(id));

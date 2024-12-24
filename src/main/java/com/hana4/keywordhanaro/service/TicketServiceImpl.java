@@ -69,7 +69,6 @@ public class TicketServiceImpl implements TicketService {
 
 		ticket = ticketRepository.save(ticket);
 		return TicketMapper.toDto(ticket);
-
 	}
 
 	@Override

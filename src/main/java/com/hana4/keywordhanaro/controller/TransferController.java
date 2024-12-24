@@ -27,11 +27,11 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/transfer")
-@Tag(name = "transfer-controller", description = "이체에 대한 송금자, 수취자, 금액 정보를 처리")
+@Tag(name = "Transfer", description = "송금 API")
 public class TransferController {
 	private final TransferService transferService;
 
-	@Operation(summary = "송금 요청", description = "송금자 계좌번호, 수취자 계좌번호, 송금 금액을 받아 이체를 수행")
+	@Operation(summary = "송금 요청", description = "송금자 계좌번호, 수취자 계좌번호, 송금 금액을 받아 이체를 수행합니다.")
 	@Parameters({
 		@Parameter(
 			name = "TransferRequestDto",
@@ -42,23 +42,18 @@ public class TransferController {
 	@ApiResponses(value = {
 		@ApiResponse(
 			responseCode = "200",
-			description = "송금 요청이 성공적으로 처리되었습니다.",
-			content = @Content(mediaType = "application/json",
-				schema = @Schema(implementation = TransactionDto.class))),
-		@ApiResponse(
-			responseCode = "400",
-			description = "잘못된 요청 파라미터입니다.",
-			content = @Content(mediaType = "application/json")),
-		@ApiResponse(
-			responseCode = "500",
-			description = "서버 내부 오류가 발생했습니다.",
-			content = @Content(mediaType = "application/json")
-		)})
-
+			description = "송금 요청이 성공적으로 처리되었습니다."),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 400, \"error\": \"Bad Request\", \"message\": \"Error description\" }"
+			))),
+		@ApiResponse(responseCode = "500", description = "서버 오류",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
 	@PostMapping
 	public ResponseEntity<TransactionDto> transfer(
-		@RequestBody @Parameter(description = "송금 요청 데이터", required = true) TransferRequestDto transferRequestDto) throws
-		AccountNotFoundException {
+		@RequestBody @Parameter(description = "송금 요청 데이터", required = true) TransferRequestDto transferRequestDto)
+		throws AccountNotFoundException {
 		Transaction transaction = transferService.transfer(
 			transferRequestDto.getFromAccountNumber(),
 			transferRequestDto.getToAccountNumber(),

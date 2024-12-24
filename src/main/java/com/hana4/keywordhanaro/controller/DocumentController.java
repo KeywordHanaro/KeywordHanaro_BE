@@ -39,7 +39,10 @@ public class DocumentController {
 				schema = @Schema(type = "string", example = "type document completed"))),
 		@ApiResponse(
 			responseCode = "400",
-			description = "송금 서류의 경우 Amount가 없거나, 입금 서류의 경우 ")})
+			description = "송금 서류의 경우 Amount가 없거나, 입금 서류의 경우 ",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 400, \"error\": \"Bad Request\", \"message\": \"Error description\" }"
+			)))})
 	@PostMapping("/{type}")
 	public ResponseEntity<String> transfer(
 		@Parameter(description = "문서 타입 (대소문자 구분 없음)")

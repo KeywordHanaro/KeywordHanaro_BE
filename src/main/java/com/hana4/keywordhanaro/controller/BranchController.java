@@ -14,13 +14,16 @@ import com.hana4.keywordhanaro.service.BranchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/branch")
+@Tag(name = "Branch", description = "영업점 검색 API")
 public class BranchController {
 	private final BranchService branchService;
 
@@ -34,9 +37,15 @@ public class BranchController {
 		}
 	)
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "영업점 검색 성공", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "400", description = "잘못된 요청(검색어 또는 위치 값이 누락, 위도, 경도 범위 오류)", content = @Content(mediaType = "application/json")),
-		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
+		@ApiResponse(responseCode = "200", description = "영업점 검색 성공"),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청(검색어 또는 위치 값이 누락, 위도, 경도 범위 오류)",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 400, \"error\": \"Bad Request\", \"message\": \"Error description\" }"
+			))),
+		@ApiResponse(responseCode = "500", description = "서버 오류",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }"
+			)))
 	})
 	@GetMapping("/search")
 	public ResponseEntity<List<BranchDto>> getSearchBranches(
