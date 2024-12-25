@@ -25,6 +25,7 @@ import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
 import com.hana4.keywordhanaro.model.entity.keyword.MultiKeyword;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.mapper.KeywordMapper;
+import com.hana4.keywordhanaro.model.mapper.KeywordResponseMapper;
 import com.hana4.keywordhanaro.model.mapper.UserResponseMapper;
 import com.hana4.keywordhanaro.repository.AccountRepository;
 import com.hana4.keywordhanaro.repository.KeywordRepository;
@@ -243,29 +244,13 @@ public class KeywordServiceImpl implements KeywordService {
 		);
 
 		KeywordDto keywordDto = KeywordMapper.toDto(keyword);
-		return KeywordResponseDto.builder()
-			.id(keywordDto.getId())
-			.user(keywordDto.getUser())
-			.type(keywordDto.getType())
-			.name(keywordDto.getName())
-			.isFavorite(keywordDto.isFavorite())
-			.desc(keywordDto.getDesc())
-			.seqOrder(keywordDto.getSeqOrder())
-			.account(keywordDto.getAccount())
-			.subAccount(keywordDto.getSubAccount())
-			.inquiryWord(keywordDto.getInquiryWord())
-			.checkEveryTime(keywordDto.getCheckEveryTime())
-			.amount(keywordDto.getAmount())
-			.groupMember(keywordDto.getGroupMember())
-			.branch(keywordDto.getBranch())
-			.multiKeyword(keywordDto.getMultiKeyword())
-			.transactions(transactions)
-			.build();
+		return KeywordResponseMapper.toDto(keywordDto, transactions, null);
 	}
 
 	private KeywordResponseDto useOtherKeywordTypes(Keyword keyword) {
 		KeywordDto keywordDto = KeywordMapper.toDto(keyword);
 
+		// branch string에서 json으로 변환
 		BranchDto branchJson = null;
 		if (keywordDto.getBranch() != null) {
 			try {
@@ -275,23 +260,8 @@ public class KeywordServiceImpl implements KeywordService {
 			}
 		}
 
-		return KeywordResponseDto.builder()
-			.id(keywordDto.getId())
-			.user(keywordDto.getUser())
-			.type(keywordDto.getType())
-			.name(keywordDto.getName())
-			.isFavorite(keywordDto.isFavorite())
-			.desc(keywordDto.getDesc())
-			.seqOrder(keywordDto.getSeqOrder())
-			.account(keywordDto.getAccount())
-			.subAccount(keywordDto.getSubAccount())
-			.inquiryWord(keywordDto.getInquiryWord())
-			.checkEveryTime(keywordDto.getCheckEveryTime())
-			.amount(keywordDto.getAmount())
-			.groupMember(keywordDto.getGroupMember())
-			.branch(keywordDto.getBranch())
-			.multiKeyword(keywordDto.getMultiKeyword())
-			.build();
+		return KeywordResponseMapper.toDto(keywordDto, null, branchJson);
+
 	}
 
 	private void validateCommonRequest(KeywordDto keywordDto) {

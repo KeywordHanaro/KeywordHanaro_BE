@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonRawValue;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,7 +31,6 @@ public class KeywordDto {
 	private Boolean checkEveryTime;
 	private BigDecimal amount;
 	private String groupMember;
-	@JsonRawValue
 	private String branch;
 	private List<MultiKeywordDto> multiKeyword;
 }
