@@ -7,5 +7,5 @@ import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
 
 public interface TransferService {
 	Transaction transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount)
-		throws AccountNotFoundException;
+		throws AccountNotFoundException, Exception;
 }

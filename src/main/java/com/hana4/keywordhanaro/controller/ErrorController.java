@@ -13,6 +13,7 @@ import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
 import com.hana4.keywordhanaro.exception.KakaoApiException;
 import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
+import com.hana4.keywordhanaro.exception.TransferErrorException;
 import com.hana4.keywordhanaro.exception.UnAuthorizedException;
 import com.hana4.keywordhanaro.exception.UserNotFoundException;
 
@@ -71,5 +72,10 @@ public class ErrorController {
 	@ExceptionHandler(UnAuthorizedException.class)
 	public ResponseEntity<Map<String, Object>> unAuthorizedExceptionHandler(UnAuthorizedException ue) {
 		return createErrorResult(HttpStatus.UNAUTHORIZED, ue.getMessage());
+	}
+
+	@ExceptionHandler(TransferErrorException.class)
+	public ResponseEntity<Map<String, Object>> transferErrorExceptionHandler(TransferErrorException te) {
+		return createErrorResult(HttpStatus.BAD_REQUEST, te.getMessage());
 	}
 }

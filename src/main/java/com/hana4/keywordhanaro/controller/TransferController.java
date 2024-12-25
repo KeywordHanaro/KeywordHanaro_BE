@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.model.dto.TransactionDto;
 import com.hana4.keywordhanaro.model.dto.TransferRequestDto;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
@@ -53,7 +52,7 @@ public class TransferController {
 	@PostMapping
 	public ResponseEntity<TransactionDto> transfer(
 		@RequestBody @Parameter(description = "송금 요청 데이터", required = true) TransferRequestDto transferRequestDto)
-		throws AccountNotFoundException {
+		throws Exception {
 		Transaction transaction = transferService.transfer(
 			transferRequestDto.getFromAccountNumber(),
 			transferRequestDto.getToAccountNumber(),

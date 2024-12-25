@@ -1,12 +1,15 @@
 package com.hana4.keywordhanaro.service;
 
 import com.hana4.keywordhanaro.exception.AccountNotFoundException;
+import com.hana4.keywordhanaro.exception.TransferErrorException;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.transaction.Transaction;
 import com.hana4.keywordhanaro.model.entity.transaction.TransactionStatus;
 import com.hana4.keywordhanaro.model.entity.transaction.TransactionType;
 import com.hana4.keywordhanaro.repository.AccountRepository;
 import com.hana4.keywordhanaro.repository.TransactionRepository;
+
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +34,7 @@ public class TransferServiceTest {
     private TransactionRepository transactionRepository;
 
     @Test
-    public void testTransferSuccess() throws AccountNotFoundException {
+    public void testTransferSuccess() throws Exception {
         // Arrange
         String fromAccountNumber = "123-321-0905";
         String toAccountNumber = "32476762224";
@@ -63,7 +66,7 @@ public class TransferServiceTest {
     }
 
     @Test
-    public void transferInsufficientBalanceTest() throws AccountNotFoundException {
+    public void transferInsufficientBalanceTest() throws Exception {
         // 초기 상태 확인
         Account fromAccount = accountRepository.findByAccountNumber("111-222-3331").orElseThrow(() -> new NullPointerException("출금 계좌번호가 존재하지 않습니다."));
         Account toAccount = accountRepository.findByAccountNumber("111-222-3332").orElseThrow(() -> new NullPointerException("수취 계좌번호가 존재하지 않습니다."));
@@ -74,16 +77,18 @@ public class TransferServiceTest {
         BigDecimal excessAmount = new BigDecimal("10000000000");
 
         // 송금 시도 및 결과 확인
-        Transaction result = transferService.transfer("111-222-3331", "111-222-3332", excessAmount);
+        Assertions.assertThatThrownBy(() ->{
+            transferService.transfer("111-222-3331", "111-222-3332", excessAmount);}).isInstanceOf(
+            TransferErrorException.class).hasMessageContaining("not enough money in account");
 
         // 실패한 거래 기록 확인
-        assertNotNull(result);
-        assertEquals(TransactionStatus.FAILURE, result.getStatus());
-        assertEquals(fromAccount, result.getAccount());
-        assertEquals(toAccount, result.getSubAccount());
-        assertEquals(excessAmount, result.getAmount());
-        assertEquals(TransactionType.WITHDRAW, result.getType());
-        assertEquals("잔액부족", result.getRemarks());
+        // assertNotNull(result);
+        // assertEquals(TransactionStatus.FAILURE, result.getStatus());
+        // assertEquals(fromAccount, result.getAccount());
+        // assertEquals(toAccount, result.getSubAccount());
+        // assertEquals(excessAmount, result.getAmount());
+        // assertEquals(TransactionType.WITHDRAW, result.getType());
+        // assertEquals("잔액부족", result.getRemarks());
 
         // 계좌 잔액 확인
         Account updatedFromAccount = accountRepository.findByAccountNumber("111-222-3331").orElseThrow(() -> new NullPointerException("출금 계좌번호가 존재하지 않습니다."));
@@ -93,14 +98,14 @@ public class TransferServiceTest {
         assertEquals(initialToBalance, updatedToAccount.getBalance());
 
         // 데이터베이스에 실패한 거래 기록이 저장되었는지 확인
-        Transaction savedTransaction = transactionRepository.findById(result.getId()).orElse(null);
-        assertNotNull(savedTransaction);
-        assertEquals(TransactionStatus.FAILURE, savedTransaction.getStatus());
-        assertEquals("잔액부족", savedTransaction.getRemarks());
+        // Transaction savedTransaction = transactionRepository.findById(result.getId()).orElse(null);
+        // assertNotNull(savedTransaction);
+        // assertEquals(TransactionStatus.FAILURE, savedTransaction.getStatus());
+        // assertEquals("잔액부족", savedTransaction.getRemarks());
     }
 
     @Test
-    public void checkTransferFromSavingAccountTest() throws AccountNotFoundException {
+    public void checkTransferFromSavingAccountTest() throws Exception {
         Account savingsAccount = accountRepository.findById(8L).orElseThrow(() ->
                 new IllegalArgumentException("8번 계좌가 존재하지 않습니다."));
         // 일반 예금 계좌 설정 (id = 1)
@@ -114,15 +119,18 @@ public class TransferServiceTest {
         BigDecimal initialTargetBalance = targetAccount.getBalance();
 
         // 이체 시도
-        Transaction result = transferService.transfer(savingsAccount.getAccountNumber(), targetAccount.getAccountNumber(), transferAmount);
+        Assertions.assertThatThrownBy(() -> {
+            transferService.transfer(savingsAccount.getAccountNumber(), targetAccount.getAccountNumber(),
+                transferAmount);
+        }).isInstanceOf(TransferErrorException.class).hasMessageContaining("cannot send from saving account");
 
         // 실패한 거래 기록 확인
-        assertNotNull(result);
-        assertEquals(TransactionStatus.FAILURE, result.getStatus());
-        assertEquals(savingsAccount, result.getAccount());
-        assertEquals(targetAccount, result.getSubAccount());
-        assertEquals(transferAmount, result.getAmount());
-        assertEquals(TransactionType.WITHDRAW, result.getType());
+        // assertNotNull(result);
+        // assertEquals(TransactionStatus.FAILURE, result.getStatus());
+        // assertEquals(savingsAccount, result.getAccount());
+        // assertEquals(targetAccount, result.getSubAccount());
+        // assertEquals(transferAmount, result.getAmount());
+        // assertEquals(TransactionType.WITHDRAW, result.getType());
 
         // 송금이 실패했으므로 잔액이 변경되지 않았는지 검증
         Account updatedSavingsAccount = accountRepository.findById(8L).orElseThrow();
@@ -132,10 +140,10 @@ public class TransferServiceTest {
         assertEquals(initialTargetBalance, updatedTargetAccount.getBalance());
 
         // 실패한 거래 기록이 데이터베이스에 저장되었는지 확인
-        Transaction savedTransaction = transactionRepository.findById(result.getId()).orElse(null);
-        assertNotNull(savedTransaction);
-        assertEquals(TransactionStatus.FAILURE, savedTransaction.getStatus());
-        assertEquals("적금 계좌 송금 불가", savedTransaction.getRemarks());
+        // Transaction savedTransaction = transactionRepository.findById(result.getId()).orElse(null);
+        // assertNotNull(savedTransaction);
+        // assertEquals(TransactionStatus.FAILURE, savedTransaction.getStatus());
+        // assertEquals("적금 계좌 송금 불가", savedTransaction.getRemarks());
     }
 
     @Test
