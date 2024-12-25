@@ -9,12 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
 import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
 import com.hana4.keywordhanaro.model.dto.BranchDto;
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
+import com.hana4.keywordhanaro.model.dto.GroupMemberDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
 import com.hana4.keywordhanaro.model.dto.MultiKeywordDto;
@@ -253,7 +255,7 @@ public class KeywordServiceImpl implements KeywordService {
 		);
 
 		KeywordDto keywordDto = KeywordMapper.toDto(keyword);
-		return KeywordResponseMapper.toDto(keywordDto, transactions, null);
+		return KeywordResponseMapper.toDto(keywordDto, transactions);
 	}
 
 	private KeywordResponseDto useOtherKeywordTypes(Keyword keyword) {
@@ -269,7 +271,19 @@ public class KeywordServiceImpl implements KeywordService {
 			}
 		}
 
-		return KeywordResponseMapper.toDto(keywordDto, null, branchJson);
+		// groupMember json으로 변환
+		List<GroupMemberDto> groupMemberJson = null;
+		if (keywordDto.getGroupMember() != null) {
+			try {
+				groupMemberJson = objectMapper.readValue(keywordDto.getGroupMember(),
+					new TypeReference<List<GroupMemberDto>>() {
+					});
+			} catch (JsonProcessingException e) {
+				log.error("Error parsing branch JSON", e);
+			}
+		}
+
+		return KeywordResponseMapper.toDto(keywordDto, branchJson, groupMemberJson);
 
 	}
 

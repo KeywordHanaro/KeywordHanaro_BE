@@ -28,7 +28,7 @@ public class KeywordResponseDto {
 	private String inquiryWord;
 	private Boolean checkEveryTime;
 	private BigDecimal amount;
-	private String groupMember;
+	private List<GroupMemberDto> groupMember;
 	private BranchDto branch;
 	private List<MultiKeywordDto> multiKeyword;
 	private List<TransactionDto> transactions;
