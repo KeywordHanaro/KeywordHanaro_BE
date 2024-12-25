@@ -237,14 +237,43 @@ public class KeywordServiceImpl implements KeywordService {
 
 		KeywordDto keywordDto = KeywordMapper.toDto(keyword);
 		return KeywordResponseDto.builder()
-			.keywordDto(keywordDto)
+			.id(keywordDto.getId())
+			.user(keywordDto.getUser())
+			.type(keywordDto.getType())
+			.name(keywordDto.getName())
+			.isFavorite(keywordDto.isFavorite())
+			.desc(keywordDto.getDesc())
+			.seqOrder(keywordDto.getSeqOrder())
+			.account(keywordDto.getAccount())
+			.subAccount(keywordDto.getSubAccount())
+			.inquiryWord(keywordDto.getInquiryWord())
+			.checkEveryTime(keywordDto.getCheckEveryTime())
+			.amount(keywordDto.getAmount())
+			.groupMember(keywordDto.getGroupMember())
+			.branch(keywordDto.getBranch())
+			.multiKeyword(keywordDto.getMultiKeyword())
 			.transactions(transactions)
 			.build();
 	}
 
 	private KeywordResponseDto useOtherKeywordTypes(Keyword keyword) {
+		KeywordDto keywordDto = KeywordMapper.toDto(keyword);
 		return KeywordResponseDto.builder()
-			.keywordDto(KeywordMapper.toDto(keyword))
+			.id(keywordDto.getId())
+			.user(keywordDto.getUser())
+			.type(keywordDto.getType())
+			.name(keywordDto.getName())
+			.isFavorite(keywordDto.isFavorite())
+			.desc(keywordDto.getDesc())
+			.seqOrder(keywordDto.getSeqOrder())
+			.account(keywordDto.getAccount())
+			.subAccount(keywordDto.getSubAccount())
+			.inquiryWord(keywordDto.getInquiryWord())
+			.checkEveryTime(keywordDto.getCheckEveryTime())
+			.amount(keywordDto.getAmount())
+			.groupMember(keywordDto.getGroupMember())
+			.branch(keywordDto.getBranch())
+			.multiKeyword(keywordDto.getMultiKeyword())
 			.build();
 	}
 
