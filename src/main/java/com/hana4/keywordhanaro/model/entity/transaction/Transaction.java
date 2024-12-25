@@ -69,6 +69,18 @@ public class Transaction {
 
 	private String remarks;
 
+	public Transaction(Account account, Account subAccount, BigDecimal amount, TransactionType type,
+		BigDecimal beforeBalance, BigDecimal afterBalance, TransactionStatus status, String remarks) {
+		this.account = account;
+		this.subAccount = subAccount;
+		this.amount = amount;
+		this.type = type;
+		this.beforeBalance = beforeBalance;
+		this.afterBalance = afterBalance;
+		this.status = status;
+		this.remarks = remarks;
+	}
+
 	public Transaction(Account account, Account subAccount, BigDecimal amount, TransactionType type, String alias,
 		BigDecimal beforeBalance, BigDecimal afterBalance, TransactionStatus status, String remarks) {
 		this.account = account;
