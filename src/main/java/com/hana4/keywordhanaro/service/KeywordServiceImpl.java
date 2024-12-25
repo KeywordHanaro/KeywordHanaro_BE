@@ -1,7 +1,6 @@
 package com.hana4.keywordhanaro.service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,10 +8,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
 import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
+import com.hana4.keywordhanaro.model.dto.BranchDto;
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
+import com.hana4.keywordhanaro.model.dto.GroupMemberDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
 import com.hana4.keywordhanaro.model.dto.MultiKeywordDto;
@@ -23,19 +27,20 @@ import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
 import com.hana4.keywordhanaro.model.entity.keyword.MultiKeyword;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.mapper.KeywordMapper;
-import com.hana4.keywordhanaro.model.mapper.MultiKeywordMapper;
+import com.hana4.keywordhanaro.model.mapper.KeywordResponseMapper;
 import com.hana4.keywordhanaro.model.mapper.UserResponseMapper;
 import com.hana4.keywordhanaro.repository.AccountRepository;
 import com.hana4.keywordhanaro.repository.KeywordRepository;
 import com.hana4.keywordhanaro.repository.MultiKeywordRepository;
 import com.hana4.keywordhanaro.repository.UserRepository;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class KeywordServiceImpl implements KeywordService {
 
 	private final KeywordRepository keywordRepository;
@@ -43,6 +48,7 @@ public class KeywordServiceImpl implements KeywordService {
 	private final AccountRepository accountRepository;
 	private final InquiryService inquiryService;
 	private final MultiKeywordRepository multiKeywordRepository;
+	private final ObjectMapper objectMapper;
 
 	private static final Long SEQ_ORDER_INTERVAL = 100L;
 
@@ -93,6 +99,14 @@ public class KeywordServiceImpl implements KeywordService {
 					keywordDto.getCheckEveryTime());
 				break;
 
+			case "DUES":
+				validateSettlementKeyword(keywordDto);
+				account = getAccount(keywordDto.getAccount().getId());
+				keyword = new Keyword(user, KeywordType.DUES, keywordDto.getName(), keywordDto.getDesc(),
+					newSeqOrder, account, keywordDto.getGroupMember(), keywordDto.getAmount(),
+					keywordDto.getCheckEveryTime());
+				break;
+
 			case "MULTI":
 				validateMultiKeyword(keywordDto);
 				keyword = new Keyword(user, KeywordType.MULTI, keywordDto.getName(), keywordDto.getDesc(), newSeqOrder);
@@ -111,7 +125,8 @@ public class KeywordServiceImpl implements KeywordService {
 		if (keywordDto.getType().equals("MULTI") && keywordDto.getMultiKeyword() != null) {
 			for (MultiKeywordDto multiKeywordDto : keywordDto.getMultiKeyword()) {
 				Keyword subKeyword = keywordRepository.findById(multiKeywordDto.getKeyword().getId())
-					.orElseThrow(() -> new KeywordNotFoundException("Keyword not found with id: " + multiKeywordDto.getKeyword().getId()));
+					.orElseThrow(() -> new KeywordNotFoundException(
+						"Keyword not found with id: " + multiKeywordDto.getKeyword().getId()));
 
 				MultiKeyword multiKeyword = new MultiKeyword();
 				multiKeyword.setMultiKeyword(keyword);
@@ -177,6 +192,7 @@ public class KeywordServiceImpl implements KeywordService {
 				existingKeyword.setBranch(keywordDto.getBranch());
 				break;
 			case SETTLEMENT:
+			case DUES:
 				validateAmountAndCheckEveryTime(keywordDto);
 				existingKeyword.setGroupMember(keywordDto.getGroupMember());
 				existingKeyword.setAmount(keywordDto.getAmount());
@@ -207,7 +223,7 @@ public class KeywordServiceImpl implements KeywordService {
 
 		return switch (keyword.getType()) {
 			case INQUIRY -> useInquiryKeyword(keyword);
-			case TRANSFER, TICKET, SETTLEMENT -> useOtherKeywordTypes(keyword);
+			case TRANSFER, TICKET, SETTLEMENT, DUES -> useOtherKeywordTypes(keyword);
 			default -> throw new InvalidRequestException("Invalid keyword type");
 		};
 	}
@@ -219,7 +235,10 @@ public class KeywordServiceImpl implements KeywordService {
 
 	@Override
 	public List<KeywordDto> getFavoriteKeywordsByUsername(String username) {
-		return keywordRepository.findAllByUserUsernameAndIsFavoriteTrue(username).stream().map(KeywordMapper::toDto).toList();
+		return keywordRepository.findAllByUserUsernameAndIsFavoriteTrue(username)
+			.stream()
+			.map(KeywordMapper::toDto)
+			.toList();
 	}
 
 	private KeywordResponseDto useInquiryKeyword(Keyword keyword) throws AccountNotFoundException {
@@ -236,45 +255,36 @@ public class KeywordServiceImpl implements KeywordService {
 		);
 
 		KeywordDto keywordDto = KeywordMapper.toDto(keyword);
-		return KeywordResponseDto.builder()
-			.id(keywordDto.getId())
-			.user(keywordDto.getUser())
-			.type(keywordDto.getType())
-			.name(keywordDto.getName())
-			.isFavorite(keywordDto.isFavorite())
-			.desc(keywordDto.getDesc())
-			.seqOrder(keywordDto.getSeqOrder())
-			.account(keywordDto.getAccount())
-			.subAccount(keywordDto.getSubAccount())
-			.inquiryWord(keywordDto.getInquiryWord())
-			.checkEveryTime(keywordDto.getCheckEveryTime())
-			.amount(keywordDto.getAmount())
-			.groupMember(keywordDto.getGroupMember())
-			.branch(keywordDto.getBranch())
-			.multiKeyword(keywordDto.getMultiKeyword())
-			.transactions(transactions)
-			.build();
+		return KeywordResponseMapper.toDto(keywordDto, transactions);
 	}
 
 	private KeywordResponseDto useOtherKeywordTypes(Keyword keyword) {
 		KeywordDto keywordDto = KeywordMapper.toDto(keyword);
-		return KeywordResponseDto.builder()
-			.id(keywordDto.getId())
-			.user(keywordDto.getUser())
-			.type(keywordDto.getType())
-			.name(keywordDto.getName())
-			.isFavorite(keywordDto.isFavorite())
-			.desc(keywordDto.getDesc())
-			.seqOrder(keywordDto.getSeqOrder())
-			.account(keywordDto.getAccount())
-			.subAccount(keywordDto.getSubAccount())
-			.inquiryWord(keywordDto.getInquiryWord())
-			.checkEveryTime(keywordDto.getCheckEveryTime())
-			.amount(keywordDto.getAmount())
-			.groupMember(keywordDto.getGroupMember())
-			.branch(keywordDto.getBranch())
-			.multiKeyword(keywordDto.getMultiKeyword())
-			.build();
+
+		// branch string에서 json으로 변환
+		BranchDto branchJson = null;
+		if (keywordDto.getBranch() != null) {
+			try {
+				branchJson = objectMapper.readValue(keywordDto.getBranch(), BranchDto.class);
+			} catch (JsonProcessingException e) {
+				log.error("Error parsing branch JSON", e);
+			}
+		}
+
+		// groupMember json으로 변환
+		List<GroupMemberDto> groupMemberJson = null;
+		if (keywordDto.getGroupMember() != null) {
+			try {
+				groupMemberJson = objectMapper.readValue(keywordDto.getGroupMember(),
+					new TypeReference<List<GroupMemberDto>>() {
+					});
+			} catch (JsonProcessingException e) {
+				log.error("Error parsing branch JSON", e);
+			}
+		}
+
+		return KeywordResponseMapper.toDto(keywordDto, branchJson, groupMemberJson);
+
 	}
 
 	private void validateCommonRequest(KeywordDto keywordDto) {
@@ -316,10 +326,10 @@ public class KeywordServiceImpl implements KeywordService {
 
 	private void validateSettlementKeyword(KeywordDto keywordDto) {
 		if (keywordDto.getAccount() == null) {
-			throw new InvalidRequestException("Account is required for SETTLEMENT keyword");
+			throw new InvalidRequestException("Account is required for SETTLEMENT or DUES keyword");
 		}
 		if (keywordDto.getGroupMember() == null || keywordDto.getGroupMember().trim().isEmpty()) {
-			throw new InvalidRequestException("Group member information is required for SETTLEMENT keyword");
+			throw new InvalidRequestException("Group member information is required for SETTLEMENT or DUES keyword");
 		}
 		validateAmountAndCheckEveryTime(keywordDto);
 	}

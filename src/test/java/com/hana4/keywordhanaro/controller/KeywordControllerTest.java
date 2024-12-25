@@ -45,7 +45,6 @@ import com.hana4.keywordhanaro.model.mapper.UserResponseMapper;
 import com.hana4.keywordhanaro.repository.AccountRepository;
 import com.hana4.keywordhanaro.repository.BankRepository;
 import com.hana4.keywordhanaro.repository.KeywordRepository;
-import com.hana4.keywordhanaro.repository.TransactionRepository;
 import com.hana4.keywordhanaro.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -209,15 +208,8 @@ public class KeywordControllerTest {
 	public void createTicketKeywordTest() throws Exception {
 		User testUser = userRepository.findFirstByUsername("insunID")
 			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
-		String testBranch = """
-			{
-				"address_name": "서울 성동구 성수동2가 289-10",
-				"distance": "117",
-				"id": "1841540654",
-				"phone": "02-462-7627",
-				"place_name": "하나은행 성수역지점"				
-			}
-			""";
+		String testBranch = "{\"address_name\": \"서울 성동구 성수동2가 289-10\", \"distance\": \"117\", \"id\": \"1841540654\", \"phone\": \"02-462-7627\", \"place_name\": \"하나은행 성수역지점\"}";
+		System.out.println("testBranch = " + testBranch);
 
 		KeywordDto keywordDto = KeywordDto.builder()
 			.user(UserResponseMapper.toDto(testUser))
@@ -228,6 +220,7 @@ public class KeywordControllerTest {
 			.build();
 
 		String requestBody = objectMapper.writeValueAsString(keywordDto);
+		System.out.println("requestBody = " + requestBody);
 
 		mockMvc.perform(post("/keyword")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -617,21 +610,21 @@ public class KeywordControllerTest {
 			.build();
 		transferKeyword = keywordRepository.save(transferKeyword);
 
-		System.out.println("Pre-created keywords: inquiry = " + inquiryKeyword.getId() + ", transfer = " + transferKeyword.getId());
-
+		System.out.println(
+			"Pre-created keywords: inquiry = " + inquiryKeyword.getId() + ", transfer = " + transferKeyword.getId());
 
 		List<MultiKeywordDto> multiKeywords = List.of(
 			MultiKeywordDto.builder()
 				.keyword(SubKeywordDto.builder()
 					.id(inquiryKeyword.getId())
 					.build())
-				.seqOrder((byte) 1)
+				.seqOrder((byte)1)
 				.build(),
 			MultiKeywordDto.builder()
 				.keyword(SubKeywordDto.builder()
 					.id(transferKeyword.getId())
 					.build())
-				.seqOrder((byte) 2)
+				.seqOrder((byte)2)
 				.build()
 		);
 
@@ -659,6 +652,5 @@ public class KeywordControllerTest {
 			.andExpect(jsonPath("$.multiKeyword[1].keyword.id").value(transferKeyword.getId()));
 		;
 	}
-
 
 }
