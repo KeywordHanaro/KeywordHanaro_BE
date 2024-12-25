@@ -18,4 +18,6 @@ public interface KeywordService {
 	KeywordResponseDto useKeyword(Long id) throws Exception;
 
 	List<KeywordDto> getKeywordsByUsername(String username);
+
+	List<KeywordDto> getFavoriteKeywordsByUsername(String username);
 }

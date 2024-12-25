@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -133,8 +134,11 @@ public class KeywordController {
 		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
 	})
 	@GetMapping
-	public ResponseEntity<List<KeywordDto>> getKeywords(Authentication authentication) {
+	public ResponseEntity<List<KeywordDto>> getKeywords(@RequestParam(required = false) Boolean isFavorite, Authentication authentication) {
 		String username = authentication.getName();
+		if (isFavorite != null && isFavorite) {
+			return ResponseEntity.ok(keywordService.getFavoriteKeywordsByUsername(username));
+		}
 		return ResponseEntity.ok(keywordService.getKeywordsByUsername(username));
 	}
 }
