@@ -97,6 +97,14 @@ public class KeywordServiceImpl implements KeywordService {
 					keywordDto.getCheckEveryTime());
 				break;
 
+			case "DUES":
+				validateSettlementKeyword(keywordDto);
+				account = getAccount(keywordDto.getAccount().getId());
+				keyword = new Keyword(user, KeywordType.DUES, keywordDto.getName(), keywordDto.getDesc(),
+					newSeqOrder, account, keywordDto.getGroupMember(), keywordDto.getAmount(),
+					keywordDto.getCheckEveryTime());
+				break;
+
 			case "MULTI":
 				validateMultiKeyword(keywordDto);
 				keyword = new Keyword(user, KeywordType.MULTI, keywordDto.getName(), keywordDto.getDesc(), newSeqOrder);
@@ -182,6 +190,7 @@ public class KeywordServiceImpl implements KeywordService {
 				existingKeyword.setBranch(keywordDto.getBranch());
 				break;
 			case SETTLEMENT:
+			case DUES:
 				validateAmountAndCheckEveryTime(keywordDto);
 				existingKeyword.setGroupMember(keywordDto.getGroupMember());
 				existingKeyword.setAmount(keywordDto.getAmount());
@@ -212,7 +221,7 @@ public class KeywordServiceImpl implements KeywordService {
 
 		return switch (keyword.getType()) {
 			case INQUIRY -> useInquiryKeyword(keyword);
-			case TRANSFER, TICKET, SETTLEMENT -> useOtherKeywordTypes(keyword);
+			case TRANSFER, TICKET, SETTLEMENT, DUES -> useOtherKeywordTypes(keyword);
 			default -> throw new InvalidRequestException("Invalid keyword type");
 		};
 	}
@@ -303,10 +312,10 @@ public class KeywordServiceImpl implements KeywordService {
 
 	private void validateSettlementKeyword(KeywordDto keywordDto) {
 		if (keywordDto.getAccount() == null) {
-			throw new InvalidRequestException("Account is required for SETTLEMENT keyword");
+			throw new InvalidRequestException("Account is required for SETTLEMENT or DUES keyword");
 		}
 		if (keywordDto.getGroupMember() == null || keywordDto.getGroupMember().trim().isEmpty()) {
-			throw new InvalidRequestException("Group member information is required for SETTLEMENT keyword");
+			throw new InvalidRequestException("Group member information is required for SETTLEMENT or DUES keyword");
 		}
 		validateAmountAndCheckEveryTime(keywordDto);
 	}
