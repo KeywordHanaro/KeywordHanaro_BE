@@ -37,7 +37,7 @@ public class TicketController {
 
 	@Operation(
 		summary = "번호표 생성",
-		description = "지점별 번호표를 생성합니다"
+		description = "지점별 번호표를 생성합니다."
 	)
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "번호표가 성공적으로 생성되었습니다."),
@@ -63,8 +63,8 @@ public class TicketController {
 	}
 
 	@Operation(
-		summary = "서비스 이용 동의",
-		description = "위치 기반 서비스 이용 동의를 사용자 정보에 저장합니다"
+		summary = "위치 기반 서비스 이용 동의",
+		description = "사용자가 위치 기반 서비스 이용에 동의하면 해당 내용을 사용자 정보에 저장합니다."
 	)
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "서비스 이용 동의가 저장되었습니다."),
