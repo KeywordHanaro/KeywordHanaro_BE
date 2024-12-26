@@ -46,7 +46,8 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
 	private String clientSecret;
 	@Value("${KAKAO_TOKEN_URL}")
 	private String KAKAO_TOKEN_URL;
-	private final String KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me";
+	@Value("${KAKAO_USER_INFO_URL}")
+	private String KAKAO_USER_INFO_URL;
 
 	@Override
 	public String getAccessToken(String authorizationCode) {
@@ -108,12 +109,10 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
 		String type) {
 		BigDecimal finalAmount;
 		if (type.equals("Settlement")) {
-			finalAmount = amount.divide(new BigDecimal(groupMember.size()), 0, RoundingMode.DOWN);
+			finalAmount = amount.divide(new BigDecimal(groupMember.size() + 1), 0, RoundingMode.DOWN);
 		} else {
 			finalAmount = amount;
 		}
-		System.out.println(type);
-		System.out.println(finalAmount);
 
 		List<String> kakaoUUIDs = new ArrayList<>();
 
@@ -131,24 +130,19 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(accessToken);
-		// headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
 		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
 		body.add("receiver_uuids",
 			"%s".formatted(uuidJson));
-		// body.add("template_object",
-		// 	"{\"object_type\":\"text\",\"text\":\"정산 요청: %s\",\"link\":{\"web_url\":\"http://localhost:3000\",\"mobile_web_url\":\"http://localhost:3000\"},\"button_title\":\"바로 확인\"}".formatted(
-		// 		finalAmount));
 		body.add("template_id", "115519");
-		// body.add()
+		body.add("template_args",
+			"{\"AccountNum\":\"%s\",\"Amount\":\"%s\"}".formatted(account.getAccountNumber(), finalAmount));
 
 		// HttpEntity 생성 (헤더 + 바디)
 		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
-		// System.out.println(request.getBody());
 		String url = "https://kapi.kakao.com/v1/api/talk/friends/message/send";
 		String response = restTemplate.exchange(url, HttpMethod.POST, request, String.class).getBody();
 
-		// System.out.println(response);
 	}
 }

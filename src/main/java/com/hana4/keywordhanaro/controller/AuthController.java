@@ -41,12 +41,8 @@ public class AuthController {
 			BigDecimal amount = requestBody.getAmount();
 			AccountDto account = requestBody.getAccount();
 			String type = requestBody.getType();
-			// for (UserDto user : groupMember) {
-			// 	System.out.println(user.getName());
-			// }
 
 			String accessToken = kakaoAuthService.getAccessToken(code);
-			// System.out.println(accessToken);
 
 			kakaoAuthService.sendMessage(accessToken, groupMember, amount, account, type);
 
