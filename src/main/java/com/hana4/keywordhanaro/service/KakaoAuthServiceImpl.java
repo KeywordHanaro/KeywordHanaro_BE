@@ -109,11 +109,10 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
 		String type) {
 		BigDecimal finalAmount;
 		if (type.equals("Settlement")) {
-			finalAmount = amount.divide(new BigDecimal(groupMember.size()), 0, RoundingMode.DOWN);
+			finalAmount = amount.divide(new BigDecimal(groupMember.size() + 1), 0, RoundingMode.DOWN);
 		} else {
 			finalAmount = amount;
 		}
-		finalAmount.add(new BigDecimal(1));
 
 		List<String> kakaoUUIDs = new ArrayList<>();
 
