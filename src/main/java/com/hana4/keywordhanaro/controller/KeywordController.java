@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hana4.keywordhanaro.model.dto.CreateKeywordDto;
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
+import com.hana4.keywordhanaro.model.dto.UpdateKeywordDto;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.mapper.UserResponseMapper;
 import com.hana4.keywordhanaro.service.KeywordService;
@@ -60,7 +62,7 @@ public class KeywordController {
 			content = @Content(mediaType = "application/json", schema = @Schema(
 				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
 	@PostMapping
-	public ResponseEntity<KeywordDto> createKeyword(@RequestBody KeywordDto keywordDto,
+	public ResponseEntity<KeywordDto> createKeyword(@RequestBody CreateKeywordDto keywordDto,
 		Authentication authentication) throws Exception {
 		String username = authentication.getName();
 		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(username);
@@ -104,7 +106,7 @@ public class KeywordController {
 			content = @Content(mediaType = "application/json", schema = @Schema(
 				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
 	@PatchMapping("/{id}")
-	public ResponseEntity<KeywordDto> updateKeyword(@PathVariable Long id, @RequestBody KeywordDto keywordDto,
+	public ResponseEntity<KeywordDto> updateKeyword(@PathVariable Long id, @RequestBody UpdateKeywordDto keywordDto,
 		Authentication authentication) {
 		String username = authentication.getName();
 		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(username);

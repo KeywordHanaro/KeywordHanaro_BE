@@ -47,5 +47,5 @@ public class MultiKeyword {
 	private Keyword keyword;
 
 	@Column(name = "seqOrder", nullable = false)
-	private byte seqOrder;
+	private Long seqOrder;
 }

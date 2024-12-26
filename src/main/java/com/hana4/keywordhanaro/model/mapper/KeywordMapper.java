@@ -33,9 +33,9 @@ public class KeywordMapper {
 			dto.setMultiKeyword(keyword.getMultiKeywords().stream()
 				.map(mk -> MultiKeywordDto.builder()
 					.id(mk.getId())
-					.keyword(SubKeywordMapper.toDto(mk.getKeyword()))
+					.keyword(KeywordMapper.toDto(mk.getKeyword()))
 					.seqOrder(mk.getSeqOrder())
-					.multiKeyword(SubKeywordMapper.toDto(mk.getMultiKeyword()))
+					.parentId(mk.getMultiKeyword().getId())
 					.build())
 				.collect(Collectors.toList()));
 		}

@@ -15,7 +15,7 @@ import lombok.ToString;
 @ToString
 public class MultiKeywordDto {
 	private Long id;
-	private SubKeywordDto multiKeyword;
-	private SubKeywordDto keyword;
-	private byte seqOrder;
+	private Long parentId;
+	private KeywordDto keyword;
+	private Long seqOrder;
 }
