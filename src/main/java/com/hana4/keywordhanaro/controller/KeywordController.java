@@ -86,7 +86,7 @@ public class KeywordController {
 				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))
 	})
 	@DeleteMapping("/{id}")
-	public ResponseEntity<DeleteResponseDto> deleteKeyword(@PathVariable Long id) {
+	public ResponseEntity<DeleteResponseDto> deleteKeyword(@PathVariable Long id) throws KeywordNotFoundException {
 		return keywordService.removeKeyword(id);
 	}
 
@@ -131,13 +131,14 @@ public class KeywordController {
 		return ResponseEntity.ok(keywordService.useKeyword(id));
 	}
 
-	@Operation(summary = "내 모든 키워드 조회", description = "내 모든 키워드를 조회합니다")
+	@Operation(summary = "내 모든 키워드 조회", description = "내 모든 키워드를 조회합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "키워드 생성 성공", content = @Content(array = @ArraySchema(schema = @Schema(implementation = KeywordDto.class)))),
 		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
 	})
 	@GetMapping
-	public ResponseEntity<List<KeywordDto>> getKeywords(@RequestParam(required = false) Boolean isFavorite, Authentication authentication) {
+	public ResponseEntity<List<KeywordDto>> getKeywords(@RequestParam(required = false) Boolean isFavorite,
+		Authentication authentication) {
 		String username = authentication.getName();
 		if (isFavorite != null && isFavorite) {
 			return ResponseEntity.ok(keywordService.getFavoriteKeywordsByUsername(username));

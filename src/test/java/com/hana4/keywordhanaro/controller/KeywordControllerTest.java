@@ -1,6 +1,6 @@
 package com.hana4.keywordhanaro.controller;
 
-import static org.hamcrest.collection.IsCollectionWithSize.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
@@ -11,10 +11,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -40,11 +39,9 @@ import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
 import com.hana4.keywordhanaro.model.entity.account.AccountType;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
-import com.hana4.keywordhanaro.model.entity.keyword.MultiKeyword;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.entity.user.UserStatus;
 import com.hana4.keywordhanaro.model.mapper.AccountResponseMapper;
-import com.hana4.keywordhanaro.model.mapper.MultiKeywordMapper;
 import com.hana4.keywordhanaro.model.mapper.UserResponseMapper;
 import com.hana4.keywordhanaro.repository.AccountRepository;
 import com.hana4.keywordhanaro.repository.BankRepository;
@@ -86,7 +83,7 @@ public class KeywordControllerTest {
 	@Autowired
 	KeywordService keywordService;
 
-	@BeforeAll
+	@BeforeEach
 	void beforeAll() throws Exception {
 		if (userRepository.findFirstByUsername("insunID").isEmpty()) {
 			User inssUser = new User("insunID", "insss123", "김인선", UserStatus.ACTIVE, 0);
@@ -121,20 +118,28 @@ public class KeywordControllerTest {
 		User yeobUser = userRepository.findFirstByUsername("yeobID")
 			.orElseThrow(() -> new UserNotFoundException("User not found"));
 
+		List<KeywordType> requiredTypes = Arrays.asList(
+			KeywordType.INQUIRY,
+			KeywordType.TRANSFER,
+			KeywordType.SETTLEMENT,
+			KeywordType.TICKET
+		);
+
 		List<KeywordType> existingTypes = keywordRepository.findTypesByUserId(yeobUser.getId());
+		System.out.println("!!!!!!! existingTypes = " + existingTypes);
 		// List<KeywordType> missingTypes = new ArrayList<>(Arrays.asList(KeywordType.values()));
 		// missingTypes.removeAll(existingTypes);
 
-		if (existingTypes.size() < 4) {
+		if (!existingTypes.containsAll(requiredTypes)) {
 			Account inssAccount = accountRepository.findByAccountNumber("111-222-3342")
 				.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 			Account yeobAccount = accountRepository.findByAccountNumber("222-342-2223")
 				.orElseThrow(() -> new AccountNotFoundException("SubAccount not found"));
 
-			Keyword k1 = new Keyword(yeobUser, KeywordType.INQUIRY, "밥값 조회", "조회 사용 테스트", 100L, inssAccount, "밥값");
-			Keyword k2 = new Keyword(yeobUser, KeywordType.TRANSFER, "성엽이 용돈", "송금 사용 테스트", 200L, inssAccount,
-				yeobAccount, BigDecimal.valueOf(50000), false);
-			Keyword k3 = new Keyword(yeobUser, KeywordType.SETTLEMENT, "터틀넥즈 정산", "정산 사용 테스트", 300L, inssAccount,
+			Keyword k1 = new Keyword(yeobUser, KeywordType.INQUIRY, "밥값 조회", "조회 사용 테스트", 100L, yeobAccount, "밥값");
+			Keyword k2 = new Keyword(yeobUser, KeywordType.TRANSFER, "성엽이 용돈", "송금 사용 테스트", 200L, yeobAccount,
+				inssAccount, BigDecimal.valueOf(50000), false);
+			Keyword k3 = new Keyword(yeobUser, KeywordType.SETTLEMENT, "터틀넥즈 정산", "정산 사용 테스트", 300L, yeobAccount,
 				"[{\"name\":\"김도희\",\"tel\":\"010-1234-5678\"},{\"name\":\"문서아\",\"tel\":\"010-8765-4321\"}]",
 				BigDecimal.valueOf(20000),
 				false);
@@ -142,7 +147,7 @@ public class KeywordControllerTest {
 				"{\"place_name\":\"하나은행 성수역지점\",\"address_name\":\"서울 성동구 성수동2가 289-10\",\"phone\":\"02-462-7627\",\"distance\":\"117\",\"id\":\"1841540654\"}");
 
 			keywordRepository.saveAll(Arrays.asList(k1, k2, k3, k4));
-
+			System.out.println("??????????");
 		}
 
 	}
@@ -303,10 +308,11 @@ public class KeywordControllerTest {
 		originalKeyword = keywordRepository.save(originalKeyword);
 
 		UpdateKeywordDto updateDto = UpdateKeywordDto.builder()
+			.type("INQUIRY")
 			.name("수정된 조회 키워드")
 			.desc("수정된 조회 설명")
 			.inquiryWord("수정된 조회어")
-			// .isFavorite(false)
+			.account(AccountResponseMapper.toDto(testAccount))
 			.build();
 
 		String requestBody = objectMapper.writeValueAsString(updateDto);
@@ -336,11 +342,16 @@ public class KeywordControllerTest {
 		originalKeyword = keywordRepository.save(originalKeyword);
 
 		UpdateKeywordDto updateDto = UpdateKeywordDto.builder()
+			.type("TRANSFER")
 			.name("수정된 이체 키워드")
 			.desc("수정된 이체 설명")
+			.account(AccountResponseMapper.toDto(testAccount))
+			.subAccount(AccountResponseMapper.toDto(subAccount))
 			.amount(BigDecimal.valueOf(100000))
 			.checkEveryTime(false)
 			.build();
+
+		System.out.println("updateDto = " + updateDto);
 
 		String requestBody = objectMapper.writeValueAsString(updateDto);
 
@@ -368,10 +379,12 @@ public class KeywordControllerTest {
 		originalKeyword = keywordRepository.save(originalKeyword);
 
 		UpdateKeywordDto updateDto = UpdateKeywordDto.builder()
+			.type("SETTLEMENT")
 			.name("수정된 정산 키워드")
 			.desc("수정된 정산 설명")
 			.groupMember("[{\"name\":\"김철수\",\"tel\":\"010-1234-5678\"},{\"name\":\"이영희\",\"tel\":\"010-8765-4321\"}]")
 			.amount(BigDecimal.valueOf(100000))
+			.account(AccountResponseMapper.toDto(testAccount))
 			.checkEveryTime(false)
 			.build();
 
@@ -398,6 +411,7 @@ public class KeywordControllerTest {
 			"{\"name\":\"하나은행 강남지점\",\"address\":\"서울특별시 강남구 테헤란로 152\",\"tel\":\"02-123-4567\"}");
 		originalKeyword = keywordRepository.save(originalKeyword);
 		KeywordDto updateDto = KeywordDto.builder()
+			.type("TICKET")
 			.name("수정된 티켓 키워드")
 			.desc("수정된 티켓 설명")
 			.branch("{\"name\":\"하나은행 서초지점\",\"address\":\"서울특별시 서초구 서초대로 330\",\"tel\":\"02-987-6543\"}")
@@ -715,21 +729,6 @@ public class KeywordControllerTest {
 		System.out.println(
 			"Pre-created keywords: inquiry = " + inquiryKeyword.getId() + ", transfer = " + transferKeyword.getId());
 
-		// List<MultiKeywordDto> multiKeywords = List.of(
-		// 	MultiKeywordDto.builder()
-		// 		.keyword(KeywordDto.builder()
-		// 			.id(inquiryKeyword.getId())
-		// 			.build())
-		// 		.seqOrder(1L)
-		// 		.build(),
-		// 	MultiKeywordDto.builder()
-		// 		.keyword(KeywordDto.builder()
-		// 			.id(transferKeyword.getId())
-		// 			.build())
-		// 		.seqOrder(2L)
-		// 		.build()
-		// );
-
 		List<Long> multiKeywordIds = Arrays.asList(inquiryKeyword.getId(), transferKeyword.getId());
 
 		CreateKeywordDto keywordDto = CreateKeywordDto.builder()
@@ -742,7 +741,6 @@ public class KeywordControllerTest {
 
 		// 키워드 생성 완료
 		KeywordDto keyword = keywordService.createKeyword(keywordDto);
-
 
 		multiKeywordIds = Arrays.asList(inquiryKeyword.getId(), transferKeyword.getId(), transferKeyword2.getId());
 
@@ -768,5 +766,40 @@ public class KeywordControllerTest {
 			.andExpect(jsonPath("$.multiKeyword[0].keyword.id").value(inquiryKeyword.getId()))
 			.andExpect(jsonPath("$.multiKeyword[1].keyword.id").value(transferKeyword.getId()))
 			.andExpect(jsonPath("$.multiKeyword[2].keyword.id").value(transferKeyword2.getId()));
+	}
+
+	@Test
+	@DisplayName("멀티 키워드의 단일 키워드 삭제 테스트")
+	void deleteMultiKeywordTest() throws Exception {
+		// 멀티 키워드 생성
+		User yeobUser = userRepository.findFirstByUsername("yeobID")
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
+		Keyword inquiryKeyword = keywordRepository.findFirstByUserAndType(yeobUser, KeywordType.INQUIRY)
+			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+		Keyword transferKeyword = keywordRepository.findFirstByUserAndType(yeobUser, KeywordType.TRANSFER)
+			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+
+		List<Long> multiKeywordIds = Arrays.asList(inquiryKeyword.getId(), transferKeyword.getId());
+
+		CreateKeywordDto keywordDto = CreateKeywordDto.builder()
+			.user(UserResponseMapper.toDto(yeobUser))
+			.type(KeywordType.MULTI.name())
+			.name("멀티 키워드 삭제 테스트")
+			.desc("밥값 조회 > 성엽이 용돈")
+			.multiKeywordIds(multiKeywordIds)
+			.build();
+
+		KeywordDto multiKeyword = keywordService.createKeyword(keywordDto);
+
+		// inquiry Keyword 삭제
+		mockMvc.perform(delete("/keyword/" + inquiryKeyword.getId()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.success").value(true))
+			.andExpect(jsonPath("$.message").value("Keyword deleted successfully"));
+
+		Keyword updatedMultiKeyword = keywordRepository.findById(multiKeyword.getId())
+			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+		assertThat(updatedMultiKeyword.getDescription()).isEqualTo("성엽이 용돈");
+
 	}
 }

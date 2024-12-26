@@ -29,7 +29,7 @@ public class DocumentController {
 
 	@Operation(
 		summary = "문서 전송",
-		description = "문서 타입에 따라 문서를 전송합니다")
+		description = "문서 타입에 따라 문서를 전송합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(
 			responseCode = "200",

@@ -2,9 +2,7 @@ package com.hana4.keywordhanaro.service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -78,6 +76,7 @@ public class KeywordServiceImpl implements KeywordService {
 			}
 			case "TRANSFER" -> {
 				validateTransferKeyword(keywordDto);
+				validateAmountAndCheckEveryTime(keywordDto);
 				account = getAccount(keywordDto.getAccount().getId());
 				subAccount = getSubAccount(keywordDto.getSubAccount().getAccountNumber());
 				keyword = new Keyword(user, KeywordType.TRANSFER, keywordDto.getName(), keywordDto.getDesc(),
@@ -97,6 +96,7 @@ public class KeywordServiceImpl implements KeywordService {
 			}
 			case "DUES" -> {
 				validateSettlementKeyword(keywordDto);
+				validateAmountAndCheckEveryTime(keywordDto);
 				account = getAccount(keywordDto.getAccount().getId());
 				keyword = new Keyword(user, KeywordType.DUES, keywordDto.getName(), keywordDto.getDesc(),
 					newSeqOrder, account, keywordDto.getGroupMember(), keywordDto.getAmount(),
@@ -156,6 +156,8 @@ public class KeywordServiceImpl implements KeywordService {
 		Keyword existingKeyword = keywordRepository.findById(id)
 			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 
+		validateCommonRequest(updateKeywordDto);
+
 		// 기본 정보 업데이트
 		existingKeyword.setName(updateKeywordDto.getName());
 		existingKeyword.setDescription(updateKeywordDto.getDesc());
@@ -169,21 +171,30 @@ public class KeywordServiceImpl implements KeywordService {
 		}
 
 		if (updateKeywordDto.getSubAccount() != null) {
-			Account subAccount = accountRepository.findByAccountNumber(updateKeywordDto.getSubAccount().getAccountNumber())
+			Account subAccount = accountRepository.findByAccountNumber(
+					updateKeywordDto.getSubAccount().getAccountNumber())
 				.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 			existingKeyword.setSubAccount(subAccount);
 		}
 
 		// 타입별 특정 필드 업데이트
 		switch (existingKeyword.getType()) {
-			case INQUIRY -> existingKeyword.setInquiryWord(updateKeywordDto.getInquiryWord());
+			case INQUIRY -> {
+				validateInquiryKeyword(updateKeywordDto);
+				existingKeyword.setInquiryWord(updateKeywordDto.getInquiryWord());
+			}
 			case TRANSFER -> {
+				validateTransferKeyword(updateKeywordDto);
 				validateAmountAndCheckEveryTime(updateKeywordDto);
 				existingKeyword.setAmount(updateKeywordDto.getAmount());
 				existingKeyword.setCheckEveryTime(updateKeywordDto.getCheckEveryTime());
 			}
-			case TICKET -> existingKeyword.setBranch(updateKeywordDto.getBranch());
+			case TICKET -> {
+				validateTicketKeyword(updateKeywordDto);
+				existingKeyword.setBranch(updateKeywordDto.getBranch());
+			}
 			case SETTLEMENT, DUES -> {
+				validateSettlementKeyword(updateKeywordDto);
 				validateAmountAndCheckEveryTime(updateKeywordDto);
 				existingKeyword.setGroupMember(updateKeywordDto.getGroupMember());
 				existingKeyword.setAmount(updateKeywordDto.getAmount());
@@ -208,6 +219,7 @@ public class KeywordServiceImpl implements KeywordService {
 					existingKeyword.addMultiKeyword(multiKeyword);
 				}
 			}
+
 		}
 
 		Keyword updatedKeyword = keywordRepository.save(existingKeyword);
@@ -215,15 +227,25 @@ public class KeywordServiceImpl implements KeywordService {
 	}
 
 	@Override
-	public ResponseEntity<DeleteResponseDto> removeKeyword(Long id) {
-		Optional<Keyword> keyword = keywordRepository.findById(id);
-		if (keyword.isPresent()) {
-			keywordRepository.delete(keyword.get());
-			return ResponseEntity.ok(new DeleteResponseDto(true, "Keyword deleted successfully"));
-		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND)
-				.body(new DeleteResponseDto(false, "Keyword not found"));
+	public ResponseEntity<DeleteResponseDto> removeKeyword(Long id) throws KeywordNotFoundException {
+		Keyword keyword = keywordRepository.findById(id)
+			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+
+		// 삭제하려는 단일 키워드를 가지고 있는 멀티키워드 찾기
+		List<MultiKeyword> multiKeywords = multiKeywordRepository.findAllByKeywordId(id);
+		for (MultiKeyword multiKeyword : multiKeywords) {
+			Keyword parentKeyword = multiKeyword.getMultiKeyword();
+
+			updateMultiKeywordDescription(parentKeyword, keyword.getName());
+			multiKeywordRepository.delete(multiKeyword);
+
+			if (parentKeyword.getMultiKeywords().isEmpty()) {
+				keywordRepository.delete(parentKeyword);
+			}
 		}
+
+		keywordRepository.delete(keyword);
+		return ResponseEntity.ok(new DeleteResponseDto(true, "Keyword deleted successfully"));
 	}
 
 	@Override
@@ -294,6 +316,17 @@ public class KeywordServiceImpl implements KeywordService {
 		}
 
 		return KeywordResponseMapper.toDto(keywordDto, branchJson, groupMemberJson);
+
+	}
+
+	private void updateMultiKeywordDescription(Keyword keyword, String deleteKeyword) {
+		String currentDesc = keyword.getDescription();
+		String updatedDesc = currentDesc
+			.replace(" > " + deleteKeyword, "")
+			.replace(deleteKeyword + " > ", "");
+
+		keyword.setDescription(updatedDesc);
+		keywordRepository.save(keyword);
 
 	}
 

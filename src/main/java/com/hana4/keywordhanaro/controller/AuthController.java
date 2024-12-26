@@ -18,6 +18,12 @@ import com.hana4.keywordhanaro.model.dto.SettlementReqDto;
 import com.hana4.keywordhanaro.model.dto.UserDto;
 import com.hana4.keywordhanaro.service.KakaoAuthService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -26,12 +32,19 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
+@Tag(name = "Auth", description = "정산/회비 관련 API")
 public class AuthController {
 
 	private final KakaoAuthService kakaoAuthService;
 
 	private final JwtTokenProvider jwtTokenProvider;
 
+	@Operation(summary = "정산/회비 요청 메시지 전송", description = "정산 또는 회비 요청 시 계좌 번호, 금액 등을 포함한 메시지를 전송합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "정산/회비 요청 메시지 전송 성공"),
+		@ApiResponse(responseCode = "500", description = "서버 오류",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
 	@PostMapping("/settlement/message")
 	public ResponseEntity<Map<String, Object>> kakaoCallback(@RequestBody SettlementReqDto requestBody) {
 		Map<String, Object> response = new HashMap<>();
