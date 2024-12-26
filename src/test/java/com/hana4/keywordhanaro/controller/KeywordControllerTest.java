@@ -29,9 +29,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
 import com.hana4.keywordhanaro.exception.UserNotFoundException;
+import com.hana4.keywordhanaro.model.dto.CreateKeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.MultiKeywordDto;
-import com.hana4.keywordhanaro.model.dto.SubKeywordDto;
+import com.hana4.keywordhanaro.model.dto.UpdateKeywordDto;
 import com.hana4.keywordhanaro.model.entity.Bank;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
@@ -290,7 +291,7 @@ public class KeywordControllerTest {
 			"원래 조회어");
 		originalKeyword = keywordRepository.save(originalKeyword);
 
-		KeywordDto updateDto = KeywordDto.builder()
+		UpdateKeywordDto updateDto = UpdateKeywordDto.builder()
 			.name("수정된 조회 키워드")
 			.desc("수정된 조회 설명")
 			.inquiryWord("수정된 조회어")
@@ -323,7 +324,7 @@ public class KeywordControllerTest {
 			subAccount, BigDecimal.valueOf(50000), false);
 		originalKeyword = keywordRepository.save(originalKeyword);
 
-		KeywordDto updateDto = KeywordDto.builder()
+		UpdateKeywordDto updateDto = UpdateKeywordDto.builder()
 			.name("수정된 이체 키워드")
 			.desc("수정된 이체 설명")
 			.amount(BigDecimal.valueOf(100000))
@@ -355,7 +356,7 @@ public class KeywordControllerTest {
 			"[{\"name\":\"김철수\",\"tel\":\"010-1234-5678\"}]", BigDecimal.valueOf(50000), false);
 		originalKeyword = keywordRepository.save(originalKeyword);
 
-		KeywordDto updateDto = KeywordDto.builder()
+		UpdateKeywordDto updateDto = UpdateKeywordDto.builder()
 			.name("수정된 정산 키워드")
 			.desc("수정된 정산 설명")
 			.groupMember("[{\"name\":\"김철수\",\"tel\":\"010-1234-5678\"},{\"name\":\"이영희\",\"tel\":\"010-8765-4321\"}]")
@@ -615,25 +616,27 @@ public class KeywordControllerTest {
 
 		List<MultiKeywordDto> multiKeywords = List.of(
 			MultiKeywordDto.builder()
-				.keyword(SubKeywordDto.builder()
+				.keyword(KeywordDto.builder()
 					.id(inquiryKeyword.getId())
 					.build())
-				.seqOrder((byte)1)
+				.seqOrder(1L)
 				.build(),
 			MultiKeywordDto.builder()
-				.keyword(SubKeywordDto.builder()
+				.keyword(KeywordDto.builder()
 					.id(transferKeyword.getId())
 					.build())
-				.seqOrder((byte)2)
+				.seqOrder(2L)
 				.build()
 		);
 
-		KeywordDto keywordDto = KeywordDto.builder()
+		List<Long> multiKeywordIds = Arrays.asList(inquiryKeyword.getId(), transferKeyword.getId());
+
+		CreateKeywordDto keywordDto = CreateKeywordDto.builder()
 			.user(UserResponseMapper.toDto(testUser))
 			.type(KeywordType.MULTI.name())
 			.name("멀티 키워드")
 			.desc("잔액 조회 후 용돈 보내기")
-			.multiKeyword(multiKeywords)
+			.multiKeywordIds(multiKeywordIds)
 			.build();
 
 		String requestBody = objectMapper.writeValueAsString(keywordDto);
