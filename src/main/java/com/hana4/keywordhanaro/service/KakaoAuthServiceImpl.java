@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -123,12 +124,15 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
 
+        DecimalFormat formatter = new DecimalFormat("#,##0");
+        String formattedAmount = formatter.format(finalAmount);
+
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("receiver_uuids",
                 "%s".formatted(uuidJson));
         body.add("template_id", "115519");
         body.add("template_args",
-                "{\"AccountNum\":\"%s\",\"Amount\":\"%s\"}".formatted(account.getAccountNumber(), finalAmount));
+                "{\"AccountNum\":\"%s\",\"Amount\":\"%s\"}".formatted(account.getAccountNumber(), formattedAmount));
 
         // HttpEntity 생성 (헤더 + 바디)
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
