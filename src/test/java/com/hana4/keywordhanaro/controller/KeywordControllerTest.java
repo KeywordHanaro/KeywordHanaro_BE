@@ -342,6 +342,8 @@ public class KeywordControllerTest {
 			.checkEveryTime(false)
 			.build();
 
+		System.out.println("updateDto = " + updateDto);
+
 		String requestBody = objectMapper.writeValueAsString(updateDto);
 
 		mockMvc.perform(patch("/keyword/" + originalKeyword.getId())

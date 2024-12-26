@@ -37,47 +37,29 @@ public class BranchServiceImpl implements BranchService {
 	@Override
 	public List<BranchDto> searchBranch(String query, Double lat, Double lng) {
 		validateSearchParams(lat, lng);
+		int radius;
+		String searchQuery;
 
 		if (query == null || query.trim().isEmpty()) {
-			return searchNearbyBranches(lat, lng);
+			radius = 1500;
+			searchQuery = "하나은행";
 		} else {
-			return searchBranchesByQuery(query, lat, lng);
+			radius = 1000000;
+			searchQuery = "하나은행" + query;
 		}
 
-	}
-
-	private List<BranchDto> searchNearbyBranches(Double lat, Double lng) {
-		int radius = 1500;
-
 		URI uri = UriComponentsBuilder.fromUriString(kakaoApiUrl)
-			.queryParam("query", "하나은행")
+			.queryParam("query", searchQuery)
 			.queryParam("y", lat)
 			.queryParam("x", lng)
 			.queryParam("radius", radius)
 			.queryParam("category_group_code", "BK9")
-			.queryParam("sort", "distance")
 			.encode()
 			.build()
 			.toUri();
 
 		return fetchBranches(uri);
 
-	}
-
-	private List<BranchDto> searchBranchesByQuery(String query, Double lat, Double lng) {
-		int radius = 100000;
-
-		URI uri = UriComponentsBuilder.fromUriString(kakaoApiUrl)
-			.queryParam("query", "하나은행 " + query)
-			.queryParam("category_group_code", "BK9")
-			.queryParam("y", lat)
-			.queryParam("x", lng)
-			.queryParam("radius", radius)
-			.encode()
-			.build()
-			.toUri();
-
-		return fetchBranches(uri);
 	}
 
 	private List<BranchDto> fetchBranches(URI uri) {

@@ -78,6 +78,7 @@ public class KeywordServiceImpl implements KeywordService {
 			}
 			case "TRANSFER" -> {
 				validateTransferKeyword(keywordDto);
+				validateAmountAndCheckEveryTime(keywordDto);
 				account = getAccount(keywordDto.getAccount().getId());
 				subAccount = getSubAccount(keywordDto.getSubAccount().getAccountNumber());
 				keyword = new Keyword(user, KeywordType.TRANSFER, keywordDto.getName(), keywordDto.getDesc(),
@@ -97,6 +98,7 @@ public class KeywordServiceImpl implements KeywordService {
 			}
 			case "DUES" -> {
 				validateSettlementKeyword(keywordDto);
+				validateAmountAndCheckEveryTime(keywordDto);
 				account = getAccount(keywordDto.getAccount().getId());
 				keyword = new Keyword(user, KeywordType.DUES, keywordDto.getName(), keywordDto.getDesc(),
 					newSeqOrder, account, keywordDto.getGroupMember(), keywordDto.getAmount(),
@@ -156,6 +158,8 @@ public class KeywordServiceImpl implements KeywordService {
 		Keyword existingKeyword = keywordRepository.findById(id)
 			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 
+		validateCommonRequest(updateKeywordDto);
+
 		// 기본 정보 업데이트
 		existingKeyword.setName(updateKeywordDto.getName());
 		existingKeyword.setDescription(updateKeywordDto.getDesc());
@@ -169,7 +173,8 @@ public class KeywordServiceImpl implements KeywordService {
 		}
 
 		if (updateKeywordDto.getSubAccount() != null) {
-			Account subAccount = accountRepository.findByAccountNumber(updateKeywordDto.getSubAccount().getAccountNumber())
+			Account subAccount = accountRepository.findByAccountNumber(
+					updateKeywordDto.getSubAccount().getAccountNumber())
 				.orElseThrow(() -> new AccountNotFoundException("Account not found"));
 			existingKeyword.setSubAccount(subAccount);
 		}
@@ -208,6 +213,7 @@ public class KeywordServiceImpl implements KeywordService {
 					existingKeyword.addMultiKeyword(multiKeyword);
 				}
 			}
+
 		}
 
 		Keyword updatedKeyword = keywordRepository.save(existingKeyword);
