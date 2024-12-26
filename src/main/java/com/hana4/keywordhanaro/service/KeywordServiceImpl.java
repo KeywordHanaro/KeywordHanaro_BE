@@ -179,14 +179,22 @@ public class KeywordServiceImpl implements KeywordService {
 
 		// 타입별 특정 필드 업데이트
 		switch (existingKeyword.getType()) {
-			case INQUIRY -> existingKeyword.setInquiryWord(updateKeywordDto.getInquiryWord());
+			case INQUIRY -> {
+				validateInquiryKeyword(updateKeywordDto);
+				existingKeyword.setInquiryWord(updateKeywordDto.getInquiryWord());
+			}
 			case TRANSFER -> {
+				validateTransferKeyword(updateKeywordDto);
 				validateAmountAndCheckEveryTime(updateKeywordDto);
 				existingKeyword.setAmount(updateKeywordDto.getAmount());
 				existingKeyword.setCheckEveryTime(updateKeywordDto.getCheckEveryTime());
 			}
-			case TICKET -> existingKeyword.setBranch(updateKeywordDto.getBranch());
+			case TICKET -> {
+				validateTicketKeyword(updateKeywordDto);
+				existingKeyword.setBranch(updateKeywordDto.getBranch());
+			}
 			case SETTLEMENT, DUES -> {
+				validateSettlementKeyword(updateKeywordDto);
 				validateAmountAndCheckEveryTime(updateKeywordDto);
 				existingKeyword.setGroupMember(updateKeywordDto.getGroupMember());
 				existingKeyword.setAmount(updateKeywordDto.getAmount());
