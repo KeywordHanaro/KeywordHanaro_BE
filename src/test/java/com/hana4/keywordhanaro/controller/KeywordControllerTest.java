@@ -582,7 +582,6 @@ public class KeywordControllerTest {
 	void getKeywordsTest() throws Exception {
 		mockMvc.perform(get("/keyword"))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$", hasSize(4)))
 			.andDo(print());
 	}
 

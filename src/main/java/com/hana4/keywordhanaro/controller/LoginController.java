@@ -1,11 +1,13 @@
 package com.hana4.keywordhanaro.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hana4.keywordhanaro.exception.UnAuthorizedException;
 import com.hana4.keywordhanaro.model.dto.UserDto;
+import com.hana4.keywordhanaro.utils.CustomUserDetails;
 import com.hana4.keywordhanaro.utils.JwtUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,7 +50,7 @@ public class LoginController {
 			)))
 	})
 	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody UserDto userDto) throws Exception {
+	public ResponseEntity<Map<String, Object>> login(@RequestBody UserDto userDto) throws Exception {
 		try {
 			authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(userDto.getUsername(), userDto.getPassword())
@@ -56,14 +59,17 @@ public class LoginController {
 			throw new UnAuthorizedException("Incorrect username or password");
 		}
 
-		final UserDetails userDetails = userDetailsService
+		final CustomUserDetails customUserDetails = (CustomUserDetails) userDetailsService
 			.loadUserByUsername(userDto.getUsername());
 
-		final String jwt = jwtUtil.createJwt(userDetails.getUsername());
+		final String jwt = jwtUtil.createJwt(customUserDetails.getUsername());
+
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Authorization", "Bearer " + jwt);
 
-		return ResponseEntity.ok().headers(headers).body("Login Successful");
+		Map<String, Object> response = new HashMap<>();
+		response.put("permission", customUserDetails.getUser().getPermission());
+		return ResponseEntity.ok().headers(headers).body(response);
 	}
 }
