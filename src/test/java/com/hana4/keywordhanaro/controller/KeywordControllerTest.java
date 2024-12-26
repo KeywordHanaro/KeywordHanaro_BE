@@ -14,6 +14,7 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -39,14 +40,18 @@ import com.hana4.keywordhanaro.model.entity.account.AccountStatus;
 import com.hana4.keywordhanaro.model.entity.account.AccountType;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
+import com.hana4.keywordhanaro.model.entity.keyword.MultiKeyword;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.entity.user.UserStatus;
 import com.hana4.keywordhanaro.model.mapper.AccountResponseMapper;
+import com.hana4.keywordhanaro.model.mapper.MultiKeywordMapper;
 import com.hana4.keywordhanaro.model.mapper.UserResponseMapper;
 import com.hana4.keywordhanaro.repository.AccountRepository;
 import com.hana4.keywordhanaro.repository.BankRepository;
 import com.hana4.keywordhanaro.repository.KeywordRepository;
+import com.hana4.keywordhanaro.repository.MultiKeywordRepository;
 import com.hana4.keywordhanaro.repository.UserRepository;
+import com.hana4.keywordhanaro.service.KeywordService;
 
 import jakarta.transaction.Transactional;
 
@@ -74,6 +79,12 @@ public class KeywordControllerTest {
 
 	@Autowired
 	private BankRepository bankRepository;
+
+	@Autowired
+	MultiKeywordRepository multiKeywordRepository;
+
+	@Autowired
+	KeywordService keywordService;
 
 	@BeforeAll
 	void beforeAll() throws Exception {
@@ -653,7 +664,110 @@ public class KeywordControllerTest {
 			.andExpect(jsonPath("$.multiKeyword", Matchers.hasSize(2)))
 			.andExpect(jsonPath("$.multiKeyword[0].keyword.id").value(inquiryKeyword.getId()))
 			.andExpect(jsonPath("$.multiKeyword[1].keyword.id").value(transferKeyword.getId()));
-		;
 	}
 
+	@Test
+	@DisplayName("멀티 키워드 수정")
+	void updateMultiKeywordTest() throws Exception {
+		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
+		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
+			.orElseThrow(() -> new IllegalStateException("Account not found"));
+		Account testSubAccount = accountRepository.findByAccountNumber("222-342-2223")
+			.orElseThrow(() -> new IllegalStateException("Sub-account not found"));
+
+		// 키워드 먼저 우선 저장
+		Keyword inquiryKeyword = Keyword.builder()
+			.type(KeywordType.INQUIRY)
+			.name("잔액 조회")
+			.description("잔액 조회하기")
+			.account(testAccount)
+			.inquiryWord("잔액")
+			.user(testUser)
+			.seqOrder(3L)
+			.build();
+		inquiryKeyword = keywordRepository.save(inquiryKeyword);
+
+		Keyword transferKeyword = Keyword.builder()
+			.type(KeywordType.TRANSFER)
+			.name("성엽 용돈")
+			.description("생활비계좌에서 > 성엽계좌 > 3만원")
+			.account(testAccount)
+			.subAccount(testSubAccount)
+			.amount(BigDecimal.valueOf(30000))
+			.checkEveryTime(false)
+			.user(testUser)
+			.seqOrder(5L)
+			.build();
+		transferKeyword = keywordRepository.save(transferKeyword);
+
+		Keyword transferKeyword2 = Keyword.builder()
+			.type(KeywordType.TRANSFER)
+			.name("준용 용돈")
+			.description("생활비계좌에서 > 준용계좌 > 5만원")
+			.account(testAccount)
+			.subAccount(testSubAccount)
+			.amount(BigDecimal.valueOf(50000))
+			.checkEveryTime(false)
+			.user(testUser)
+			.seqOrder(5L)
+			.build();
+		transferKeyword2 = keywordRepository.save(transferKeyword2);
+
+		System.out.println(
+			"Pre-created keywords: inquiry = " + inquiryKeyword.getId() + ", transfer = " + transferKeyword.getId());
+
+		// List<MultiKeywordDto> multiKeywords = List.of(
+		// 	MultiKeywordDto.builder()
+		// 		.keyword(KeywordDto.builder()
+		// 			.id(inquiryKeyword.getId())
+		// 			.build())
+		// 		.seqOrder(1L)
+		// 		.build(),
+		// 	MultiKeywordDto.builder()
+		// 		.keyword(KeywordDto.builder()
+		// 			.id(transferKeyword.getId())
+		// 			.build())
+		// 		.seqOrder(2L)
+		// 		.build()
+		// );
+
+		List<Long> multiKeywordIds = Arrays.asList(inquiryKeyword.getId(), transferKeyword.getId());
+
+		CreateKeywordDto keywordDto = CreateKeywordDto.builder()
+			.user(UserResponseMapper.toDto(testUser))
+			.type(KeywordType.MULTI.name())
+			.name("멀티 키워드")
+			.desc("잔액 조회 후 용돈 보내기")
+			.multiKeywordIds(multiKeywordIds)
+			.build();
+
+		// 키워드 생성 완료
+		KeywordDto keyword = keywordService.createKeyword(keywordDto);
+
+
+		multiKeywordIds = Arrays.asList(inquiryKeyword.getId(), transferKeyword.getId(), transferKeyword2.getId());
+
+		UpdateKeywordDto updateKeywordDto = UpdateKeywordDto.builder()
+			.user(UserResponseMapper.toDto(testUser))
+			.type(KeywordType.MULTI.name())
+			.name("수정된 멀티 키워드")
+			.desc("수정된 디스크립션")
+			.multiKeywordIds(multiKeywordIds)
+			.build();
+
+		String requestBody = objectMapper.writeValueAsString(updateKeywordDto);
+
+		System.out.println("requestBody = " + requestBody);
+
+		mockMvc.perform(
+				patch("/keyword/" + keyword.getId()).contentType(MediaType.APPLICATION_JSON).content(requestBody))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.type").value("MULTI"))
+			.andExpect(jsonPath("$.name").value(updateKeywordDto.getName()))
+			.andExpect(jsonPath("$.desc").value(updateKeywordDto.getDesc()))
+			.andExpect(jsonPath("$.multiKeyword", Matchers.hasSize(3)))
+			.andExpect(jsonPath("$.multiKeyword[0].keyword.id").value(inquiryKeyword.getId()))
+			.andExpect(jsonPath("$.multiKeyword[1].keyword.id").value(transferKeyword.getId()))
+			.andExpect(jsonPath("$.multiKeyword[2].keyword.id").value(transferKeyword2.getId()));
+	}
 }
