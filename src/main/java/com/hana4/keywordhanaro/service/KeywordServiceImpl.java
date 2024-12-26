@@ -190,15 +190,20 @@ public class KeywordServiceImpl implements KeywordService {
 				existingKeyword.setCheckEveryTime(updateKeywordDto.getCheckEveryTime());
 			}
 			case MULTI -> {
+				long seqOrder = 0L;
 				validateMultiKeyword(updateKeywordDto);
 				Long keywordId = existingKeyword.getId();
-				long seqOrder = 0L;
+				Keyword mainKeyword = keywordRepository.findById(keywordId)
+					.orElseThrow(() -> new KeywordNotFoundException("cannot find Multi Keyword"));
 				List<MultiKeyword> allByMultiKeywordId = multiKeywordRepository.findAllByMultiKeywordId(keywordId);
+
 				multiKeywordRepository.deleteAll(allByMultiKeywordId);
+
 				for (long l : updateKeywordDto.getMultiKeywordIds()) {
 					MultiKeyword multiKeyword = new MultiKeyword();
-					multiKeyword.setMultiKeyword(keywordRepository.findById(keywordId).get());
-					multiKeyword.setKeyword(keywordRepository.findById(l).get());
+					multiKeyword.setMultiKeyword(mainKeyword);
+					multiKeyword.setKeyword(keywordRepository.findById(l)
+						.orElseThrow(() -> new KeywordNotFoundException("cannot find child keyword")));
 					multiKeyword.setSeqOrder(seqOrder += SEQ_ORDER_INTERVAL);
 					existingKeyword.addMultiKeyword(multiKeyword);
 				}
