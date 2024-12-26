@@ -8,8 +8,8 @@ public class MultiKeywordMapper {
 
 		return MultiKeywordDto.builder()
 			.id(multiKeyword.getId())
-			.multiKeyword(SubKeywordMapper.toDto(multiKeyword.getMultiKeyword()))
-			.keyword(SubKeywordMapper.toDto(multiKeyword.getKeyword()))
+			.parentId(multiKeyword.getMultiKeyword().getId())
+			.keyword(KeywordMapper.toDto(multiKeyword.getKeyword()))
 			.seqOrder(multiKeyword.getSeqOrder())
 			.build();
 	}

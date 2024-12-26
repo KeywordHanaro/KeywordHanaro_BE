@@ -15,12 +15,14 @@ import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
 import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
 import com.hana4.keywordhanaro.model.dto.BranchDto;
+import com.hana4.keywordhanaro.model.dto.CreateKeywordDto;
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
 import com.hana4.keywordhanaro.model.dto.GroupMemberDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
-import com.hana4.keywordhanaro.model.dto.MultiKeywordDto;
+import com.hana4.keywordhanaro.model.dto.KeywordUserInputDto;
 import com.hana4.keywordhanaro.model.dto.TransactionDto;
+import com.hana4.keywordhanaro.model.dto.UpdateKeywordDto;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
@@ -44,7 +46,6 @@ import lombok.extern.slf4j.Slf4j;
 public class KeywordServiceImpl implements KeywordService {
 
 	private final KeywordRepository keywordRepository;
-	private final UserRepository userRepository;
 	private final AccountRepository accountRepository;
 	private final InquiryService inquiryService;
 	private final MultiKeywordRepository multiKeywordRepository;
@@ -54,7 +55,7 @@ public class KeywordServiceImpl implements KeywordService {
 
 	@Override
 	@Transactional
-	public KeywordDto createKeyword(KeywordDto keywordDto) throws Exception {
+	public KeywordDto createKeyword(CreateKeywordDto keywordDto) throws Exception {
 		User user = UserResponseMapper.toEntity(keywordDto.getUser());
 
 		Account account = null;
@@ -122,16 +123,17 @@ public class KeywordServiceImpl implements KeywordService {
 		// System.out.println("Saved Keyword ID: " + keyword.getId());
 
 		// MULTI 키워드 처리
-		if (keywordDto.getType().equals("MULTI") && keywordDto.getMultiKeyword() != null) {
-			for (MultiKeywordDto multiKeywordDto : keywordDto.getMultiKeyword()) {
-				Keyword subKeyword = keywordRepository.findById(multiKeywordDto.getKeyword().getId())
-					.orElseThrow(() -> new KeywordNotFoundException(
-						"Keyword not found with id: " + multiKeywordDto.getKeyword().getId()));
+		if (keywordDto.getType().equals("MULTI") && keywordDto.getMultiKeywordIds() != null) {
+			long seqOrder = 0L;
+			for (Long multiKeywordId : keywordDto.getMultiKeywordIds()) {
+				Keyword subKeyword = keywordRepository.findById(multiKeywordId)
+					.orElseThrow(() -> new KeywordNotFoundException("Keyword not found with id: " + multiKeywordId));
 
 				MultiKeyword multiKeyword = new MultiKeyword();
 				multiKeyword.setMultiKeyword(keyword);
 				multiKeyword.setKeyword(subKeyword);
-				multiKeyword.setSeqOrder(multiKeywordDto.getSeqOrder());
+				multiKeyword.setSeqOrder(seqOrder);
+				seqOrder += SEQ_ORDER_INTERVAL;
 
 				keyword.addMultiKeyword(multiKeyword); // 중요
 			}
@@ -156,7 +158,7 @@ public class KeywordServiceImpl implements KeywordService {
 	}
 
 	@Override
-	public KeywordDto updateKeyword(Long id, KeywordDto keywordDto) {
+	public KeywordDto updateKeyword(Long id, UpdateKeywordDto keywordDto) {
 		Keyword existingKeyword = keywordRepository.findById(id)
 			.orElseThrow(() -> new NullPointerException("Keyword not found"));
 
@@ -287,7 +289,7 @@ public class KeywordServiceImpl implements KeywordService {
 
 	}
 
-	private void validateCommonRequest(KeywordDto keywordDto) {
+	private void validateCommonRequest(KeywordUserInputDto keywordDto) {
 		if (keywordDto.getType() == null) {
 			throw new InvalidRequestException("Keyword type is required");
 		}
@@ -299,7 +301,7 @@ public class KeywordServiceImpl implements KeywordService {
 		}
 	}
 
-	private void validateInquiryKeyword(KeywordDto keywordDto) {
+	private void validateInquiryKeyword(KeywordUserInputDto keywordDto) {
 		if (keywordDto.getAccount() == null) {
 			throw new InvalidRequestException("Account is required for INQUIRY keyword");
 		}
@@ -308,7 +310,7 @@ public class KeywordServiceImpl implements KeywordService {
 		}
 	}
 
-	private void validateTransferKeyword(KeywordDto keywordDto) {
+	private void validateTransferKeyword(KeywordUserInputDto keywordDto) {
 		if (keywordDto.getAccount() == null) {
 			throw new InvalidRequestException("Account is required for TRANSFER keyword");
 		}
@@ -318,13 +320,13 @@ public class KeywordServiceImpl implements KeywordService {
 		validateAmountAndCheckEveryTime(keywordDto);
 	}
 
-	private void validateTicketKeyword(KeywordDto keywordDto) {
+	private void validateTicketKeyword(KeywordUserInputDto keywordDto) {
 		if (keywordDto.getBranch() == null || keywordDto.getBranch().trim().isEmpty()) {
 			throw new InvalidRequestException("Branch information is required for TICKET keyword");
 		}
 	}
 
-	private void validateSettlementKeyword(KeywordDto keywordDto) {
+	private void validateSettlementKeyword(KeywordUserInputDto keywordDto) {
 		if (keywordDto.getAccount() == null) {
 			throw new InvalidRequestException("Account is required for SETTLEMENT or DUES keyword");
 		}
@@ -334,13 +336,13 @@ public class KeywordServiceImpl implements KeywordService {
 		validateAmountAndCheckEveryTime(keywordDto);
 	}
 
-	private void validateMultiKeyword(KeywordDto keywordDto) {
-		if (keywordDto.getMultiKeyword() == null) {
+	private void validateMultiKeyword(KeywordUserInputDto keywordDto) {
+		if (keywordDto.getMultiKeywordIds() == null) {
 			throw new InvalidRequestException("Multi keyword is required for MULTI keyword");
 		}
 	}
 
-	private void validateAmountAndCheckEveryTime(KeywordDto keywordDto) {
+	private void validateAmountAndCheckEveryTime(KeywordUserInputDto keywordDto) {
 		if (Boolean.TRUE.equals(keywordDto.getCheckEveryTime()) && keywordDto.getAmount() != null) {
 			throw new InvalidRequestException("Amount should not be provided when checkEveryTime is true");
 		}
