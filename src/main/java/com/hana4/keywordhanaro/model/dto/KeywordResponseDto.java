@@ -30,7 +30,7 @@ public class KeywordResponseDto {
 	private BigDecimal amount;
 	private List<GroupMemberDto> groupMember;
 	private BranchDto branch;
-	private List<MultiKeywordDto> multiKeyword;
+	private List<MultiKeywordResponseDto> multiKeyword;
 	private List<TransactionDto> transactions;
 
 }
