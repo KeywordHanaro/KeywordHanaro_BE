@@ -31,6 +31,8 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
 
     private final RestTemplate restTemplate;
 
+    private final ObjectMapper objectMapper;
+
     @Value("${KAKAO_CLIENT_ID}")
     private String clientId;
     @Value("${KAKAO_REDIRECT_URI}")
@@ -41,6 +43,8 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
     private String KAKAO_TOKEN_URL;
     @Value("${KAKAO_USER_INFO_URL}")
     private String KAKAO_USER_INFO_URL;
+    @Value("${KAKAO_FRIENDS_MESSAGE_SEND_URL}")
+    private String KAKAO_FRIENDS_MESSAGE_SEND_URL;
 
     @Override
     public String getAccessToken(String authorizationCode) {
@@ -100,12 +104,9 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
     @Override
     public void sendMessage(String accessToken, List<UserDto> groupMember, BigDecimal amount, AccountDto account,
                             String type) {
-        BigDecimal finalAmount;
-        if (type.equals("Settlement")) {
-            finalAmount = amount.divide(new BigDecimal(groupMember.size() + 1), 0, RoundingMode.DOWN);
-        } else {
-            finalAmount = amount;
-        }
+        BigDecimal finalAmount = type.equals("Settlement")
+                ? amount.divide(new BigDecimal(groupMember.size() + 1), 0, RoundingMode.DOWN)
+                : amount;
 
         List<String> kakaoUUIDs = new ArrayList<>();
 
@@ -113,7 +114,6 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
             kakaoUUIDs.add(userRepository.findKakaoUUIDByTel(user.getTel()));
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
         String uuidJson;
         try {
             uuidJson = objectMapper.writeValueAsString(kakaoUUIDs);
@@ -137,8 +137,7 @@ public class KakaoAuthServiceImpl implements KakaoAuthService {
         // HttpEntity 생성 (헤더 + 바디)
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
-        String url = "https://kapi.kakao.com/v1/api/talk/friends/message/send";
-        String response = restTemplate.exchange(url, HttpMethod.POST, request, String.class).getBody();
+        String response = restTemplate.exchange(KAKAO_FRIENDS_MESSAGE_SEND_URL, HttpMethod.POST, request, String.class).getBody();
 
     }
 }
