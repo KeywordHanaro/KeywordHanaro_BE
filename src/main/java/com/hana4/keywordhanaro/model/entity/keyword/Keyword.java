@@ -23,11 +23,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
@@ -85,7 +83,7 @@ public class Keyword {
 	@JoinColumn(name = "subAccountId", foreignKey = @ForeignKey(name = "fk_Keyword_subAccountId_Account"))
 	private Account subAccount;
 
-	@OneToMany(mappedBy = "multiKeyword", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "multiKeyword", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JsonManagedReference // 순환 참조 방지
 	private List<MultiKeyword> multiKeywords = new ArrayList<>();
 

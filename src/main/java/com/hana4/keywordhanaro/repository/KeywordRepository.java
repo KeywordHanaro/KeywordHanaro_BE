@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.entity.keyword.KeywordType;
+import com.hana4.keywordhanaro.model.entity.user.User;
 
 public interface KeywordRepository extends JpaRepository<Keyword, Long> {
 
@@ -26,4 +27,6 @@ public interface KeywordRepository extends JpaRepository<Keyword, Long> {
 	List<Keyword> findAllByUserUsername(String username);
 
 	List<Keyword> findAllByUserUsernameAndIsFavoriteTrue(String username);
+
+	Optional<Keyword> findFirstByUserAndType(User user, KeywordType type);
 }

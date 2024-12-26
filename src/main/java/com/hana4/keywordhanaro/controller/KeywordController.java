@@ -17,12 +17,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hana4.keywordhanaro.exception.AccountNotFoundException;
+import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
 import com.hana4.keywordhanaro.model.dto.CreateKeywordDto;
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
 import com.hana4.keywordhanaro.model.dto.UpdateKeywordDto;
-import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.mapper.UserResponseMapper;
 import com.hana4.keywordhanaro.service.KeywordService;
 import com.hana4.keywordhanaro.utils.CustomUserDetails;
@@ -85,7 +86,7 @@ public class KeywordController {
 				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))
 	})
 	@DeleteMapping("/{id}")
-	public ResponseEntity<DeleteResponseDto> deleteKeyword(@PathVariable Long id) {
+	public ResponseEntity<DeleteResponseDto> deleteKeyword(@PathVariable Long id) throws KeywordNotFoundException {
 		return keywordService.removeKeyword(id);
 	}
 
@@ -107,7 +108,7 @@ public class KeywordController {
 				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
 	@PatchMapping("/{id}")
 	public ResponseEntity<KeywordDto> updateKeyword(@PathVariable Long id, @RequestBody UpdateKeywordDto keywordDto,
-		Authentication authentication) {
+		Authentication authentication) throws KeywordNotFoundException, AccountNotFoundException {
 		String username = authentication.getName();
 		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(username);
 		keywordDto.setUser(UserResponseMapper.toDto(userDetails.getUser()));
@@ -130,13 +131,14 @@ public class KeywordController {
 		return ResponseEntity.ok(keywordService.useKeyword(id));
 	}
 
-	@Operation(summary = "내 모든 키워드 조회", description = "내 모든 키워드를 조회합니다")
+	@Operation(summary = "내 모든 키워드 조회", description = "내 모든 키워드를 조회합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "키워드 생성 성공", content = @Content(array = @ArraySchema(schema = @Schema(implementation = KeywordDto.class)))),
 		@ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(mediaType = "application/json"))
 	})
 	@GetMapping
-	public ResponseEntity<List<KeywordDto>> getKeywords(@RequestParam(required = false) Boolean isFavorite, Authentication authentication) {
+	public ResponseEntity<List<KeywordDto>> getKeywords(@RequestParam(required = false) Boolean isFavorite,
+		Authentication authentication) {
 		String username = authentication.getName();
 		if (isFavorite != null && isFavorite) {
 			return ResponseEntity.ok(keywordService.getFavoriteKeywordsByUsername(username));

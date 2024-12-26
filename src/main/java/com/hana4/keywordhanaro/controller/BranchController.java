@@ -29,7 +29,7 @@ public class BranchController {
 
 	@Operation(
 		summary = "영업점 검색",
-		description = "영업점명, 주소를 입력하거나 사용자 위치 기반으로 영업점을 검색합니다",
+		description = "영업점명, 주소를 입력하거나 사용자 위치 기반으로 영업점을 검색합니다.",
 		parameters = {
 			@Parameter(name = "query", description = "검색 키워드", example = "성수"),
 			@Parameter(name = "y", description = "위도", required = true, example = "37.5445598"),
