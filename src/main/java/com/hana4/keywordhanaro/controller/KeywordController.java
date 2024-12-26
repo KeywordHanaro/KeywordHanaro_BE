@@ -17,12 +17,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hana4.keywordhanaro.exception.AccountNotFoundException;
+import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
 import com.hana4.keywordhanaro.model.dto.CreateKeywordDto;
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
 import com.hana4.keywordhanaro.model.dto.UpdateKeywordDto;
-import com.hana4.keywordhanaro.model.entity.keyword.Keyword;
 import com.hana4.keywordhanaro.model.mapper.UserResponseMapper;
 import com.hana4.keywordhanaro.service.KeywordService;
 import com.hana4.keywordhanaro.utils.CustomUserDetails;
@@ -107,7 +108,7 @@ public class KeywordController {
 				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
 	@PatchMapping("/{id}")
 	public ResponseEntity<KeywordDto> updateKeyword(@PathVariable Long id, @RequestBody UpdateKeywordDto keywordDto,
-		Authentication authentication) {
+		Authentication authentication) throws KeywordNotFoundException, AccountNotFoundException {
 		String username = authentication.getName();
 		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(username);
 		keywordDto.setUser(UserResponseMapper.toDto(userDetails.getUser()));
