@@ -25,18 +25,20 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/inquiry")
 @ResponseStatus(HttpStatus.OK)
 @RequiredArgsConstructor
+@Tag(name = "Inquiry", description = "거래 내역 조회 API")
 public class InquiryController {
 	private final InquiryServiceImpl inquiryService;
 
 	@Operation(
 		summary = "거래 내역 조회",
-		description = "조회기간, 거래구분, 정렬순서, 검색어로 필터링하여 조회합니다",
+		description = "조회기간, 거래구분, 정렬순서, 검색어로 필터링하여 조회합니다.",
 		parameters = {
 			@Parameter(name = "accountId", description = "accountId", required = true, example = "9"),
 			@Parameter(name = "startDate", description = "검색 시작일 YYYY-mm-dd", required = true, example = "2024-01-01"),
@@ -59,7 +61,7 @@ public class InquiryController {
 			))),
 		@ApiResponse(responseCode = "500", description = "서버 오류",
 			content = @Content(mediaType = "application/json", schema = @Schema(
-				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"서버에러 메시지.\" }"
+				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }"
 			)))
 	})
 	@GetMapping("/{accountId}")

@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hana4.keywordhanaro.exception.KeywordNotFoundException;
 import com.hana4.keywordhanaro.exception.UserNotFoundException;
 import com.hana4.keywordhanaro.model.dto.TicketDto;
 import com.hana4.keywordhanaro.model.dto.TicketRequestDto;
@@ -89,39 +88,12 @@ public class TicketControllerTest {
 	}
 
 	@Test
-	@DisplayName("번호표 키워드 사용 시")
-	void createTicketTestWithKeyword() throws Exception {
-		// Given
-		Keyword testKeyword = keywordRepository.findByName("inssTicketKeyword")
-			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
-		TicketRequestDto requestDto = TicketRequestDto.builder()
-			.keywordId(testKeyword.getId())
-			.workNumber((byte)1)
-			.build();
-
-		String requestBody = objectMapper.writeValueAsString(requestDto);
-
-		mockMvc.perform(post("/ticket")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(requestBody))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.id").isNotEmpty())
-			.andExpect(jsonPath("$.branchId").isNotEmpty())
-			.andExpect(jsonPath("$.branchName").isNotEmpty())
-			.andExpect(jsonPath("$.waitingNumber").isNotEmpty())
-			.andExpect(jsonPath("$.waitingGuest").isNotEmpty())
-			.andExpect(jsonPath("$.workNumber").value(1))
-			.andExpect(jsonPath("$.createAt").isNotEmpty());
-	}
-
-	@Test
 	@DisplayName("일반 번호표 사용 시")
 	void createTicketTest() throws Exception {
 		User testUser = userRepository.findFirstByUsername("insunID").orElseThrow();
 		TicketRequestDto requestDto = TicketRequestDto.builder()
 			.branchId(1841540654L)
 			.branchName("하나은행 성수역지점")
-			.userId(testUser.getId())
 			.workNumber((byte)2)
 			.build();
 
@@ -146,11 +118,10 @@ public class TicketControllerTest {
 	@DisplayName("이미 발급받은 번호표가 있을 경우 기존 번호표 반환")
 	void createTicketWithExistingTicket() throws Exception {
 		// Given
-		Keyword testKeyword = keywordRepository.findByName("inssTicketKeyword")
-			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 		TicketRequestDto requestDto = TicketRequestDto.builder()
-			.keywordId(testKeyword.getId())
 			.workNumber((byte)1)
+			.branchId(1841540654L)
+			.branchName("하나은행 성수역지점")
 			.build();
 		String requestBody = objectMapper.writeValueAsString(requestDto);
 
@@ -161,13 +132,11 @@ public class TicketControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.id").isNotEmpty())
 			.andReturn();
-		System.out.println("firstResult = " + firstResult);
 
 		TicketDto firstTicket = objectMapper.readValue(
 			firstResult.getResponse().getContentAsString(),
 			TicketDto.class
 		);
-		System.out.println("firstTicket = " + firstTicket);
 
 		// 두번때 요청
 		MvcResult secondResult = mockMvc.perform(post("/ticket")
@@ -235,23 +204,6 @@ public class TicketControllerTest {
 				.content(requestBody))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.message").value("Branch ID is required"));
-	}
-
-	@Test
-	@DisplayName("예외 처리 - 존재하지 않는 키워드로 요청")
-	void testNonExistentKeyword() throws Exception {
-		TicketRequestDto requestDto = TicketRequestDto.builder()
-			.keywordId(999L)
-			.workNumber((byte)1)
-			.build();
-
-		String requestBody = objectMapper.writeValueAsString(requestDto);
-
-		mockMvc.perform(post("/ticket")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(requestBody))
-			.andExpect(status().isNotFound())
-			.andExpect(jsonPath("$.message").value("Keyword not found"));
 	}
 
 	@Test

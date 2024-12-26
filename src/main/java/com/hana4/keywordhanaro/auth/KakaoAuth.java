@@ -16,8 +16,8 @@ public class KakaoAuth {
     private static String TOKEN_URL;
     @Value("${KAKAO_CLIENT_ID}")
     private static String CLIENT_ID;
-    // todo 정산메세지 완료 후 uri확정예정
-    private static final String REDIRECT_URI = "http://keyword.hanaro.topician.com";
+    @Value("${KAKAO_REDIRECT_URI}")
+    private static String REDIRECT_URI;
 
     public static String getAccessToken(String authorizationCode) {
         RestTemplate restTemplate = new RestTemplate();

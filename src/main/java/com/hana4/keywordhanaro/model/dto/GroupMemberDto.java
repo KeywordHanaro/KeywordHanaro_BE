@@ -2,14 +2,16 @@ package com.hana4.keywordhanaro.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@Builder
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
-public class SubKeywordDto {
-	private Long id;
+@AllArgsConstructor
+@Builder
+public class GroupMemberDto {
 	private String name;
+	private String tel;
 }

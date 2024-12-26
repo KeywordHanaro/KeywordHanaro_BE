@@ -67,4 +67,5 @@ public class Ticket {
 		this.waitingNumber = waitingNumber;
 		this.workNumber = workNumber;
 	}
+
 }
