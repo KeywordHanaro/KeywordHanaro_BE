@@ -22,6 +22,7 @@ import com.hana4.keywordhanaro.model.dto.GroupMemberDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
 import com.hana4.keywordhanaro.model.dto.KeywordUserInputDto;
+import com.hana4.keywordhanaro.model.dto.KeywordWithMultiKeywordResponseDto;
 import com.hana4.keywordhanaro.model.dto.TransactionDto;
 import com.hana4.keywordhanaro.model.dto.UpdateKeywordDto;
 import com.hana4.keywordhanaro.model.entity.account.Account;
@@ -252,23 +253,52 @@ public class KeywordServiceImpl implements KeywordService {
 	}
 
 	@Override
-	public List<KeywordResponseDto> useKeyword(Long id) throws Exception {
-		List<KeywordResponseDto> response = new ArrayList<>();
-
+	public KeywordWithMultiKeywordResponseDto useKeyword(Long id) throws Exception {
 		Keyword keyword = keywordRepository.findById(id)
 			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+		KeywordWithMultiKeywordResponseDto keywordResponseDto = new KeywordWithMultiKeywordResponseDto();
 
 		switch (keyword.getType()) {
 			case INQUIRY -> {
-				response.add(useInquiryKeyword(keyword));
-				return response;
+				KeywordResponseDto keywordResponseDto1 = useInquiryKeyword(keyword);
+				keywordResponseDto = new KeywordWithMultiKeywordResponseDto(keywordResponseDto1.getId(),
+					keywordResponseDto1.getUser(), keywordResponseDto1.getType(),
+					keywordResponseDto1.getName(), keywordResponseDto1.isFavorite(), keywordResponseDto1.getDesc(),
+					keywordResponseDto1.getSeqOrder()
+					, keywordResponseDto1.getAccount(), keywordResponseDto1.getSubAccount(),
+					keywordResponseDto1.getInquiryWord(), keywordResponseDto1.getCheckEveryTime()
+					, keywordResponseDto1.getAmount(), keywordResponseDto1.getGroupMember(),
+					keywordResponseDto1.getBranch(),
+					keywordResponseDto1.getTransactions());
+				return keywordResponseDto;
 			}
 			case TRANSFER, TICKET, SETTLEMENT, DUES -> {
-				response.add(useOtherKeywordTypes(keyword));
-				return response;
+				KeywordResponseDto keywordResponseDto1 = useOtherKeywordTypes(keyword);
+				keywordResponseDto = new KeywordWithMultiKeywordResponseDto(keywordResponseDto1.getId(),
+					keywordResponseDto1.getUser(), keywordResponseDto1.getType(),
+					keywordResponseDto1.getName(), keywordResponseDto1.isFavorite(), keywordResponseDto1.getDesc(),
+					keywordResponseDto1.getSeqOrder()
+					, keywordResponseDto1.getAccount(), keywordResponseDto1.getSubAccount(),
+					keywordResponseDto1.getInquiryWord(), keywordResponseDto1.getCheckEveryTime()
+					, keywordResponseDto1.getAmount(), keywordResponseDto1.getGroupMember(),
+					keywordResponseDto1.getBranch(),
+					keywordResponseDto1.getTransactions());
+				return keywordResponseDto;
 			}
 			case MULTI -> {
-				return processMultiKeyword(keyword.getMultiKeywords());
+				KeywordResponseDto keywordResponseDto1 = KeywordResponseMapper.toDto(KeywordMapper.toDto(keyword),
+					null);
+				keywordResponseDto = new KeywordWithMultiKeywordResponseDto(keywordResponseDto1.getId(),
+					keywordResponseDto1.getUser(), keywordResponseDto1.getType(),
+					keywordResponseDto1.getName(), keywordResponseDto1.isFavorite(), keywordResponseDto1.getDesc(),
+					keywordResponseDto1.getSeqOrder()
+					, keywordResponseDto1.getAccount(), keywordResponseDto1.getSubAccount(),
+					keywordResponseDto1.getInquiryWord(), keywordResponseDto1.getCheckEveryTime()
+					, keywordResponseDto1.getAmount(), keywordResponseDto1.getGroupMember(),
+					keywordResponseDto1.getBranch(),
+					keywordResponseDto1.getTransactions());
+				keywordResponseDto.setMultiKeywords(processMultiKeyword(keyword.getMultiKeywords()));
+				return keywordResponseDto;
 			}
 			default -> throw new InvalidRequestException("Invalid keyword type");
 		}
@@ -348,8 +378,16 @@ public class KeywordServiceImpl implements KeywordService {
 			}
 
 			switch (key.getType()) {
-				case INQUIRY -> processedKeywords.add(useInquiryKeyword(key));
-				case TRANSFER, TICKET, SETTLEMENT, DUES -> processedKeywords.add(useOtherKeywordTypes(key));
+				case INQUIRY -> {
+					KeywordResponseDto keywordResponseDto1 = useInquiryKeyword(key);
+					keywordResponseDto1.setSeqOrder(multiKeyword.getSeqOrder());
+					processedKeywords.add(keywordResponseDto1);
+				}
+				case TRANSFER, TICKET, SETTLEMENT, DUES -> {
+					KeywordResponseDto e = useOtherKeywordTypes(key);
+					e.setSeqOrder(multiKeyword.getSeqOrder());
+					processedKeywords.add(e);
+				}
 				default -> throw new InvalidRequestException("Invalid multi-keyword type: " + key.getType());
 			}
 		}

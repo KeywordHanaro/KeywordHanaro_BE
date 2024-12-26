@@ -10,6 +10,7 @@ import com.hana4.keywordhanaro.model.dto.CreateKeywordDto;
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
+import com.hana4.keywordhanaro.model.dto.KeywordWithMultiKeywordResponseDto;
 import com.hana4.keywordhanaro.model.dto.UpdateKeywordDto;
 
 public interface KeywordService {
@@ -21,7 +22,7 @@ public interface KeywordService {
 
 	ResponseEntity<DeleteResponseDto> removeKeyword(Long id) throws KeywordNotFoundException;
 
-	List<KeywordResponseDto> useKeyword(Long id) throws Exception;
+	KeywordWithMultiKeywordResponseDto useKeyword(Long id) throws Exception;
 
 	List<KeywordDto> getKeywordsByUsername(String username);
 

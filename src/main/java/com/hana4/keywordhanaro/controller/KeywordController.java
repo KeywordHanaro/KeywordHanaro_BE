@@ -23,6 +23,7 @@ import com.hana4.keywordhanaro.model.dto.CreateKeywordDto;
 import com.hana4.keywordhanaro.model.dto.DeleteResponseDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
+import com.hana4.keywordhanaro.model.dto.KeywordWithMultiKeywordResponseDto;
 import com.hana4.keywordhanaro.model.dto.UpdateKeywordDto;
 import com.hana4.keywordhanaro.model.mapper.UserResponseMapper;
 import com.hana4.keywordhanaro.service.KeywordService;
@@ -127,7 +128,7 @@ public class KeywordController {
 			content = @Content(mediaType = "application/json", schema = @Schema(
 				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
 	@GetMapping("/{id}")
-	public ResponseEntity<List<KeywordResponseDto>> useKeyword(@PathVariable Long id) throws Exception {
+	public ResponseEntity<KeywordWithMultiKeywordResponseDto> useKeyword(@PathVariable Long id) throws Exception {
 		return ResponseEntity.ok(keywordService.useKeyword(id));
 	}
 

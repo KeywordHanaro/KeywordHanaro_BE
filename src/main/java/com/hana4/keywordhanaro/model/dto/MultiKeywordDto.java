@@ -1,5 +1,7 @@
 package com.hana4.keywordhanaro.model.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.AllArgsConstructor;
