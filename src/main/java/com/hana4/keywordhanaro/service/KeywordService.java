@@ -21,7 +21,7 @@ public interface KeywordService {
 
 	ResponseEntity<DeleteResponseDto> removeKeyword(Long id) throws KeywordNotFoundException;
 
-	KeywordResponseDto useKeyword(Long id) throws Exception;
+	List<KeywordResponseDto> useKeyword(Long id) throws Exception;
 
 	List<KeywordDto> getKeywordsByUsername(String username);
 

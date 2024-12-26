@@ -127,7 +127,7 @@ public class KeywordController {
 			content = @Content(mediaType = "application/json", schema = @Schema(
 				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
 	@GetMapping("/{id}")
-	public ResponseEntity<KeywordResponseDto> useKeyword(@PathVariable Long id) throws Exception {
+	public ResponseEntity<List<KeywordResponseDto>> useKeyword(@PathVariable Long id) throws Exception {
 		return ResponseEntity.ok(keywordService.useKeyword(id));
 	}
 

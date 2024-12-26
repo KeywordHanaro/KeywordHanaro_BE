@@ -1,6 +1,9 @@
 package com.hana4.keywordhanaro.service;
 
+import static com.hana4.keywordhanaro.model.entity.keyword.KeywordType.*;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -71,7 +74,7 @@ public class KeywordServiceImpl implements KeywordService {
 			case "INQUIRY" -> {
 				validateInquiryKeyword(keywordDto);
 				account = getAccount(keywordDto.getAccount().getId());
-				keyword = new Keyword(user, KeywordType.INQUIRY, keywordDto.getName(), keywordDto.getDesc(),
+				keyword = new Keyword(user, INQUIRY, keywordDto.getName(), keywordDto.getDesc(),
 					newSeqOrder, account, keywordDto.getInquiryWord());
 			}
 			case "TRANSFER" -> {
@@ -249,15 +252,26 @@ public class KeywordServiceImpl implements KeywordService {
 	}
 
 	@Override
-	public KeywordResponseDto useKeyword(Long id) throws Exception {
+	public List<KeywordResponseDto> useKeyword(Long id) throws Exception {
+		List<KeywordResponseDto> response = new ArrayList<>();
+
 		Keyword keyword = keywordRepository.findById(id)
 			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 
-		return switch (keyword.getType()) {
-			case INQUIRY -> useInquiryKeyword(keyword);
-			case TRANSFER, TICKET, SETTLEMENT, DUES -> useOtherKeywordTypes(keyword);
+		switch (keyword.getType()) {
+			case INQUIRY -> {
+				response.add(useInquiryKeyword(keyword));
+				return response;
+			}
+			case TRANSFER, TICKET, SETTLEMENT, DUES -> {
+				response.add(useOtherKeywordTypes(keyword));
+				return response;
+			}
+			case MULTI -> {
+				return processMultiKeyword(keyword.getMultiKeywords());
+			}
 			default -> throw new InvalidRequestException("Invalid keyword type");
-		};
+		}
 	}
 
 	@Override
@@ -276,7 +290,7 @@ public class KeywordServiceImpl implements KeywordService {
 	private KeywordResponseDto useInquiryKeyword(Keyword keyword) throws AccountNotFoundException {
 		LocalDate endDate = LocalDate.now();
 		LocalDate startDate = endDate.minusMonths(3); // 최근 3개월 조회
-
+		
 		List<TransactionDto> transactions = inquiryService.getAccountTransactions(
 			keyword.getAccount().getId(),
 			startDate,
@@ -317,6 +331,30 @@ public class KeywordServiceImpl implements KeywordService {
 
 		return KeywordResponseMapper.toDto(keywordDto, branchJson, groupMemberJson);
 
+	}
+
+	private List<KeywordResponseDto> processMultiKeyword(List<MultiKeyword> multiKeywords) throws
+		AccountNotFoundException {
+		if (multiKeywords == null || multiKeywords.isEmpty()) {
+			throw new InvalidRequestException("Multi-keywords list is null or empty");
+		}
+
+		List<KeywordResponseDto> processedKeywords = new ArrayList<>();
+
+		for (MultiKeyword multiKeyword : multiKeywords) {
+			Keyword key = multiKeyword.getKeyword();
+			if (key == null) {
+				throw new InvalidRequestException("Multi-keyword references a null keyword");
+			}
+
+			switch (key.getType()) {
+				case INQUIRY -> processedKeywords.add(useInquiryKeyword(key));
+				case TRANSFER, TICKET, SETTLEMENT, DUES -> processedKeywords.add(useOtherKeywordTypes(key));
+				default -> throw new InvalidRequestException("Invalid multi-keyword type: " + key.getType());
+			}
+		}
+
+		return processedKeywords;
 	}
 
 	private void updateMultiKeywordDescription(Keyword keyword, String deleteKeyword) {
