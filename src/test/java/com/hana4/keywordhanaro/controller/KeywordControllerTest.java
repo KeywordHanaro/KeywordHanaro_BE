@@ -533,10 +533,10 @@ public class KeywordControllerTest {
 		mockMvc.perform(get("/keyword/" + inquiryKeyword.getId()))
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-			.andExpect(jsonPath("$[0].type").value("INQUIRY"))
-			.andExpect(jsonPath("$[0].inquiryWord").value(inquiryKeyword.getInquiryWord()))
-			.andExpect(jsonPath("$[0].account.id").value(inquiryKeyword.getAccount().getId()))
-			.andExpect(jsonPath("$[0].transactions").isArray())
+			.andExpect(jsonPath("$.type").value("INQUIRY"))
+			.andExpect(jsonPath("$.inquiryWord").value(inquiryKeyword.getInquiryWord()))
+			.andExpect(jsonPath("$.account.id").value(inquiryKeyword.getAccount().getId()))
+			.andExpect(jsonPath("$.transactions").isArray())
 			.andDo(print());
 	}
 
@@ -551,9 +551,9 @@ public class KeywordControllerTest {
 		mockMvc.perform(get("/keyword/" + transferKeyword.getId()))
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-			.andExpect(jsonPath("$[0].type").value("TRANSFER"))
-			.andExpect(jsonPath("$[0].account.id").value(transferKeyword.getAccount().getId()))
-			.andExpect(jsonPath("$[0].subAccount.id").value(transferKeyword.getSubAccount().getId()))
+			.andExpect(jsonPath("$.type").value("TRANSFER"))
+			.andExpect(jsonPath("$.account.id").value(transferKeyword.getAccount().getId()))
+			.andExpect(jsonPath("$.subAccount.id").value(transferKeyword.getSubAccount().getId()))
 			.andDo(print());
 	}
 
@@ -568,8 +568,8 @@ public class KeywordControllerTest {
 		mockMvc.perform(get("/keyword/" + ticketKeyword.getId()))
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-			.andExpect(jsonPath("$[0].type").value("TICKET"))
-			.andExpect(jsonPath("$[0].branch").isNotEmpty())
+			.andExpect(jsonPath("$.type").value("TICKET"))
+			.andExpect(jsonPath("$.branch").isNotEmpty())
 			.andDo(print());
 	}
 
@@ -584,9 +584,9 @@ public class KeywordControllerTest {
 		mockMvc.perform(get("/keyword/" + settlementKeyword.getId()))
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-			.andExpect(jsonPath("$[0].type").value("SETTLEMENT"))
-			.andExpect(jsonPath("$[0].groupMember").isNotEmpty())
-			.andExpect(jsonPath("$[0].account.id").value(settlementKeyword.getAccount().getId()))
+			.andExpect(jsonPath("$.type").value("SETTLEMENT"))
+			.andExpect(jsonPath("$.groupMember").isNotEmpty())
+			.andExpect(jsonPath("$.account.id").value(settlementKeyword.getAccount().getId()))
 			.andDo(print());
 	}
 

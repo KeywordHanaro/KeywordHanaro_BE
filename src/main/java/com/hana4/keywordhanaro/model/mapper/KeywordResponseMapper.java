@@ -27,7 +27,7 @@ public class KeywordResponseMapper {
 			.inquiryWord(keywordDto.getInquiryWord())
 			.checkEveryTime(keywordDto.getCheckEveryTime())
 			.amount(keywordDto.getAmount())
-			.multiKeyword(keywordDto.getMultiKeyword())
+			// .multiKeyword(keywordDto.getMultiKeyword())
 			.transactions(transactions)
 			.build();
 
@@ -54,7 +54,7 @@ public class KeywordResponseMapper {
 			.amount(keywordDto.getAmount())
 			.groupMember(groupMemberJson)
 			.branch(branchJson)
-			.multiKeyword(keywordDto.getMultiKeyword())
+			// .multiKeyword(keywordDto.getMultiKeyword())
 			.build();
 
 	}

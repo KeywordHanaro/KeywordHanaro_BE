@@ -252,7 +252,7 @@ public class KeywordServiceImpl implements KeywordService {
 	}
 
 	@Override
-	public List<KeywordResponseDto> useKeyword(Long id) throws Exception {
+	public KeywordResponseDto useKeyword(Long id) throws Exception {
 		List<KeywordResponseDto> response = new ArrayList<>();
 
 		Keyword keyword = keywordRepository.findById(id)
@@ -260,15 +260,22 @@ public class KeywordServiceImpl implements KeywordService {
 
 		switch (keyword.getType()) {
 			case INQUIRY -> {
-				response.add(useInquiryKeyword(keyword));
-				return response;
+				return useInquiryKeyword(keyword);
 			}
 			case TRANSFER, TICKET, SETTLEMENT, DUES -> {
-				response.add(useOtherKeywordTypes(keyword));
-				return response;
+				return useOtherKeywordTypes(keyword);
 			}
 			case MULTI -> {
-				return processMultiKeyword(keyword.getMultiKeywords());
+				KeywordResponseDto keywordResponseDto1 = new KeywordResponseDto();
+				keywordResponseDto1.setId(keyword.getId());
+				keywordResponseDto1.setUser(UserResponseMapper.toDto(keyword.getUser()));
+				keywordResponseDto1.setType(keyword.getType().name());
+				keywordResponseDto1.setName(keyword.getName());
+				keywordResponseDto1.setFavorite(keyword.isFavorite());
+				keywordResponseDto1.setDesc(keyword.getDescription());
+				keywordResponseDto1.setSeqOrder(keyword.getSeqOrder());
+				keywordResponseDto1.setMultiKeyword(processMultiKeyword(keyword.getMultiKeywords()));
+				return keywordResponseDto1;
 			}
 			default -> throw new InvalidRequestException("Invalid keyword type");
 		}
