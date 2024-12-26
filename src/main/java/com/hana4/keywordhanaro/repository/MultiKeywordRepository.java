@@ -13,4 +13,6 @@ public interface MultiKeywordRepository extends JpaRepository<MultiKeyword, Long
 
 	@EntityGraph(attributePaths = {"multiKeyword"})
 	List<MultiKeyword> findAllByMultiKeywordId(Long multiKeywordId);
+
+	List<MultiKeyword> findAllByKeywordId(Long multiKeywordId);
 }

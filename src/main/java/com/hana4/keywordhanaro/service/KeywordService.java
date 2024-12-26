@@ -19,7 +19,7 @@ public interface KeywordService {
 		KeywordNotFoundException,
 		AccountNotFoundException;
 
-	ResponseEntity<DeleteResponseDto> removeKeyword(Long id);
+	ResponseEntity<DeleteResponseDto> removeKeyword(Long id) throws KeywordNotFoundException;
 
 	KeywordResponseDto useKeyword(Long id) throws Exception;
 

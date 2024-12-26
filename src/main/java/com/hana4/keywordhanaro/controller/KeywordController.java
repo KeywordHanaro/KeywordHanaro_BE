@@ -86,7 +86,7 @@ public class KeywordController {
 				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))
 	})
 	@DeleteMapping("/{id}")
-	public ResponseEntity<DeleteResponseDto> deleteKeyword(@PathVariable Long id) {
+	public ResponseEntity<DeleteResponseDto> deleteKeyword(@PathVariable Long id) throws KeywordNotFoundException {
 		return keywordService.removeKeyword(id);
 	}
 

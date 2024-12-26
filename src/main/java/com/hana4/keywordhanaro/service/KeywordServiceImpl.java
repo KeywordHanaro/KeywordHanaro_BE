@@ -2,9 +2,7 @@ package com.hana4.keywordhanaro.service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -221,15 +219,25 @@ public class KeywordServiceImpl implements KeywordService {
 	}
 
 	@Override
-	public ResponseEntity<DeleteResponseDto> removeKeyword(Long id) {
-		Optional<Keyword> keyword = keywordRepository.findById(id);
-		if (keyword.isPresent()) {
-			keywordRepository.delete(keyword.get());
-			return ResponseEntity.ok(new DeleteResponseDto(true, "Keyword deleted successfully"));
-		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND)
-				.body(new DeleteResponseDto(false, "Keyword not found"));
+	public ResponseEntity<DeleteResponseDto> removeKeyword(Long id) throws KeywordNotFoundException {
+		Keyword keyword = keywordRepository.findById(id)
+			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+
+		// 삭제하려는 단일 키워드를 가지고 있는 멀티키워드 찾기
+		List<MultiKeyword> multiKeywords = multiKeywordRepository.findAllByKeywordId(id);
+		for (MultiKeyword multiKeyword : multiKeywords) {
+			Keyword parentKeyword = multiKeyword.getMultiKeyword();
+
+			updateMultiKeywordDescription(parentKeyword, keyword.getName());
+			multiKeywordRepository.delete(multiKeyword);
+
+			if (parentKeyword.getMultiKeywords().isEmpty()) {
+				keywordRepository.delete(parentKeyword);
+			}
 		}
+
+		keywordRepository.delete(keyword);
+		return ResponseEntity.ok(new DeleteResponseDto(true, "Keyword deleted successfully"));
 	}
 
 	@Override
@@ -300,6 +308,17 @@ public class KeywordServiceImpl implements KeywordService {
 		}
 
 		return KeywordResponseMapper.toDto(keywordDto, branchJson, groupMemberJson);
+
+	}
+
+	private void updateMultiKeywordDescription(Keyword keyword, String deleteKeyword) {
+		String currentDesc = keyword.getDescription();
+		String updatedDesc = currentDesc
+			.replace(" > " + deleteKeyword, "")
+			.replace(deleteKeyword + " > ", "");
+
+		keyword.setDescription(updatedDesc);
+		keywordRepository.save(keyword);
 
 	}
 
