@@ -268,30 +268,7 @@ public class KeywordServiceImpl implements KeywordService {
 				return response;
 			}
 			case MULTI -> {
-				List<MultiKeyword> multiKeywords = keyword.getMultiKeywords();
-
-				List<KeywordResponseDto> processedKeywords = new ArrayList<>();
-
-				for (MultiKeyword k : multiKeywords) {
-					try {
-						Keyword key = k.getKeyword();
-						if (key == null) {
-							throw new InvalidRequestException("Multi-keyword references a null keyword");
-						}
-
-						if (key.getType().equals(INQUIRY)) {
-							processedKeywords.add(useInquiryKeyword(key));
-						} else if (List.of(TRANSFER, TICKET, SETTLEMENT, DUES).contains(key.getType())) {
-							processedKeywords.add(useOtherKeywordTypes(key));
-						} else {
-							throw new InvalidRequestException("Invalid multi-keyword type: " + key.getType());
-						}
-					} catch (Exception e) {
-						throw new RuntimeException("Error processing keyword", e);
-					}
-				}
-
-				return processedKeywords;
+				return processMultiKeyword(keyword.getMultiKeywords());
 			}
 			default -> throw new InvalidRequestException("Invalid keyword type");
 		}
@@ -354,6 +331,30 @@ public class KeywordServiceImpl implements KeywordService {
 
 		return KeywordResponseMapper.toDto(keywordDto, branchJson, groupMemberJson);
 
+	}
+
+	private List<KeywordResponseDto> processMultiKeyword(List<MultiKeyword> multiKeywords) throws
+		AccountNotFoundException {
+		if (multiKeywords == null || multiKeywords.isEmpty()) {
+			throw new InvalidRequestException("Multi-keywords list is null or empty");
+		}
+
+		List<KeywordResponseDto> processedKeywords = new ArrayList<>();
+
+		for (MultiKeyword multiKeyword : multiKeywords) {
+			Keyword key = multiKeyword.getKeyword();
+			if (key == null) {
+				throw new InvalidRequestException("Multi-keyword references a null keyword");
+			}
+
+			switch (key.getType()) {
+				case INQUIRY -> processedKeywords.add(useInquiryKeyword(key));
+				case TRANSFER, TICKET, SETTLEMENT, DUES -> processedKeywords.add(useOtherKeywordTypes(key));
+				default -> throw new InvalidRequestException("Invalid multi-keyword type: " + key.getType());
+			}
+		}
+
+		return processedKeywords;
 	}
 
 	private void updateMultiKeywordDescription(Keyword keyword, String deleteKeyword) {
