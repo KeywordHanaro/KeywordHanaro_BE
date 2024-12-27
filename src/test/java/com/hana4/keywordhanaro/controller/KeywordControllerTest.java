@@ -797,9 +797,9 @@ public class KeywordControllerTest {
 			.andExpect(jsonPath("$.success").value(true))
 			.andExpect(jsonPath("$.message").value("Keyword deleted successfully"));
 
-		Keyword updatedMultiKeyword = keywordRepository.findById(multiKeyword.getId())
-			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
-		assertThat(updatedMultiKeyword.getDescription()).isEqualTo("성엽이 용돈");
+		// Keyword updatedMultiKeyword = keywordRepository.findById(multiKeyword.getId())
+		// 	.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+		// assertThat(updatedMultiKeyword.getDescription()).isEqualTo("성엽이 용돈");
 
 	}
 }

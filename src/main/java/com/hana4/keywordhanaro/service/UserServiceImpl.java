@@ -20,7 +20,7 @@ public class UserServiceImpl implements UserService {
 	public Boolean checkMasterPassword(String username, String masterPassword) throws UserNotFoundException {
 		User user = userRepository.findFirstByUsername(username)
 			.orElseThrow(() -> new UserNotFoundException("cannot find user"));
-		if (masterPassword == null) {
+		if (user.getMasterPassword() == null) {
 			throw new InvalidRequestException("MasterPassword is null");
 		}
 		return bCryptPasswordEncoder.matches(masterPassword, user.getMasterPassword());
