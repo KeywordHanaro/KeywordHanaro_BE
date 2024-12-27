@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Bank {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Short id;
 
 	@Column(nullable = false)

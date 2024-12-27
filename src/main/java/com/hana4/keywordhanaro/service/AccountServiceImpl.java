@@ -2,6 +2,7 @@ package com.hana4.keywordhanaro.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import com.hana4.keywordhanaro.model.entity.Bank;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 import com.hana4.keywordhanaro.model.mapper.AccountMapper;
 import com.hana4.keywordhanaro.repository.AccountRepository;
+import com.hana4.keywordhanaro.repository.TransactionRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class AccountServiceImpl implements AccountService {
 
 	private final AccountRepository accountRepository;
+	private final TransactionRepository transactionRepository;
 	private final PasswordEncoder passwordEncoder;
 
 	@Override

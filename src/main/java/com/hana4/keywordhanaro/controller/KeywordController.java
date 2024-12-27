@@ -1,6 +1,7 @@
 package com.hana4.keywordhanaro.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -115,6 +116,26 @@ public class KeywordController {
 		return ResponseEntity.ok(keywordService.updateKeyword(id, keywordDto));
 	}
 
+	@Operation(summary = "키워드 즐겨찾기 상태 업데이트", description = "특정 키워드의 즐겨찾기 상태를 업데이트합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "업데이트 성공",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = KeywordDto.class))),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
+		@ApiResponse(responseCode = "401", description = "인증 실패"),
+		@ApiResponse(responseCode = "404", description = "키워드 또는 계정을 찾을 수 없음")
+	})
+	@PatchMapping("/isFavorite/{id}")
+	public ResponseEntity<KeywordDto> updateFavoriteKeyword(@PathVariable Long id, @RequestBody boolean isFavorite,
+		Authentication authentication) throws KeywordNotFoundException, AccountNotFoundException {
+		String username = authentication.getName();
+		CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
+		UpdateKeywordDto updateKeywordDto = new UpdateKeywordDto();
+		updateKeywordDto.setFavorite(isFavorite);
+		updateKeywordDto.setUser(UserResponseMapper.toDto(userDetails.getUser()));
+		return ResponseEntity.ok(keywordService.updateKeyword(id, updateKeywordDto));
+	}
+
 	@Operation(summary = "키워드 사용", description = "해당 키워드를 실행합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "키워드 생성 성공",
@@ -128,6 +149,7 @@ public class KeywordController {
 				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
 	@GetMapping("/{id}")
 	public ResponseEntity<KeywordResponseDto> useKeyword(@PathVariable Long id) throws Exception {
+
 		return ResponseEntity.ok(keywordService.useKeyword(id));
 	}
 
