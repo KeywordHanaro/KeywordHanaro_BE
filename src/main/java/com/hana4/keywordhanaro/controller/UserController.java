@@ -36,8 +36,8 @@ public class UserController {
 		@ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
 	})
 	@GetMapping("/auth-master")
-	public ResponseEntity<Boolean> checkMasterPassword(@RequestBody UserDto userDto, Authentication authentication) throws
+	public ResponseEntity<Boolean> checkMasterPassword(@RequestBody String password, Authentication authentication) throws
 		UserNotFoundException {
-		return ResponseEntity.ok(userService.checkMasterPassword(authentication.getName(), userDto.getMasterPassword()));
+		return ResponseEntity.ok(userService.checkMasterPassword(authentication.getName(), password));
 	}
 }

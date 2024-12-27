@@ -127,13 +127,8 @@ public class KeywordController {
 	})
 	@PatchMapping("/isFavorite/{id}")
 	public ResponseEntity<KeywordDto> updateFavoriteKeyword(@PathVariable Long id, @RequestBody boolean isFavorite,
-		Authentication authentication) throws KeywordNotFoundException, AccountNotFoundException {
-		String username = authentication.getName();
-		CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
-		UpdateKeywordDto updateKeywordDto = new UpdateKeywordDto();
-		updateKeywordDto.setFavorite(isFavorite);
-		updateKeywordDto.setUser(UserResponseMapper.toDto(userDetails.getUser()));
-		return ResponseEntity.ok(keywordService.updateKeyword(id, updateKeywordDto));
+		Authentication authentication) throws KeywordNotFoundException {
+		return ResponseEntity.ok(keywordService.updateFavorite(id, isFavorite));
 	}
 
 	@Operation(summary = "키워드 사용", description = "해당 키워드를 실행합니다.")

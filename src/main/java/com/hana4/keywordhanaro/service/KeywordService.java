@@ -26,4 +26,6 @@ public interface KeywordService {
 	List<KeywordDto> getKeywordsByUsername(String username);
 
 	List<KeywordDto> getFavoriteKeywordsByUsername(String username);
+
+	KeywordDto updateFavorite(Long id, boolean isFavorite) throws KeywordNotFoundException;
 }
