@@ -22,6 +22,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 		"WHERE t.account.id = :accountId " +
 		"AND t.subAccount IS NOT NULL " +
 		"AND t.status = 'SUCCESS' " +
+		"AND t.subAccount.user.id <> t.account.user.id " +
 		"GROUP BY t.subAccount " +
 		"ORDER BY MAX(t.createAt) DESC")
 	List<Account> findRecentTransactionAccounts(
