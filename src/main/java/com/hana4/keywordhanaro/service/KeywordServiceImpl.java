@@ -22,6 +22,7 @@ import com.hana4.keywordhanaro.model.dto.GroupMemberDto;
 import com.hana4.keywordhanaro.model.dto.KeywordDto;
 import com.hana4.keywordhanaro.model.dto.KeywordResponseDto;
 import com.hana4.keywordhanaro.model.dto.KeywordUserInputDto;
+import com.hana4.keywordhanaro.model.dto.MultiKeywordResponseDto;
 import com.hana4.keywordhanaro.model.dto.TransactionDto;
 import com.hana4.keywordhanaro.model.dto.UpdateKeywordDto;
 import com.hana4.keywordhanaro.model.entity.account.Account;
@@ -251,27 +252,21 @@ public class KeywordServiceImpl implements KeywordService {
 		return ResponseEntity.ok(new DeleteResponseDto(true, "Keyword deleted successfully"));
 	}
 
-	@Override
-	public List<KeywordResponseDto> useKeyword(Long id) throws Exception {
-		List<KeywordResponseDto> response = new ArrayList<>();
+	private KeywordResponseDto useKeyword(Keyword keyword) throws Exception {
+		return switch (keyword.getType()) {
+			case INQUIRY -> useInquiryKeyword(keyword);
+			case TRANSFER, TICKET, SETTLEMENT, DUES -> useOtherKeywordTypes(keyword);
+			case MULTI -> useMultiKeyword(keyword);
+			default -> throw new InvalidRequestException("Invalid keyword type");
+		};
+	}
 
+	@Override
+	public KeywordResponseDto useKeyword(Long id) throws Exception {
 		Keyword keyword = keywordRepository.findById(id)
 			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 
-		switch (keyword.getType()) {
-			case INQUIRY -> {
-				response.add(useInquiryKeyword(keyword));
-				return response;
-			}
-			case TRANSFER, TICKET, SETTLEMENT, DUES -> {
-				response.add(useOtherKeywordTypes(keyword));
-				return response;
-			}
-			case MULTI -> {
-				return processMultiKeyword(keyword.getMultiKeywords());
-			}
-			default -> throw new InvalidRequestException("Invalid keyword type");
-		}
+		return this.useKeyword(keyword);
 	}
 
 	@Override
@@ -302,6 +297,24 @@ public class KeywordServiceImpl implements KeywordService {
 
 		KeywordDto keywordDto = KeywordMapper.toDto(keyword);
 		return KeywordResponseMapper.toDto(keywordDto, transactions);
+	}
+
+	private KeywordResponseDto useMultiKeyword(Keyword keyword) {
+		List<MultiKeywordResponseDto> multiKeywordResponses = keyword.getMultiKeywords().stream().map(multiKeyword -> {
+			try {
+				return MultiKeywordResponseDto.builder()
+					.id(multiKeyword.getId())
+					.parentId(multiKeyword.getMultiKeyword().getId())
+					.seqOrder(multiKeyword.getSeqOrder())
+					.keyword(this.useKeyword(multiKeyword.getKeyword()))
+					.build();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}).toList();
+
+		KeywordDto keywordDto = KeywordMapper.toDto(keyword);
+		return KeywordResponseMapper.toMultiDto(keywordDto, multiKeywordResponses);
 	}
 
 	private KeywordResponseDto useOtherKeywordTypes(Keyword keyword) {
