@@ -3,12 +3,14 @@ package com.hana4.keywordhanaro.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hana4.keywordhanaro.exception.UserNotFoundException;
 import com.hana4.keywordhanaro.model.dto.UserDto;
+import com.hana4.keywordhanaro.model.dto.UserIdPasswordDto;
 import com.hana4.keywordhanaro.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,9 +37,11 @@ public class UserController {
 		@ApiResponse(responseCode = "401", description = "인증 실패"),
 		@ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
 	})
-	@GetMapping("/auth-master")
-	public ResponseEntity<Boolean> checkMasterPassword(@RequestBody UserDto userDto, Authentication authentication) throws
+	@PostMapping("/auth-master")
+	public ResponseEntity<Boolean> checkMasterPassword(@RequestBody UserIdPasswordDto userIdPasswordDto) throws
 		UserNotFoundException {
-		return ResponseEntity.ok(userService.checkMasterPassword(authentication.getName(), userDto.getMasterPassword()));
+
+		return ResponseEntity.ok(userService.checkMasterPassword(userIdPasswordDto.getUsername(),
+			userIdPasswordDto.getPassword()));
 	}
 }

@@ -243,7 +243,7 @@ public class KeywordServiceImpl implements KeywordService {
 			updateMultiKeywordDescription(parentKeyword, keyword.getName());
 			multiKeywordRepository.delete(multiKeyword);
 
-			if (parentKeyword.getMultiKeywords().isEmpty()) {
+			if (parentKeyword.getMultiKeywords().isEmpty() || parentKeyword.getMultiKeywords().size() == 1) {
 				keywordRepository.delete(parentKeyword);
 			}
 		}
@@ -280,6 +280,15 @@ public class KeywordServiceImpl implements KeywordService {
 			.stream()
 			.map(KeywordMapper::toDto)
 			.toList();
+	}
+
+	@Override
+	public KeywordDto updateFavorite(Long id, boolean isFavorite) throws KeywordNotFoundException {
+		Keyword keyword = keywordRepository.findById(id)
+			.orElseThrow(() -> new KeywordNotFoundException("cannot find keyword"));
+
+		keyword.setFavorite(isFavorite);
+		return KeywordMapper.toDto(keyword);
 	}
 
 	private KeywordResponseDto useInquiryKeyword(Keyword keyword) throws AccountNotFoundException {
