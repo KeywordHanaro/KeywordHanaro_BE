@@ -288,7 +288,7 @@ public class KeywordServiceImpl implements KeywordService {
 			.orElseThrow(() -> new KeywordNotFoundException("cannot find keyword"));
 
 		keyword.setFavorite(isFavorite);
-		return KeywordMapper.toDto(keyword);
+		return KeywordMapper.toDto(keywordRepository.save(keyword));
 	}
 
 	private KeywordResponseDto useInquiryKeyword(Keyword keyword) throws AccountNotFoundException {
