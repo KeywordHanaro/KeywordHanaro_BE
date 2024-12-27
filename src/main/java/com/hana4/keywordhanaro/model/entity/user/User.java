@@ -43,6 +43,8 @@ public class User extends BaseEntity {
 	@Column(nullable = false)
 	private String password;
 
+	private String masterPassword;
+
 	@Column(nullable = false)
 	private String name;
 
@@ -92,4 +94,15 @@ public class User extends BaseEntity {
 		this.permission = permission;
 	}
 
+	public User(String username, String password, String name,
+		UserStatus status, String email, String tel, int permission, String kakaoUUID) {
+		this.username = username;
+		this.password = password;
+		this.name = name;
+		this.status = status;
+		this.email = email;
+		this.tel = tel;
+		this.permission = permission;
+		this.kakaoUUID = kakaoUUID;
+	}
 }
