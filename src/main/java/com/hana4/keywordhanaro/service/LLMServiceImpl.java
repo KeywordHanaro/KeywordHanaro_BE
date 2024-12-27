@@ -8,12 +8,11 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hana4.keywordhanaro.model.dto.ChatDto;
+import com.hana4.keywordhanaro.model.dto.LLMQueryResDto;
 import com.hana4.keywordhanaro.model.entity.Chat;
 import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.mapper.ChatMapper;
 import com.hana4.keywordhanaro.repository.ChatRepository;
-
-import lombok.Getter;
 
 @Service
 public class LLMServiceImpl implements LLMService {
@@ -50,7 +49,7 @@ public class LLMServiceImpl implements LLMService {
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		try {
-			QueryResponse queryResponse = objectMapper.readValue(response.getBody(), QueryResponse.class);
+			LLMQueryResDto queryResponse = objectMapper.readValue(response.getBody(), LLMQueryResDto.class);
 			chatDTO.setAnswer(queryResponse.getAnswer());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -60,10 +59,4 @@ public class LLMServiceImpl implements LLMService {
 
 		return chatDTO.getAnswer();
 	}
-}
-
-@Getter
-class QueryResponse {
-	private String query;
-	private String answer;
 }

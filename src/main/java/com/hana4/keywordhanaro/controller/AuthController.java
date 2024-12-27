@@ -1,8 +1,6 @@
 package com.hana4.keywordhanaro.controller;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -13,10 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hana4.keywordhanaro.auth.JwtTokenProvider;
-import com.hana4.keywordhanaro.model.dto.AccountDto;
 import com.hana4.keywordhanaro.model.dto.SettlementMultiReqDto;
 import com.hana4.keywordhanaro.model.dto.SettlementReqDto;
-import com.hana4.keywordhanaro.model.dto.UserDto;
 import com.hana4.keywordhanaro.service.KakaoAuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -51,14 +47,9 @@ public class AuthController {
 		Map<String, Object> response = new HashMap<>();
 		try {
 			String code = requestBody.getCode();
-			List<UserDto> groupMember = requestBody.getGroupMember();
-			BigDecimal amount = requestBody.getAmount();
-			AccountDto account = requestBody.getAccount();
-			String type = requestBody.getType();
-
 			String accessToken = kakaoAuthService.getAccessToken(code);
 
-			kakaoAuthService.sendMessage(accessToken, groupMember, amount, account, type);
+			kakaoAuthService.sendMessage(accessToken, requestBody);
 
 			response.put("success", "success");
 
@@ -82,15 +73,10 @@ public class AuthController {
 		Map<String, Object> response = new HashMap<>();
 		try {
 			String code = requestBody.getCode();
-			List<SettlementReqDto> settlementList = requestBody.getSettlementList();
 
-			String accessToken = kakaoAuthService.getAccessToken(code);
+			String accessToken = kakaoAuthService.getAccessTokenMulti(code);
 
-			for (short i = 0; i < settlementList.size(); i++) {
-				kakaoAuthService.sendMessage(accessToken, settlementList.get(i).getGroupMember(),
-					settlementList.get(i).getAmount(), settlementList.get(i).getAccount(),
-					settlementList.get(i).getType());
-			}
+			kakaoAuthService.sendMultiMessage(accessToken, requestBody.getSettlementList());
 
 			response.put("success", "success");
 
