@@ -13,11 +13,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChatDto {
+public class ChatReqDto {
 	private Long id;
 	private String userId;
 	private String question;
 	private String answer;
 	private Timestamp createdAt;
-
 }
