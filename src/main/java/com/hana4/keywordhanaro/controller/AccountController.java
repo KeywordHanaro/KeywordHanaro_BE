@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.model.dto.AccountDto;
+import com.hana4.keywordhanaro.model.dto.AccountResponseDto;
 import com.hana4.keywordhanaro.service.AccountService;
+import com.hana4.keywordhanaro.service.TransactionService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Account", description = "계좌 관련 API")
 public class AccountController {
 	private final AccountService accountService;
+	private final TransactionService transactionService;
 
 	@Operation(summary = "특정 계좌 조회", description = "관리자가 특정 ID의 계좌 정보를 조회합니다.")
 	@ApiResponses(value = {
@@ -103,5 +107,19 @@ public class AccountController {
 		@Parameter(description = "확인할 계좌번호, 은행명") @RequestBody AccountDto accountDto) throws AccountNotFoundException {
 		return ResponseEntity.ok(
 			accountService.checkAccountNumberAndBank(accountDto.getAccountNumber(), accountDto.getBank()));
+	}
+
+	@Operation(summary = "최근 거래 계좌 조회", description = "특정 계좌의 최근 거래 내역에 포함된 계좌 목록을 조회합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "조회 성공",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = AccountDto.class))),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
+		@ApiResponse(responseCode = "404", description = "계좌를 찾을 수 없음")
+	})
+	@GetMapping("/recentAccounts")
+	public ResponseEntity<List<AccountResponseDto>> getRecentTransactionAccounts(@RequestParam Long accountId) throws
+		AccountNotFoundException {
+		return ResponseEntity.ok(transactionService.getRecentTransactionAccounts(accountId));
 	}
 }
