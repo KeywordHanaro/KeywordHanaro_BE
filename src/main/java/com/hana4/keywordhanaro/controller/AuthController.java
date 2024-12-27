@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hana4.keywordhanaro.auth.JwtTokenProvider;
 import com.hana4.keywordhanaro.model.dto.AccountDto;
+import com.hana4.keywordhanaro.model.dto.SettlementMultiReqDto;
 import com.hana4.keywordhanaro.model.dto.SettlementReqDto;
 import com.hana4.keywordhanaro.model.dto.UserDto;
 import com.hana4.keywordhanaro.service.KakaoAuthService;
@@ -69,4 +70,37 @@ public class AuthController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 		}
 	}
+
+	@Operation(summary = "정산/회비 요청 다중 메시지 전송", description = "정산 또는 회비 요청 시 계좌 번호, 금액 등을 포함한 메시지를 전송합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "정산/회비 요청 메시지 전송 성공"),
+		@ApiResponse(responseCode = "500", description = "서버 오류",
+			content = @Content(mediaType = "application/json", schema = @Schema(
+				example = "{ \"status\": 500, \"error\": \"Internal Server Error\", \"message\": \"server error message\" }")))})
+	@PostMapping("/settlement/message/multi")
+	public ResponseEntity<Map<String, Object>> kakaoCallbackMulti(@RequestBody SettlementMultiReqDto requestBody) {
+		Map<String, Object> response = new HashMap<>();
+		try {
+			String code = requestBody.getCode();
+			List<SettlementReqDto> settlementList = requestBody.getSettlementList();
+
+			String accessToken = kakaoAuthService.getAccessToken(code);
+
+			for (short i = 0; i < settlementList.size(); i++) {
+				kakaoAuthService.sendMessage(accessToken, settlementList.get(i).getGroupMember(),
+					settlementList.get(i).getAmount(), settlementList.get(i).getAccount(),
+					settlementList.get(i).getType());
+			}
+
+			response.put("success", "success");
+
+			return ResponseEntity.ok(response);
+		} catch (Exception e) {
+			// 에러 발생 시 JSON 응답 구성
+			response.put("error", "Failed to process Kakao callback");
+			response.put("message", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		}
+	}
+
 }
