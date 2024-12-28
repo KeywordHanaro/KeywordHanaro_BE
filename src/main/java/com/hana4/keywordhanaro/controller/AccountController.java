@@ -1,6 +1,7 @@
 package com.hana4.keywordhanaro.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -105,7 +106,7 @@ public class AccountController {
 			)))
 	})
 	@PostMapping("/checkDepositor")
-	public ResponseEntity<String> checkAccountNumberAndBank(
+	public ResponseEntity<Map<String, Object>> checkAccountNumberAndBank(
 		@Parameter(description = "확인할 계좌번호, 은행명") @RequestBody DepositorCheckDto accountDto) throws AccountNotFoundException {
 		return ResponseEntity.ok(
 			accountService.checkAccountNumberAndBank(accountDto.getAccountNumber(), accountDto.getBankId()));

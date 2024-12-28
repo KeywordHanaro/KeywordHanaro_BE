@@ -1,6 +1,8 @@
 package com.hana4.keywordhanaro.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,10 +50,11 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public String checkAccountNumberAndBank(String accountNumber, Short bankId) throws AccountNotFoundException {
+	public Map<String, Object> checkAccountNumberAndBank(String accountNumber, Short bankId) throws AccountNotFoundException {
 		Account account = accountRepository.findByAccountNumberAndBankId(accountNumber, bankId)
 			.orElseThrow(() -> new AccountNotFoundException("cannot find account by accountNumber"));
-
-		return account.getUser().getName();
+		Map<String, Object> response = new HashMap<>();
+		response.put("name", account.getUser().getName());
+		return response;
 	}
 }
