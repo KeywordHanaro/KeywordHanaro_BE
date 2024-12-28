@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hana4.keywordhanaro.exception.AccountNotFoundException;
+import com.hana4.keywordhanaro.model.dto.AccountCheckDto;
 import com.hana4.keywordhanaro.model.dto.AccountDto;
 import com.hana4.keywordhanaro.model.dto.AccountResponseDto;
 import com.hana4.keywordhanaro.service.AccountService;
@@ -90,8 +91,8 @@ public class AccountController {
 	})
 	@PostMapping("/checkPassword")
 	public ResponseEntity<Boolean> checkPassword(
-		@Parameter(description = "확인할 계좌번호, 비밀번호") @RequestBody AccountDto accountDto) throws AccountNotFoundException {
-		return ResponseEntity.ok(accountService.checkPassword(accountDto.getAccountNumber(), accountDto.getPassword()));
+		@Parameter(description = "확인할 계좌번호, 비밀번호") @RequestBody AccountCheckDto accountCheckDto) throws AccountNotFoundException {
+		return ResponseEntity.ok(accountService.checkPassword(accountCheckDto.getAccountNumber(), accountCheckDto.getPassword()));
 	}
 
 	@Operation(summary = "예금주 확인", description = "계좌번호와 은행명을 입력받아 예금주 이름을 반환합니다.")
