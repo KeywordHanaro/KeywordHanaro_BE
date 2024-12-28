@@ -1,6 +1,7 @@
 package com.hana4.keywordhanaro.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.model.dto.AccountDto;
@@ -15,5 +16,5 @@ public interface AccountService {
 
 	List<AccountDto> getAccountsByUsername(String username);
 
-	String checkAccountNumberAndBank(String accountNumber, Short bankId) throws AccountNotFoundException;
+	Map<String, Object> checkAccountNumberAndBank(String accountNumber, Short bankId) throws AccountNotFoundException;
 }
