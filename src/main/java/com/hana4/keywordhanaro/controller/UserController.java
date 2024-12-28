@@ -41,7 +41,7 @@ public class UserController {
 	public ResponseEntity<Boolean> checkMasterPassword(@RequestBody UserIdPasswordDto userIdPasswordDto) throws
 		UserNotFoundException {
 
-		return ResponseEntity.ok(userService.checkMasterPassword(userIdPasswordDto.getUsername(),
+		return ResponseEntity.ok(userService.checkMasterPassword(userIdPasswordDto.getId(),
 			userIdPasswordDto.getPassword()));
 	}
 }
