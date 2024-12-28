@@ -6,6 +6,7 @@ import java.util.Random;
 import org.springframework.stereotype.Service;
 
 import com.hana4.keywordhanaro.exception.InvalidRequestException;
+import com.hana4.keywordhanaro.exception.TicketNotFoundException;
 import com.hana4.keywordhanaro.exception.UserNotFoundException;
 import com.hana4.keywordhanaro.model.dto.TicketDto;
 import com.hana4.keywordhanaro.model.dto.TicketRequestDto;
@@ -63,6 +64,12 @@ public class TicketServiceImpl implements TicketService {
 
 		user.setPermission(location);
 		userRepository.save(user);
+	}
+
+	@Override
+	public TicketDto getTicket(Long id) throws TicketNotFoundException {
+		return TicketMapper.toDto(
+			ticketRepository.findById(id).orElseThrow(() -> new TicketNotFoundException("cannot find ticket by id")));
 	}
 
 	private void validateWorkNumber(TicketRequestDto requestDto) {
