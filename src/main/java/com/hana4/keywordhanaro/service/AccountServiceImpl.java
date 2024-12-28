@@ -48,8 +48,8 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public String checkAccountNumberAndBank(String accountNumber, Bank bank) throws AccountNotFoundException {
-		Account account = accountRepository.findByAccountNumberAndBank(accountNumber, bank)
+	public String checkAccountNumberAndBank(String accountNumber, Short bankId) throws AccountNotFoundException {
+		Account account = accountRepository.findByAccountNumberAndBankId(accountNumber, bankId)
 			.orElseThrow(() -> new AccountNotFoundException("cannot find account by accountNumber"));
 
 		return account.getUser().getName();

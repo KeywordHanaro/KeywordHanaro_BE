@@ -17,6 +17,7 @@ import com.hana4.keywordhanaro.exception.AccountNotFoundException;
 import com.hana4.keywordhanaro.model.dto.AccountCheckDto;
 import com.hana4.keywordhanaro.model.dto.AccountDto;
 import com.hana4.keywordhanaro.model.dto.AccountResponseDto;
+import com.hana4.keywordhanaro.model.dto.DepositorCheckDto;
 import com.hana4.keywordhanaro.service.AccountService;
 import com.hana4.keywordhanaro.service.TransactionService;
 
@@ -105,9 +106,9 @@ public class AccountController {
 	})
 	@PostMapping("/checkDepositor")
 	public ResponseEntity<String> checkAccountNumberAndBank(
-		@Parameter(description = "확인할 계좌번호, 은행명") @RequestBody AccountDto accountDto) throws AccountNotFoundException {
+		@Parameter(description = "확인할 계좌번호, 은행명") @RequestBody DepositorCheckDto accountDto) throws AccountNotFoundException {
 		return ResponseEntity.ok(
-			accountService.checkAccountNumberAndBank(accountDto.getAccountNumber(), accountDto.getBank()));
+			accountService.checkAccountNumberAndBank(accountDto.getAccountNumber(), accountDto.getBankId()));
 	}
 
 	@Operation(summary = "최근 거래 계좌 조회", description = "특정 계좌의 최근 거래 내역에 포함된 계좌 목록을 조회합니다.")
