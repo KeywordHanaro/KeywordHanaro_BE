@@ -10,10 +10,9 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hana4.keywordhanaro.model.dto.ChatReqDto;
 import com.hana4.keywordhanaro.model.dto.LLMQueryResDto;
-import com.hana4.keywordhanaro.model.dto.UserDto;
 import com.hana4.keywordhanaro.model.entity.Chat;
+import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.mapper.ChatMapper;
-import com.hana4.keywordhanaro.model.mapper.UserMapper;
 import com.hana4.keywordhanaro.repository.ChatRepository;
 
 @Service
@@ -37,7 +36,7 @@ public class LLMServiceImpl implements LLMService {
 	// }
 
 	@Override
-	public ChatReqDto chat(ChatReqDto chatReqDTO, UserDto user) {
+	public ChatReqDto chat(ChatReqDto chatReqDTO, User user) {
 		String apiUrl = LLM_SERVER_URL + "/chat";
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Content-Type", "application/json");
@@ -48,8 +47,6 @@ public class LLMServiceImpl implements LLMService {
 
 		ResponseEntity<String> response = restTemplate.postForEntity(apiUrl, request, String.class);
 
-		// user.setId(chatDTO.getUserId());
-
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		try {
@@ -59,12 +56,8 @@ public class LLMServiceImpl implements LLMService {
 			e.printStackTrace();
 		}
 		Chat chat;
-		chat = ChatMapper.toChat(chatReqDTO, UserMapper.toEntity(user));
+		chat = ChatMapper.toChat(chatReqDTO, user);
 
-		// Chat savedChat = chatRepository.save(ChatMapper.toChat(chatDTO, user));
-
-		// return chatReqDTO.getAnswer();
-		chat = chatRepository.save(chat);
-		return ChatMapper.toDTO(chat);
+		return ChatMapper.toDTO(chatRepository.save(chat));
 	}
 }

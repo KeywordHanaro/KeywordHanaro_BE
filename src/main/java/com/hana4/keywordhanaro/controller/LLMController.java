@@ -49,7 +49,7 @@ public class LLMController {
 		String username = authentication.getName();
 		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(username);
 		UserDto userDto = UserMapper.toDto(userDetails.getUser());
-		return ResponseEntity.ok(llmService.chat(chatReqDTO, userDto));
+		return ResponseEntity.ok(llmService.chat(chatReqDTO, userDetails.getUser()));
 	}
 
 }
