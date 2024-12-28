@@ -1,5 +1,6 @@
 package com.hana4.keywordhanaro.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -7,15 +8,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hana4.keywordhanaro.model.dto.ChatDto;
+import com.hana4.keywordhanaro.model.dto.ChatReqDto;
 import com.hana4.keywordhanaro.model.dto.LLMQueryResDto;
+import com.hana4.keywordhanaro.model.dto.UserDto;
 import com.hana4.keywordhanaro.model.entity.Chat;
-import com.hana4.keywordhanaro.model.entity.user.User;
 import com.hana4.keywordhanaro.model.mapper.ChatMapper;
+import com.hana4.keywordhanaro.model.mapper.UserMapper;
 import com.hana4.keywordhanaro.repository.ChatRepository;
 
 @Service
 public class LLMServiceImpl implements LLMService {
+	@Value("${LLM_SERVER_URL}")
+	private String LLM_SERVER_URL;
+
 	private final RestTemplate restTemplate = new RestTemplate();
 
 	private final ChatRepository chatRepository;
@@ -24,39 +29,42 @@ public class LLMServiceImpl implements LLMService {
 		this.chatRepository = chatRepository;
 	}
 
-	@Override
-	public String getInfo() {
-		String apiUrl = "http://127.0.0.1:8081/llm/getInfo";
-		ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
-		return response.getBody();
-	}
+	// @Override
+	// public String getInfo() {
+	// 	String apiUrl = LLM_SERVER_URL + "/getInfo";
+	// 	ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
+	// 	return response;
+	// }
 
 	@Override
-	public String chat(ChatDto chatDTO) {
-		String apiUrl = "http://127.0.0.1:8081/llm/chat";
+	public ChatReqDto chat(ChatReqDto chatReqDTO, UserDto user) {
+		String apiUrl = LLM_SERVER_URL + "/chat";
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Content-Type", "application/json");
 
-		String jsonBody = String.format("{\"query\":\"%s\"}", chatDTO.getQuestion());
+		String jsonBody = String.format("{\"query\":\"%s\"}", chatReqDTO.getQuestion());
 
 		HttpEntity<String> request = new HttpEntity<>(jsonBody, headers);
 
 		ResponseEntity<String> response = restTemplate.postForEntity(apiUrl, request, String.class);
 
-		User user = new User();
-		user.setId(chatDTO.getUserId());
+		// user.setId(chatDTO.getUserId());
 
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		try {
 			LLMQueryResDto queryResponse = objectMapper.readValue(response.getBody(), LLMQueryResDto.class);
-			chatDTO.setAnswer(queryResponse.getAnswer());
+			chatReqDTO.setAnswer(queryResponse.getAnswer());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		Chat chat;
+		chat = ChatMapper.toChat(chatReqDTO, UserMapper.toEntity(user));
 
-		Chat savedChat = chatRepository.save(ChatMapper.toChat(chatDTO, user));
+		// Chat savedChat = chatRepository.save(ChatMapper.toChat(chatDTO, user));
 
-		return chatDTO.getAnswer();
+		// return chatReqDTO.getAnswer();
+		chat = chatRepository.save(chat);
+		return ChatMapper.toDTO(chat);
 	}
 }

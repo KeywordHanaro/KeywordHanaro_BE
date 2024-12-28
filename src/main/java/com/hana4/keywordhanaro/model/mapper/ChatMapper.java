@@ -1,23 +1,22 @@
 package com.hana4.keywordhanaro.model.mapper;
 
-import java.sql.Timestamp;
-
-import com.hana4.keywordhanaro.model.dto.ChatDto;
+import com.hana4.keywordhanaro.model.dto.ChatReqDto;
 import com.hana4.keywordhanaro.model.entity.Chat;
 import com.hana4.keywordhanaro.model.entity.user.User;
 
 public class ChatMapper {
-	public static ChatDto toDTO(Chat chat) {
-		return ChatDto.builder()
-			.id(chat.getId())
-			.userId(chat.getUser().getId())
-			.question(chat.getQuestion())
+	public static ChatReqDto toDTO(Chat chat) {
+		return ChatReqDto.builder()
 			.answer(chat.getAnswer())
-			.createdAt(Timestamp.valueOf(chat.getCreateAt()))
+			.question(chat.getQuestion())
 			.build();
 	}
 
-	public static Chat toChat(ChatDto chatDTO, User user) {
-		return new Chat(user, chatDTO.getQuestion(), chatDTO.getAnswer());
+	public static Chat toChat(ChatReqDto chatReqDto, User user) {
+		return new Chat(user, chatReqDto.getQuestion(), chatReqDto.getAnswer());
 	}
+
+	// public static Chat toChat(ChatReqDto chatReqDTO, User user) {
+	// 	return new Chat(user, chatReqDTO.getQuestion(), chatReqDTO.getAnswer());
+	// }
 }

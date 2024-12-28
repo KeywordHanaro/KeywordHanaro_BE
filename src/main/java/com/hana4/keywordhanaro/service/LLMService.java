@@ -1,9 +1,10 @@
 package com.hana4.keywordhanaro.service;
 
-import com.hana4.keywordhanaro.model.dto.ChatDto;
+import com.hana4.keywordhanaro.model.dto.ChatReqDto;
+import com.hana4.keywordhanaro.model.dto.UserDto;
 
 public interface LLMService {
-	public String getInfo();
+	// String getInfo();
 
-	String chat(ChatDto chatDTO);
+	ChatReqDto chat(ChatReqDto chatReqDTO, UserDto userDto);
 }
