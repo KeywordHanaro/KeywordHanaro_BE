@@ -4,12 +4,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hana4.keywordhanaro.exception.TicketNotFoundException;
 import com.hana4.keywordhanaro.exception.UserNotFoundException;
 import com.hana4.keywordhanaro.model.dto.TicketDto;
 import com.hana4.keywordhanaro.model.dto.TicketRequestDto;
@@ -19,6 +22,7 @@ import com.hana4.keywordhanaro.service.TicketService;
 import com.hana4.keywordhanaro.utils.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -87,5 +91,21 @@ public class TicketController {
 		UserDto userDto = UserMapper.toDto(userDetails.getUser());
 		ticketService.updatePermission(location, userDto);
 		return ResponseEntity.ok("Permission updated successfully");
+	}
+
+	@Operation(summary = "번호표 상세 정보 조회", description = "지정된 ID의 번호표 상세 정보를 조회합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "조회 성공",
+			content = @Content(mediaType = "application/json",
+				schema = @Schema(implementation = TicketDto.class))),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
+		@ApiResponse(responseCode = "404", description = "티켓을 찾을 수 없음")
+	})
+	@GetMapping
+	public ResponseEntity<TicketDto> getTicketDetail(
+		@Parameter(description = "조회할 티켓의 ID", required = true, example = "1")
+		@RequestParam Long id
+	) throws TicketNotFoundException {
+		return ResponseEntity.ok(ticketService.getTicket(id));
 	}
 }
