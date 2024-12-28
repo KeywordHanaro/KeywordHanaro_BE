@@ -17,9 +17,9 @@ public class UserServiceImpl implements UserService {
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	@Override
-	public Boolean checkMasterPassword(String username, String masterPassword) throws UserNotFoundException {
-		User user = userRepository.findFirstByUsername(username)
-			.orElseThrow(() -> new UserNotFoundException("cannot find user"));
+	public Boolean checkMasterPassword(String id, String masterPassword) throws UserNotFoundException {
+		User user = userRepository.findById(id)
+			.orElseThrow(() -> new UserNotFoundException("cannot find user by id"));
 		if (user.getMasterPassword() == null) {
 			throw new InvalidRequestException("MasterPassword is null");
 		}
