@@ -2,6 +2,8 @@ package com.hana4.keywordhanaro.service;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,8 @@ class AccountServiceImplTest {
 		// BDDMockito.given(accountRepository.findUserUsernameByAccountNumberAndBank(accountNumber, bank))
 		// 	.willReturn(Optional.of("Kim Hana"));
 
-		assertThat(accountService.checkAccountNumberAndBank(account.getAccountNumber(), account.getBank())).isEqualTo("남인우");
+		Map<String, Object> response = new HashMap<>();
+		response.put("name", "남인우");
+		assertThat(accountService.checkAccountNumberAndBank(account.getAccountNumber(), account.getBank().getId())).isEqualTo(response);
 	}
 }

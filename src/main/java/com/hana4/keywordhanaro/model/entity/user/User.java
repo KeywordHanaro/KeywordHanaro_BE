@@ -105,4 +105,28 @@ public class User extends BaseEntity {
 		this.permission = permission;
 		this.kakaoUUID = kakaoUUID;
 	}
+
+	public User(String username, String password, String masterPassword,
+		String name, UserStatus status, String email, String tel, int permission, String kakaoUUID) {
+		this.username = username;
+		this.password = password;
+		this.masterPassword = masterPassword;
+		this.name = name;
+		this.status = status;
+		this.email = email;
+		this.tel = tel;
+		this.permission = permission;
+		this.kakaoUUID = kakaoUUID;
+	}
+
+	public User(String username, String password, String name,
+		UserStatus status, String email, String tel, int permission) {
+		this.username = username;
+		this.password = password;
+		this.name = name;
+		this.status = status;
+		this.email = email;
+		this.tel = tel;
+		this.permission = permission;
+	}
 }

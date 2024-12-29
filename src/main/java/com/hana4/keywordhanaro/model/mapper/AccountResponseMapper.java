@@ -3,6 +3,9 @@ package com.hana4.keywordhanaro.model.mapper;
 import com.hana4.keywordhanaro.model.dto.AccountResponseDto;
 import com.hana4.keywordhanaro.model.entity.account.Account;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class AccountResponseMapper {
 	public static AccountResponseDto toDto(Account account) {
 		if (account == null) {

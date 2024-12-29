@@ -2,6 +2,7 @@ package com.hana4.keywordhanaro.controller;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -146,7 +147,12 @@ public class KeywordControllerTest {
 			Keyword k4 = new Keyword(yeobUser, KeywordType.TICKET, "성수역점 번호표", "번호표 사용 테스트", 400L,
 				"{\"place_name\":\"하나은행 성수역지점\",\"address_name\":\"서울 성동구 성수동2가 289-10\",\"phone\":\"02-462-7627\",\"distance\":\"117\",\"id\":\"1841540654\"}");
 
-			keywordRepository.saveAll(Arrays.asList(k1, k2, k3, k4));
+			Keyword k5 = new Keyword(yeobUser, KeywordType.DUES, "터틀넥즈 회비", "회비 사용 테스트", 500L, yeobAccount,
+				"[{\"name\":\"김도희\",\"tel\":\"010-1234-5678\"},{\"name\":\"문서아\",\"tel\":\"010-8765-4321\"}]",
+				BigDecimal.valueOf(20000),
+				false);
+
+			keywordRepository.saveAll(Arrays.asList(k1, k2, k3, k4, k5));
 			System.out.println("??????????");
 		}
 
@@ -296,6 +302,51 @@ public class KeywordControllerTest {
 	}
 
 	@Test
+	@DisplayName("회비 키워드 생성 테스트")
+	public void createDuesKeywordTest() throws Exception {
+		User testUser = userRepository.findFirstByUsername("insunID")
+			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
+		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
+			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
+		String testGroupMember = """
+			[
+			    {
+			        "name": "김도희",
+			        "tel": "010-4622-7627"
+			    },
+			    {
+			        "name": "문서아",
+			        "tel": "0190-1223-4567"
+			    }
+			]
+			""";
+
+		KeywordDto keywordDto = KeywordDto.builder()
+			.user(UserResponseMapper.toDto(testUser))
+			.type(KeywordType.DUES.name())
+			.name("러닝크루 회비")
+			.desc("회비 > 김도희, 문서아")
+			.account(AccountResponseMapper.toDto(testAccount))
+			.groupMember(testGroupMember)
+			.checkEveryTime(true)
+			.build();
+
+		String requestBody = objectMapper.writeValueAsString(keywordDto);
+
+		mockMvc.perform(post("/keyword")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.type").value("DUES"))
+			.andExpect(jsonPath("$.name").value(keywordDto.getName()))
+			.andExpect(jsonPath("$.desc").value(keywordDto.getDesc()))
+			.andExpect(jsonPath("$.seqOrder", Matchers.greaterThan(0)))
+			.andExpect(jsonPath("$.account.id").value(testAccount.getId()))
+			.andExpect(jsonPath("$.groupMember").value(testGroupMember));
+
+	}
+
+	@Test
 	@DisplayName("조회(Inquiry) 키워드 수정 테스트")
 	public void updateInquiryKeywordTest() throws Exception {
 		User testUser = userRepository.findFirstByUsername("insunID")
@@ -399,6 +450,41 @@ public class KeywordControllerTest {
 			.andExpect(jsonPath("$.amount").value(100000))
 			.andExpect(jsonPath("$.checkEveryTime").value(false))
 			.andExpect(jsonPath("$.type").value("SETTLEMENT"));
+	}
+
+	@Test
+	@DisplayName("회비(Dues) 키워드 수정 테스트")
+	public void updateDuesKeywordTest() throws Exception {
+		User testUser = userRepository.findFirstByUsername("insunID")
+			.orElseThrow(() -> new UserNotFoundException("User not found!!"));
+		Account testAccount = accountRepository.findByAccountNumber("111-222-3342")
+			.orElseThrow(() -> new AccountNotFoundException("Account not found"));
+
+		Keyword originalKeyword = new Keyword(testUser, KeywordType.DUES, "원래 이름", "원래 설명", 100L, testAccount,
+			"[{\"name\":\"김철수\",\"tel\":\"010-1234-5678\"}]", BigDecimal.valueOf(50000), false);
+		originalKeyword = keywordRepository.save(originalKeyword);
+
+		UpdateKeywordDto updateDto = UpdateKeywordDto.builder()
+			.type("DUES")
+			.name("수정된 정산 키워드")
+			.desc("수정된 정산 설명")
+			.groupMember("[{\"name\":\"김철수\",\"tel\":\"010-1234-5678\"},{\"name\":\"이영희\",\"tel\":\"010-8765-4321\"}]")
+			.amount(BigDecimal.valueOf(100000))
+			.account(AccountResponseMapper.toDto(testAccount))
+			.checkEveryTime(false)
+			.build();
+
+		String requestBody = objectMapper.writeValueAsString(updateDto);
+
+		mockMvc.perform(patch("/keyword/" + originalKeyword.getId())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestBody))
+			.andExpect(jsonPath("$.name").value("수정된 정산 키워드"))
+			.andExpect(jsonPath("$.desc").value("수정된 정산 설명"))
+			.andExpect(jsonPath("$.groupMember").isNotEmpty())
+			.andExpect(jsonPath("$.amount").value(100000))
+			.andExpect(jsonPath("$.checkEveryTime").value(false))
+			.andExpect(jsonPath("$.type").value("DUES"));
 	}
 
 	@Test
@@ -585,6 +671,23 @@ public class KeywordControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$.type").value("SETTLEMENT"))
+			.andExpect(jsonPath("$.groupMember").isNotEmpty())
+			.andExpect(jsonPath("$.account.id").value(settlementKeyword.getAccount().getId()))
+			.andDo(print());
+	}
+
+	@Test
+	@DisplayName("회비 키워드 사용 테스트")
+	public void useDuesKeywordTest() throws Exception {
+		User yeobUser = userRepository.findFirstByUsername("yeobID")
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
+		Keyword settlementKeyword = keywordRepository.findTopByUserIdAndType(yeobUser.getId(),
+			KeywordType.DUES).orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+
+		mockMvc.perform(get("/keyword/" + settlementKeyword.getId()))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(jsonPath("$.type").value("DUES"))
 			.andExpect(jsonPath("$.groupMember").isNotEmpty())
 			.andExpect(jsonPath("$.account.id").value(settlementKeyword.getAccount().getId()))
 			.andDo(print());
@@ -801,5 +904,42 @@ public class KeywordControllerTest {
 		// 	.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
 		// assertThat(updatedMultiKeyword.getDescription()).isEqualTo("성엽이 용돈");
 
+	}
+
+	@Test
+	void useMultiKeywordTest() throws Exception {
+		User yeobUser = userRepository.findFirstByUsername("yeobID")
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
+		Keyword inquiryKeyword = keywordRepository.findFirstByUserAndType(yeobUser, KeywordType.INQUIRY)
+			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+		Keyword transferKeyword = keywordRepository.findFirstByUserAndType(yeobUser, KeywordType.TRANSFER)
+			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+
+		List<Long> multiKeywordIds = Arrays.asList(inquiryKeyword.getId(), transferKeyword.getId());
+
+		CreateKeywordDto keywordDto = CreateKeywordDto.builder()
+			.user(UserResponseMapper.toDto(yeobUser))
+			.type(KeywordType.MULTI.name())
+			.name("멀티 키워드 삭제 테스트")
+			.desc("밥값 조회 > 성엽이 용돈")
+			.multiKeywordIds(multiKeywordIds)
+			.build();
+
+		KeywordDto multiKeyword = keywordService.createKeyword(keywordDto);
+
+		mockMvc.perform(get("/keyword/" + multiKeyword.getId()))
+			.andExpect(status().isOk())
+			.andDo(print());
+	}
+
+	@Test
+	void updateFavoriteKeywordTest() throws Exception {
+		User yeobUser = userRepository.findFirstByUsername("yeobID")
+			.orElseThrow(() -> new UserNotFoundException("User not found"));
+		Keyword keyword = keywordRepository.findFirstByUserAndType(yeobUser, KeywordType.INQUIRY)
+			.orElseThrow(() -> new KeywordNotFoundException("Keyword not found"));
+		mockMvc.perform(patch("/keyword/isFavorite/" + keyword.getId()).content("true").contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.favorite").value("true"));
 	}
 }

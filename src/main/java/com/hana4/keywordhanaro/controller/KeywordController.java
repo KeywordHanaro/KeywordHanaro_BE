@@ -41,7 +41,6 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/keyword")
-@ResponseStatus(HttpStatus.OK)
 @RequiredArgsConstructor
 @Tag(name = "Keyword", description = "키워드 관련 API")
 public class KeywordController {

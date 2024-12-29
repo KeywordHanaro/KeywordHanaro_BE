@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'jacoco'
     id 'org.springframework.boot' version '3.3.6'
     id 'io.spring.dependency-management' version '1.1.6'
 }
@@ -48,4 +49,55 @@ tasks.named('test') {
 
 jar {
     enabled = false
+}
+
+test {
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, include: [
+                    "com/hana4/keywordhanaro/controller/**",
+                    "com/hana4/keywordhanaro/service/**",
+                    "com/hana4/keywordhanaro/model/**"
+            ], exclude: [
+                    "com/hana4/keywordhanaro/controller/AuthController.class",
+                    "com/hana4/keywordhanaro/controller/ErrorController.class",
+                    "com/hana4/keywordhanaro/controller/LLMController.class",
+                    "com/hana4/keywordhanaro/service/KakaoAuthServiceImpl.class",
+                    "com/hana4/keywordhanaro/service/BranchServiceImpl.class",
+                    "com/hana4/keywordhanaro/service/LLMServiceImpl.class",
+                    "com/hana4/keywordhanaro/model/mapper/**"
+            ])
+        }))
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS'
+            includes = [
+                    'com.hana4.keywordhanaro.controller.*',
+                    'com.hana4.keywordhanaro.service.*',
+                    'com.hana4.keywordhanaro.model.*'
+            ]
+            excludes = [
+                    'com.hana4.keywordhanaro.controller.AuthController',
+                    'com.hana4.keywordhanaro.controller.ErrorController',
+                    'com.hana4.keywordhanaro.controller.LLMController',
+                    'com.hana4.keywordhanaro.service.KakaoAuthServiceImpl',
+                    'com.hana4.keywordhanaro.service.BranchServiceImpl',
+                    'com.hana4.keywordhanaro.service.LLMServiceImpl',
+                    'com.hana4.keywordhanaro.model.mapper.*'
+            ]
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+        }
+    }
 }

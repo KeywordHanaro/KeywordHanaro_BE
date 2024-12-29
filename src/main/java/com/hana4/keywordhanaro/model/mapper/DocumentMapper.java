@@ -3,6 +3,9 @@ package com.hana4.keywordhanaro.model.mapper;
 import com.hana4.keywordhanaro.model.dto.DocumentDto;
 import com.hana4.keywordhanaro.model.entity.document.Document;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class DocumentMapper {
 	public static Document toEntity(DocumentDto documentDto) {
 		if (documentDto == null) {
