@@ -51,6 +51,7 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public Map<String, Object> checkAccountNumberAndBank(String accountNumber, Short bankId) throws AccountNotFoundException {
+		accountNumber = accountNumber.replaceAll("-", "");
 		Account account = accountRepository.findByAccountNumberAndBankId(accountNumber, bankId)
 			.orElseThrow(() -> new AccountNotFoundException("cannot find account by accountNumber"));
 		Map<String, Object> response = new HashMap<>();
