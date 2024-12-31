@@ -1,41 +1,103 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.3.6'
-	id 'io.spring.dependency-management' version '1.1.6'
+    id 'java'
+    id 'jacoco'
+    id 'org.springframework.boot' version '3.3.6'
+    id 'io.spring.dependency-management' version '1.1.6'
 }
 
 group = 'com.hana4'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
+}
+
+jar {
+    enabled = false
+}
+
+test {
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, include: [
+                    "com/hana4/keywordhanaro/controller/**",
+                    "com/hana4/keywordhanaro/service/**",
+                    "com/hana4/keywordhanaro/model/**"
+            ], exclude: [
+                    "com/hana4/keywordhanaro/controller/AuthController.class",
+                    "com/hana4/keywordhanaro/controller/ErrorController.class",
+                    "com/hana4/keywordhanaro/controller/LLMController.class",
+                    "com/hana4/keywordhanaro/service/KakaoAuthServiceImpl.class",
+                    "com/hana4/keywordhanaro/service/BranchServiceImpl.class",
+                    "com/hana4/keywordhanaro/service/LLMServiceImpl.class",
+                    "com/hana4/keywordhanaro/model/mapper/**"
+            ])
+        }))
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS'
+            includes = [
+                    'com.hana4.keywordhanaro.controller.*',
+                    'com.hana4.keywordhanaro.service.*',
+                    'com.hana4.keywordhanaro.model.*'
+            ]
+            excludes = [
+                    'com.hana4.keywordhanaro.controller.AuthController',
+                    'com.hana4.keywordhanaro.controller.ErrorController',
+                    'com.hana4.keywordhanaro.controller.LLMController',
+                    'com.hana4.keywordhanaro.service.KakaoAuthServiceImpl',
+                    'com.hana4.keywordhanaro.service.BranchServiceImpl',
+                    'com.hana4.keywordhanaro.service.LLMServiceImpl',
+                    'com.hana4.keywordhanaro.model.mapper.*'
+            ]
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+        }
+    }
 }
